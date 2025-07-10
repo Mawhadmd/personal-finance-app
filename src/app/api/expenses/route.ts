@@ -181,7 +181,6 @@ export async function GET(request: Request) {
     const user_id = searchParams.get("user_id");
     const category = searchParams.get("category");
 
-
     // Validate required user_id
     if (!user_id) {
       return Response.json({ error: "user_id is required" }, { status: 400 });
@@ -198,16 +197,14 @@ export async function GET(request: Request) {
       paramIndex++;
     }
 
-
-
     query += " ORDER BY date DESC";
 
     const result = await dbconnection.query(query, params);
     const usercurrencyquery = await dbconnection.query(
-      'SELECT currency FROM "Users" WHERE user_id = $1',
+      'SELECT currency FROM "User" WHERE user_id = $1',
       [parseInt(user_id)]
     );
-    const userCurrencyResult = usercurrencyquery.rows[0]?.currency || "USD"; // 
+    const userCurrencyResult = usercurrencyquery.rows[0]?.currency || "USD"; //
 
     // Format the response data
     const expenses = result.rows.map((row) => ({
@@ -218,7 +215,7 @@ export async function GET(request: Request) {
       category: row.category,
       description: row.description,
       method: row.method,
-      currency: userCurrencyResult
+      currency: userCurrencyResult,
     }));
 
     return Response.json({
@@ -242,7 +239,23 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const dbconnection = await pool.connect();
   try {
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (jsonError) {
+      return Response.json(
+        { error: "Invalid JSON in request body" },
+        { status: 400 }
+      );
+    }
+
+    if (!body) {
+      return Response.json(
+        { error: "Request body is required" },
+        { status: 400 }
+      );
+    }
+
     const { user_id, amount, date, category, description, method } = body;
 
     // Validate required fields
@@ -298,7 +311,16 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   const dbconnection = await pool.connect();
   try {
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (jsonError) {
+      return Response.json(
+        { error: "Invalid JSON in request body" },
+        { status: 400 }
+      );
+    }
+
     const { expense_id, amount, date, category, description, method } = body;
 
     if (!expense_id) {
@@ -338,7 +360,7 @@ export async function PUT(request: Request) {
     }
 
     if (method !== undefined) {
-      updateFields.push(`"Method" = $${paramIndex}`);
+      updateFields.push(`Method = $${paramIndex}`);
       params.push(method);
       paramIndex++;
     }
@@ -386,7 +408,16 @@ export async function PUT(request: Request) {
 export async function DELETE(request: Request) {
   const dbconnection = await pool.connect();
   try {
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (jsonError) {
+      return Response.json(
+        { error: "Invalid JSON in request body" },
+        { status: 400 }
+      );
+    }
+
     const { expense_id } = body;
 
     if (!expense_id) {
