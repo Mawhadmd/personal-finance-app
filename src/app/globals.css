@@ -2,11 +2,19 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --text: hsl(0, 0%, 10%);
+  --muted: hsl(0, 0%, 50%);
+  --accent: hsl(82, 65%, 48%);
+  --border: hsl(0, 0%, 70%);
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(0, 0%, 85%);
 }
 
 @theme inline {
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -15,13 +23,15 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --text: hsl(0, 0%, 90%);
+    --muted: hsl(0, 0%, 50%);
+    --accent: hsl(82, 65%, 48%);
+    --border: hsl(0, 0%, 25%);
+    --background: hsl(0, 0%, 5%);
+    --foreground: hsl(0, 0%, 15%);
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }

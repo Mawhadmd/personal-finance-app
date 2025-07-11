@@ -7,7 +7,7 @@ const Layout = ({children}: Readonly<{
   return (
      <div className="flex">
          <NavBar />
-          <div className="p-2">
+          <div className="p-10">
             {children}
           </div>
         </div>

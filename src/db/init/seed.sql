@@ -1,5 +1,5 @@
 \c mydb;
-
+--THIS SQL SCRIPT IS FOR SEEDING THE DATABASE WITH INITIAL DATA ON DOCKER STARTUP
 -- User table
 CREATE TABLE "User" (
   user_id SERIAL PRIMARY KEY,
@@ -8,7 +8,8 @@ CREATE TABLE "User" (
   name VARCHAR(100) NOT NULL,
   Balance NUMERIC(12,2) DEFAULT 0.00,
   Currency VARCHAR(10) DEFAULT 'USD',
-  Field VARCHAR(50)
+  Field VARCHAR(50),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 );
 
 -- Income table
@@ -16,9 +17,10 @@ CREATE TABLE "Income" (
   income_id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES "User"(user_id),
   amount NUMERIC(12,2) NOT NULL,
-  date DATE NOT NULL,
+  date DATE NOT NULL DEFAULT CURRENT_DATE,
   source VARCHAR(100),
-  description TEXT
+  description TEXT,
+
 );
 
 -- Expenses table
@@ -26,10 +28,11 @@ CREATE TABLE "Expenses" (
   expense_id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES "User"(user_id),
   amount NUMERIC(12,2) NOT NULL,
-  date DATE NOT NULL,
+  date DATE NOT NULL DEFAULT CURRENT_DATE,
   category VARCHAR(50),
   description TEXT,
-  Method VARCHAR(50)
+  Method VARCHAR(50),
+
 );
 
 -- Insert sample users
