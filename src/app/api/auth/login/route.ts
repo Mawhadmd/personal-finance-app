@@ -11,12 +11,12 @@ const validator = zod.object({
   password: zod.string().min(6),
 });
 export async function POST(Request: NextRequest) {
-  const connection = await pool.connect();
+
   const { email, password } = await Request.json();
 
   try {
     validator.parse({ email, password });
-    const res = await connection.query(
+    const res = await pool.query(
       'SELECT * FROM "User" WHERE email = $1',
       [email]
     );
@@ -69,7 +69,5 @@ export async function POST(Request: NextRequest) {
       } as LoginResponse,
       { status: 400 }
     );
-  } finally {
-    connection.release();
-  }
+  } 
 }

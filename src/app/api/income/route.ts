@@ -166,7 +166,7 @@ import pool from "@/db/postgres";
 
 // GET - Fetch income records with optional filtering
 export async function GET(request: Request) {
-  const dbconnection = await pool.connect();
+
   try {
     const { searchParams } = new URL(request.url);
     const user_id = searchParams.get("user_id");
@@ -204,10 +204,10 @@ export async function GET(request: Request) {
 
     query += " ORDER BY date DESC";
 
-    const result = await dbconnection.query(query, params);
+    const result = await pool.query(query, params);
 
     // Get user currency
-    const usercurrencyquery = await dbconnection.query(
+    const usercurrencyquery = await pool.query(
       'SELECT Currency FROM "User" WHERE user_id = $1',
       [parseInt(user_id)]
     );
@@ -233,14 +233,12 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Database error:", error);
     return Response.json({ error: "Failed to fetch income" }, { status: 500 });
-  } finally {
-    dbconnection.release();
   }
 }
 
 // POST - Create a new income record
 export async function POST(request: Request) {
-  const dbconnection = await pool.connect();
+
   try {
     let body;
     try {
@@ -270,7 +268,7 @@ export async function POST(request: Request) {
     }
 
     // Insert income into database
-    const result = await dbconnection.query(
+    const result = await pool.query(
       'INSERT INTO "Income" (user_id, amount, date, source, description) VALUES ($1, $2, $3, $4, $5) RETURNING *',
       [user_id, amount, date, source || null, description || null]
     );
@@ -294,14 +292,12 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Database error:", error);
     return Response.json({ error: "Failed to create income" }, { status: 500 });
-  } finally {
-    dbconnection.release();
-  }
+  } 
 }
 
 // PUT - Update an existing income record
 export async function PUT(request: Request) {
-  const dbconnection = await pool.connect();
+  
   try {
     let body;
     try {
@@ -356,7 +352,7 @@ export async function PUT(request: Request) {
       ", "
     )} WHERE income_id = $1 RETURNING *`;
 
-    const result = await dbconnection.query(query, params);
+    const result = await pool.query(query, params);
 
     if (result.rows.length === 0) {
       return Response.json({ error: "Income not found" }, { status: 404 });
@@ -378,14 +374,12 @@ export async function PUT(request: Request) {
   } catch (error) {
     console.error("Database error:", error);
     return Response.json({ error: "Failed to update income" }, { status: 500 });
-  } finally {
-    dbconnection.release();
-  }
+  } 
 }
 
 // DELETE - Delete an income record
 export async function DELETE(request: Request) {
-  const dbconnection = await pool.connect();
+
   try {
     let body;
     try {
@@ -404,7 +398,7 @@ export async function DELETE(request: Request) {
     }
 
     // Delete income from database
-    const result = await dbconnection.query(
+    const result = await pool.query(
       'DELETE FROM "Income" WHERE income_id = $1 RETURNING income_id',
       [income_id]
     );
@@ -420,7 +414,5 @@ export async function DELETE(request: Request) {
   } catch (error) {
     console.error("Database error:", error);
     return Response.json({ error: "Failed to delete income" }, { status: 500 });
-  } finally {
-    dbconnection.release();
-  }
+  } 
 }

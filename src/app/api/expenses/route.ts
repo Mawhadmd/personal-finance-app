@@ -175,7 +175,7 @@ import pool from "@/db/postgres";
 
 // GET - Fetch expenses with optional filtering
 export async function GET(request: Request) {
-  const dbconnection = await pool.connect();
+
   try {
     const { searchParams } = new URL(request.url);
     const user_id = searchParams.get("user_id");
@@ -213,8 +213,8 @@ export async function GET(request: Request) {
 
     query += " ORDER BY date DESC";
 
-    const result = await dbconnection.query(query, params);
-    const usercurrencyquery = await dbconnection.query(
+    const result = await pool.query(query, params);
+    const usercurrencyquery = await pool.query(
       'SELECT currency FROM "User" WHERE user_id = $1',
       [parseInt(user_id)]
     );
@@ -244,14 +244,12 @@ export async function GET(request: Request) {
       { error: "Failed to fetch expenses" },
       { status: 500 }
     );
-  } finally {
-    dbconnection.release();
-  }
+  } 
 }
 
 // POST - Create a new expense
 export async function POST(request: Request) {
-  const dbconnection = await pool.connect();
+
   try {
     let body;
     try {
@@ -281,7 +279,7 @@ export async function POST(request: Request) {
     }
 
     // Insert expense into database
-    const result = await dbconnection.query(
+    const result = await pool.query(
       'INSERT INTO "Expenses" (user_id, amount, date, category, description, Method) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
       [
         user_id,
@@ -316,14 +314,12 @@ export async function POST(request: Request) {
       { error: "Failed to create expense" },
       { status: 500 }
     );
-  } finally {
-    dbconnection.release();
-  }
+  } 
 }
 
 // PUT - Update an existing expense
 export async function PUT(request: Request) {
-  const dbconnection = await pool.connect();
+
   try {
     let body;
     try {
@@ -387,7 +383,7 @@ export async function PUT(request: Request) {
       ", "
     )} WHERE expense_id = $1 RETURNING *`;
 
-    const result = await dbconnection.query(query, params);
+    const result = await pool.query(query, params);
 
     if (result.rows.length === 0) {
       return Response.json({ error: "Expense not found" }, { status: 404 });
@@ -413,14 +409,12 @@ export async function PUT(request: Request) {
       { error: "Failed to update expense" },
       { status: 500 }
     );
-  } finally {
-    dbconnection.release();
-  }
+  } 
 }
 
 // DELETE - Delete an expense
 export async function DELETE(request: Request) {
-  const dbconnection = await pool.connect();
+
   try {
     let body;
     try {
@@ -442,7 +436,7 @@ export async function DELETE(request: Request) {
     }
 
     // Delete expense from database
-    const result = await dbconnection.query(
+    const result = await pool.query(
       'DELETE FROM "Expenses" WHERE expense_id = $1 RETURNING expense_id',
       [expense_id]
     );
@@ -461,7 +455,5 @@ export async function DELETE(request: Request) {
       { error: "Failed to delete expense" },
       { status: 500 }
     );
-  } finally {
-    dbconnection.release();
-  }
+  } 
 }
