@@ -1,8 +1,8 @@
 import { NextResponse, NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+import { jwtVerify } from "jose";
 
 // This function can be marked `async` if using `await` inside
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip middleware for static files, API routes, and public paths
@@ -22,8 +22,10 @@ export function middleware(request: NextRequest) {
   let isValidToken = false;
   if (tokencookie) {
     try {
-      jwt.verify(tokencookie.value, process.env.JWT_SECRET!);
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+      const { payload } = await jwtVerify(tokencookie.value, secret);
       isValidToken = true;
+      console.log("Valid token found, user is authenticated", payload);
     } catch (error) {
       console.log("Invalid token:", error);
       // Clear invalid token

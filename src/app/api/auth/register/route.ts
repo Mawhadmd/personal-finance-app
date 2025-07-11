@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import pool from "@/db/postgres";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+
 import zod, { ZodError } from "zod";
+import { SignJWT } from "jose";
 
 interface RegisterResponse {
   success: boolean;
@@ -57,10 +58,13 @@ export async function POST(request: NextRequest) {
     const existingUser = await pool.query(existingUserQuery, [email]);
 
     if (existingUser.rows.length > 0) {
-      return NextResponse.json({
-        error: "User with this email already exists.",
-        success: false,
-      } as RegisterResponse, { status: 409 });
+      return NextResponse.json(
+        {
+          error: "User with this email already exists.",
+          success: false,
+        } as RegisterResponse,
+        { status: 409 }
+      );
     }
 
     // Hash password
@@ -82,24 +86,27 @@ export async function POST(request: NextRequest) {
     ]);
 
     if (newUser.rows.length === 0) {
-      return NextResponse.json({
-        error: "Failed to create User.",
-        success: false,
-      } as RegisterResponse, { status: 500 });
+      return NextResponse.json(
+        {
+          error: "Failed to create User.",
+          success: false,
+        } as RegisterResponse,
+        { status: 500 }
+      );
     }
 
     const user = newUser.rows[0];
 
     // Generate JWT token
-    const token = jwt.sign(
-      {
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+    const token = await new SignJWT({
         userId: user.user_id,
         email: user.email,
         name: user.name,
-      },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" }
-    );
+    })
+        .setProtectedHeader({ alg: "HS256" })
+        .setExpirationTime("1h")
+        .sign(secret);
 
     console.log("User registered successfully:", {
       id: user.user_id,

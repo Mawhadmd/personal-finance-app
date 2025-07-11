@@ -1,10 +1,12 @@
 "use client";
 import { motion } from "framer-motion";
-import React, { useActionState } from "react";
+import React, { useActionState, useState } from "react";
 import login from "./loginServerAction";
+import { Eye, EyeOff } from "lucide-react";
 
 const Login = () => {
   const [state, action, pending] = useActionState(login, { error: "" });
+const [showpassword, setshowpassword] = useState(false);
 
   return (
     <>
@@ -34,12 +36,30 @@ const Login = () => {
           <input
             className="w-full bg-text p-2 text-background rounded"
             placeholder="Password"
-            type="password"
+            type={showpassword ? "text" : "password"}
             name="password"
             id="password"
             required
           />
         </div>
+          <button
+              type="button"
+              className="cursor-pointer text-accent hover:text-accent/80 text-sm mt-1 flex items-center space-x-1"
+              onClick={() => setshowpassword(!showpassword)}
+            >
+              {showpassword ? (
+                // Eye-off icon from lucide-react
+                <span className="w-4 h-4 flex items-center justify-center">
+                  <EyeOff className="w-4 h-4" />
+                </span>
+              ) : (
+                // Eye icon from lucide-react
+                <span className="w-4 h-4 flex items-center justify-center">
+                  <Eye className="w-4 h-4" />
+                </span>
+              )}
+              <small>{showpassword ? "Hide password" : "Show password"}</small>
+            </button>
         <button
           type="submit"
           className="w-full bg-accent/80 cursor-pointer text-text p-2 rounded hover:bg-accent transition-colors duration-300"
