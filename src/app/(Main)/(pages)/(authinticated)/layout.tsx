@@ -5,9 +5,9 @@ const Layout = ({children}: Readonly<{
   children: React.ReactNode;
 }>) => {
   return (
-     <div className="flex">
+     <div className="flex ">
          <NavBar />
-          <div className="p-10">
+          <div className="p-10 flex-1">
             {children}
           </div>
         </div>
