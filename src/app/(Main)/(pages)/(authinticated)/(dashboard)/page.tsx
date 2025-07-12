@@ -3,18 +3,10 @@ import GetUserExpenses from "@/lib/getUserExpenses";
 import GetUserId from "@/lib/getUserId";
 import GetUserIncome from "@/lib/getUserIncome";
 import { Expense, Income, User } from "@/models";
-import { Download, LineChart, PieChart, Upload, Wallet } from "lucide-react";
+import { Download ,Upload, Wallet } from "lucide-react";
 import BalanceCard from "@/components/BalanceCard";
 import TransactionCard from "@/components/TransactionCard";
-import {
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Line,
-  Cell,
-  Pie,
-  ResponsiveContainer,
-} from "recharts";
+
 import TwoLinesChart from "@/components/TwoLinesChart";
 import Expenses from "../expenses/page";
 import PieChartComponent from "@/components/pieChart";
@@ -32,9 +24,14 @@ export default async function Home() {
     (acc, expense) => acc + expense.amount,
     0
   );
-  const totalIncome = Incomearr.reduce((acc, income) => acc + income.amount, 0);
+
+  const balancerq = await fetch(
+    `http://localhost:3000/api/User/GetBalance?user_id=${user_id}`,
+    { method: "GET" }
+  );
+  const balancejson = await balancerq.json();
   const balance =
-    (totalIncome - totalSpending) *
+    parseInt(balancejson.balance.balance) *
     currencies.find((c) => c.code == userjson.currency)?.exchangeRate!;
 
   // Calculate the difference between this month and last month
@@ -180,7 +177,7 @@ export default async function Home() {
         <div>
           <h2 className="border-b border-border">Transactions</h2>
           <div className="flex  gap-2 mt-4 scroll-auto">
-            <div>
+            <div className="flex flex-col w-1/3">
               {combinedtransactions.map((v, i) => (
                 <TransactionCard
                   transaction={v}
@@ -190,7 +187,7 @@ export default async function Home() {
                 />
               ))}
             </div>
-            <div>
+            <div className=" w-2/3 flex justify-center items-center">
               <TwoLinesChart Expenses={spendingsarr} Income={Incomearr} />
             </div>
           </div>
@@ -204,22 +201,29 @@ export default async function Home() {
             {" "}
             <PieChartComponent COLORS={COLORS} spendingsarr={spendingsarr} />
           </div>
-          <div>
+          <div className="flex flex-wrap justify-around items-center p-2">
             {[...new Set(spendingsarr.map((e) => e.category))].map(
               (entry, index) => (
                 <div className="flex space-x-2 items-center" key={index}>
                   <div
                     style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                    className={`size-3 rounded-full `}
+                    className={`size-3 rounded `}
                   ></div>
                   <span className="text-sm">{entry}</span>
-                  <span>
-                    {spendingsarr.reduce((acc, data) => {
-                      if (data.category === entry) {
-                        return acc + 1;
-                      }
-                      return acc;
-                    }, 0)}
+                  <span className=" text-xs text-muted">
+                     {(() => {
+                      const value = spendingsarr.reduce((acc, data) => {
+                        if (data.category === entry) {
+                          return acc + data.amount;
+                        }
+                        return acc;
+                      }, 0);
+                      return (
+                        <span>
+                          {value} ({((value / totalSpending) * 100).toFixed(2)}%)
+                        </span>
+                      );
+                    })()}
                   </span>
                 </div>
               )
@@ -228,7 +232,7 @@ export default async function Home() {
         </div>
         <div className="h-3/7 border-t border-border  space-y-1 p-1">
           <h3>Ai evaluation</h3>
-          <div className="overflow-auto h-40">
+          <div className="overflow-auto h-40 flex justify-center items-center">
             
             {aiEvaluation.response} 
             

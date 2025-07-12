@@ -39,7 +39,7 @@ export default function TwoLinesChart({Expenses, Income}: {Expenses: Array<Expen
   }, [Expenses, Income]);
 
   return (
-    <LineChart data={data} width={600} height={300} >
+    <LineChart data={data} width={500} height={300} >
       <CartesianGrid stroke="#333333" strokeDasharray="5 5" />
       <XAxis dataKey="date"  />
       <YAxis />

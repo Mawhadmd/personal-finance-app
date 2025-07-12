@@ -219,7 +219,7 @@ export async function GET(request: Request) {
       [parseInt(user_id)]
     );
     const userCurrencyResult = usercurrencyquery.rows[0]?.currency || "USD"; //
-
+   
     // Format the response data
     const expenses = result.rows.map((row) => ({
       expense_id: row.expense_id,

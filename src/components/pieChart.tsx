@@ -50,7 +50,7 @@ export default function PieChartComponent({
         textAnchor={x > cx ? "start" : "end"}
         dominantBaseline="central"
       >
-        {`${((percent ?? 1) * 100).toFixed(0)}%`}
+        {`${((percent ?? 1) * 100).toFixed(1)}%`}
       </text>
     );
   };
