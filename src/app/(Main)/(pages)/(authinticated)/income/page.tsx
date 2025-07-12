@@ -1,9 +1,10 @@
 import Chart from "@/components/OneLinechart";
 import TransactionCard from "@/components/TransactionCard";
 import currencies from "@/constants/currencies";
+import ConvertCurrency from "@/lib/ConvertCurrency";
 import GetUserId from "@/lib/getUserId";
 import GetUserIncome from "@/lib/getUserIncome";
-import { Income as incometype } from "@/models";
+import { Income as incometype, User } from "@/models";
 import React from "react";
 
 const Income = async () => {
@@ -13,12 +14,19 @@ const Income = async () => {
     `http://localhost:3000/api/User?user_id=${user_id}`,
     { method: "GET" }
   );
-  const currencyjson = await currency.json();
+  const currencyjson: User = await currency.json();
+
   const currencySymbol = currencies.find(
     (c) => c.code === currencyjson.currency
   )?.symbol;
 
-  const incomearr = await GetUserIncome(user_id);
+  const incomearr = (await GetUserIncome(user_id)).map((income) => {
+    let amount = ConvertCurrency({
+      amount: income.amount,
+      toCurrency: currencyjson.currency ,
+    });
+    return { ...income, amount };
+  });
 
   // Calculate income for this month, last month, and overall
   const now = new Date();
@@ -28,14 +36,14 @@ const Income = async () => {
   const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
   const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
 
-  const incomeThisMonthUSD = incomearr
+  const incomeThisMonth = incomearr
     .filter((income) => {
       const date = new Date(income.date);
       return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
     })
     .reduce((acc, income) => acc + income.amount, 0);
 
-  const incomeLastMonthUSD = incomearr
+  const incomeLastMonth = incomearr
     .filter((income) => {
       const date = new Date(income.date);
       return (
@@ -44,14 +52,12 @@ const Income = async () => {
     })
     .reduce((acc, income) => acc + income.amount, 0);
 
-  const incomeOverallUSD = incomearr.reduce(
+  const incomeOverall = incomearr.reduce(
     (acc, income) => acc + income.amount,
     0
   );
 
-  const incomeThisMonth = incomeThisMonthUSD * (currencyjson.exchangeRate || 1);
-  const incomeLastMonth = incomeLastMonthUSD * (currencyjson.exchangeRate || 1);
-  const incomeOverall = incomeOverallUSD * (currencyjson.exchangeRate || 1);
+
 
   return (
     <>

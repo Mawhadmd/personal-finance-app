@@ -1,9 +1,10 @@
 import Chart from "@/components/OneLinechart";
 import TransactionCard from "@/components/TransactionCard";
 import currencies from "@/constants/currencies";
+import ConvertCurrency from "@/lib/ConvertCurrency";
 import getUserExpenses from "@/lib/getUserExpenses";
 import GetUserId from "@/lib/getUserId";
-import { Expense } from "@/models";
+import { Expense, User } from "@/models";
 
 import React from "react";
 
@@ -14,12 +15,18 @@ const Expenses = async () => {
     `http://localhost:3000/api/User?user_id=${user_id}`,
     { method: "GET" }
   );
-  const currencyjson = await currency.json();
+  const currencyjson: User = await currency.json();
   const currencySymbol = currencies.find(
     (c) => c.code === currencyjson.currency
   )?.symbol;
 
-  const spendingarr = await getUserExpenses(user_id);
+  const spendingarr = (await getUserExpenses(user_id)).map((expense) => {
+    let amount = ConvertCurrency({
+      amount: expense.amount,
+      toCurrency: currencyjson.currency,
+    });
+    return { ...expense, amount };
+  });;
   // Calculate spending for this month, last month, and overall
   const now = new Date();
   const thisMonth = now.getMonth();
@@ -28,14 +35,14 @@ const Expenses = async () => {
   const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
   const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
 
-  const spendingThisMonthUSD = spendingarr
+  const spendingThisMonth = spendingarr
     .filter((expense) => {
       const date = new Date(expense.date);
       return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
     })
     .reduce((acc, expense) => acc + expense.amount, 0);
 
-  const spendingLastMonthUSD = spendingarr
+  const spendingLastMonth = spendingarr
     .filter((expense) => {
       const date = new Date(expense.date);
       return (
@@ -44,16 +51,11 @@ const Expenses = async () => {
     })
     .reduce((acc, expense) => acc + expense.amount, 0);
 
-  const spendingOverallUSD = spendingarr.reduce(
+  const spendingOverall = spendingarr.reduce(
     (acc, expense) => acc + expense.amount,
     0
   );
 
-  const spendingThisMonth =
-    spendingThisMonthUSD * (currencyjson.exchangeRate || 1);
-  const spendingLastMonth =
-    spendingLastMonthUSD * (currencyjson.exchangeRate || 1);
-  const spendingOverall = spendingOverallUSD * (currencyjson.exchangeRate || 1);
 
   return (
     <>

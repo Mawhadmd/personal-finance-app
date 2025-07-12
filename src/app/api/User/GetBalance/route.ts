@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     if (balance.rows.length === 0) {
         return new NextResponse("User not found", { status: 404 });
     }
-    return NextResponse.json({ message: "Balance updated successfully", balance:  balance.rows[0]}, { status: 200 })
+    return NextResponse.json({ message: "Balance updated successfully", ...balance.rows[0]}, { status: 200 })
     
     }catch (error) {
         console.error("Error updating balance:", error);

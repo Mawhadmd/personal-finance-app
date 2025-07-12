@@ -3,13 +3,14 @@ import GetUserExpenses from "@/lib/getUserExpenses";
 import GetUserId from "@/lib/getUserId";
 import GetUserIncome from "@/lib/getUserIncome";
 import { Expense, Income, User } from "@/models";
-import { Download ,Upload, Wallet } from "lucide-react";
+import { Download, Upload, Wallet } from "lucide-react";
 import BalanceCard from "@/components/BalanceCard";
 import TransactionCard from "@/components/TransactionCard";
 
 import TwoLinesChart from "@/components/TwoLinesChart";
 import Expenses from "../expenses/page";
 import PieChartComponent from "@/components/pieChart";
+import ConvertCurrency from "@/lib/ConvertCurrency";
 
 export default async function Home() {
   let user_id = await GetUserId();
@@ -18,8 +19,20 @@ export default async function Home() {
     { method: "GET" }
   );
   const userjson: User = await user.json();
-  const spendingsarr = await GetUserExpenses(user_id);
-  const Incomearr = await GetUserIncome(user_id);
+  const spendingsarr = (await GetUserExpenses(user_id)).map((expense) => {
+    let amount = ConvertCurrency({
+      amount: expense.amount,
+      toCurrency: userjson.currency,
+    });
+    return { ...expense, amount };
+  });
+  const Incomearr = (await GetUserIncome(user_id)).map((income) => {
+    let amount = ConvertCurrency({
+      amount: income.amount,
+      toCurrency: userjson.currency,
+    });
+    return { ...income, amount };
+  });
   const totalSpending = spendingsarr.reduce(
     (acc, expense) => acc + expense.amount,
     0
@@ -30,9 +43,10 @@ export default async function Home() {
     { method: "GET" }
   );
   const balancejson = await balancerq.json();
-  const balance =
-    parseInt(balancejson.balance.balance) *
-    currencies.find((c) => c.code == userjson.currency)?.exchangeRate!;
+  const balance = ConvertCurrency({
+    amount: balancejson.balance,
+    toCurrency: userjson.currency,
+  });
 
   // Calculate the difference between this month and last month
   const now = new Date();
@@ -41,41 +55,34 @@ export default async function Home() {
   const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
   const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
 
-  const incomeThisMonth =
-    Incomearr.filter((income) => {
-      const date = new Date(income.date);
-      return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
-    }).reduce((acc, income) => acc + income.amount, 0) *
-    currencies.find((c) => c.code == userjson.currency)?.exchangeRate!;
+  const incomeThisMonth = Incomearr.filter((income) => {
+    const date = new Date(income.date);
+    return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
+  }).reduce((acc, income) => acc + income.amount, 0);
 
-  const incomeLastMonth =
-    Incomearr.filter((income) => {
-      const date = new Date(income.date);
+  const incomeLastMonth = Incomearr.filter((income) => {
+    const date = new Date(income.date);
+    return (
+      date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear
+    );
+  }).reduce((acc, income) => acc + income.amount, 0);
+
+  const spendingThisMonth = spendingsarr
+    .filter((expense) => {
+      const date = new Date(expense.date);
+      return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
+    })
+    .reduce((acc, expense) => acc + expense.amount, 0);
+
+  const spendingLastMonth = spendingsarr
+    .filter((expense) => {
+      const date = new Date(expense.date);
       return (
         date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear
       );
-    }).reduce((acc, income) => acc + income.amount, 0) *
-    currencies.find((c) => c.code == userjson.currency)?.exchangeRate!;
+    })
+    .reduce((acc, expense) => acc + expense.amount, 0);
 
-  const spendingThisMonth =
-    spendingsarr
-      .filter((expense) => {
-        const date = new Date(expense.date);
-        return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
-      })
-      .reduce((acc, expense) => acc + expense.amount, 0) *
-    currencies.find((c) => c.code == userjson.currency)?.exchangeRate!;
-
-  const spendingLastMonth =
-    spendingsarr
-      .filter((expense) => {
-        const date = new Date(expense.date);
-        return (
-          date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear
-        );
-      })
-      .reduce((acc, expense) => acc + expense.amount, 0) *
-    currencies.find((c) => c.code == userjson.currency)?.exchangeRate!;
   console.log(
     incomeThisMonth,
     incomeLastMonth,
@@ -211,7 +218,7 @@ export default async function Home() {
                   ></div>
                   <span className="text-sm">{entry}</span>
                   <span className=" text-xs text-muted">
-                     {(() => {
+                    {(() => {
                       const value = spendingsarr.reduce((acc, data) => {
                         if (data.category === entry) {
                           return acc + data.amount;
@@ -220,7 +227,9 @@ export default async function Home() {
                       }, 0);
                       return (
                         <span>
-                          {value} ({((value / totalSpending) * 100).toFixed(2)}%)
+                          {currencySympol}
+                          {value} ({((value / totalSpending) * 100).toFixed(2)}
+                          %)
                         </span>
                       );
                     })()}
@@ -233,11 +242,32 @@ export default async function Home() {
         <div className="h-3/7 border-t border-border  space-y-1 p-1">
           <h3>Ai evaluation</h3>
           <div className="overflow-auto h-40 flex justify-center items-center">
-            
-            {aiEvaluation.response} 
-            
-            
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Et esse atque laborum ipsam quis repudiandae optio est cumque praesentium velit quidem impedit voluptate tenetur possimus totam, repellat quisquam blanditiis. Perferendis. Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam dolores aliquam perspiciatis in debitis, veritatis soluta sint totam nemo distinctio nisi dignissimos quo architecto autem eaque blanditiis libero explicabo hic?Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam, facere officia amet excepturi minima est maiores voluptate corporis! Sit dicta, debitis atque voluptatibus minus beatae? Obcaecati qui similique repellendus suscipit. Lorem ipsum dolor, sit amet consectetur adipisicing elit. Dolores nisi unde recusandae, iste nemo id culpa tempore eius, nam sint autem! Natus nemo tempora neque eveniet voluptatem vitae debitis molestiae? Lorem ipsum, dolor sit amet consectetur adipisicing elit. Optio quae cupiditate nostrum aut accusamus? Corrupti placeat ipsa dolorem sit vel quidem explicabo dolor optio repellat, porro consectetur accusantium cum assumenda. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi aspernatur nulla obcaecati illo quisquam culpa cupiditate sed ullam dolore ducimus! Voluptatem sunt accusantium soluta quas. Ut quae vero dolores quam? Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem, commodi iusto consectetur saepe, aliquid numquam, ab nulla culpa ad soluta illo asperiores ipsa cum totam quia eaque atque minima eligendi?</div>
+            {aiEvaluation.response}
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Et esse
+            atque laborum ipsam quis repudiandae optio est cumque praesentium
+            velit quidem impedit voluptate tenetur possimus totam, repellat
+            quisquam blanditiis. Perferendis. Lorem ipsum dolor sit amet
+            consectetur adipisicing elit. Ullam dolores aliquam perspiciatis in
+            debitis, veritatis soluta sint totam nemo distinctio nisi
+            dignissimos quo architecto autem eaque blanditiis libero explicabo
+            hic?Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam,
+            facere officia amet excepturi minima est maiores voluptate corporis!
+            Sit dicta, debitis atque voluptatibus minus beatae? Obcaecati qui
+            similique repellendus suscipit. Lorem ipsum dolor, sit amet
+            consectetur adipisicing elit. Dolores nisi unde recusandae, iste
+            nemo id culpa tempore eius, nam sint autem! Natus nemo tempora neque
+            eveniet voluptatem vitae debitis molestiae? Lorem ipsum, dolor sit
+            amet consectetur adipisicing elit. Optio quae cupiditate nostrum aut
+            accusamus? Corrupti placeat ipsa dolorem sit vel quidem explicabo
+            dolor optio repellat, porro consectetur accusantium cum assumenda.
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi
+            aspernatur nulla obcaecati illo quisquam culpa cupiditate sed ullam
+            dolore ducimus! Voluptatem sunt accusantium soluta quas. Ut quae
+            vero dolores quam? Lorem ipsum dolor sit amet consectetur
+            adipisicing elit. Dolorem, commodi iusto consectetur saepe, aliquid
+            numquam, ab nulla culpa ad soluta illo asperiores ipsa cum totam
+            quia eaque atque minima eligendi?
+          </div>
         </div>
       </div>
     </div>
