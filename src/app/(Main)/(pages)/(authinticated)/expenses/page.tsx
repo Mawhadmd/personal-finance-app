@@ -1,43 +1,25 @@
-import Chart from "@/components/chart";
+import Chart from "@/components/OneLinechart";
+import TransactionCard from "@/components/TransactionCard";
 import currencies from "@/constants/currencies";
+import getUserExpenses from "@/lib/getUserExpenses";
+import GetUserId from "@/lib/getUserId";
 import { Expense } from "@/models";
-import { jwtVerify } from "jose";
-import { Download, Upload } from "lucide-react";
-import { cookies } from "next/headers";
+
 import React from "react";
 
 const Expenses = async () => {
-  // Get user ID from token
-  const token = (await cookies()).get("token")?.value;
-  let user_id = null; // fallback
+  let user_id = await GetUserId();
 
-  if (token) {
-    try {
-      const { payload } = await jwtVerify(
-        token,
-        new TextEncoder().encode(process.env.JWT_SECRET!)
-      );
-      console.log("Token payload:", payload);
-      user_id = payload.userId as number;
-    } catch (error) {
-      console.log("Token verification failed:", error);
-    }
-  }
-
-  const spendingrequest = await fetch(
-    `http://localhost:3000/api/expenses?user_id=${user_id}`,
-    { method: "GET" }
-  );
   const currency = await fetch(
-    `http://localhost:3000/api/UserCurrency?user_id=${user_id}`,
+    `http://localhost:3000/api/User?user_id=${user_id}`,
     { method: "GET" }
   );
   const currencyjson = await currency.json();
   const currencySymbol = currencies.find(
     (c) => c.code === currencyjson.currency
   )?.symbol;
-  const spendingjson = await spendingrequest.json();
-  const spendingarr = spendingjson.expenses as Array<Expense>;
+
+  const spendingarr = await getUserExpenses(user_id);
   // Calculate spending for this month, last month, and overall
   const now = new Date();
   const thisMonth = now.getMonth();
@@ -102,32 +84,18 @@ const Expenses = async () => {
         </div>
         <div className="flex justify-between items-start flex-1">
           <div className="w-1/3 border-border border-b border-l p-2 py-4">
-            <h3 className="border-b py-1 border-border my-2">
-              Latest expenditures
-            </h3>
+            <h3 className="border-b py-1 border-border my-2">Latest</h3>
             {spendingarr.length > 0 ? (
-              spendingarr.slice(0, 3).map((expense) => (
-                <div
-                  className="bg-foreground p-2 rounded-lg mb-2"
-                  key={expense.expense_id}
-                >
-                  <div className="flex items-center text-red-500 font-bold text-2xl">
-                    {expense.amount}
-                    <Upload size={18} className="inline ml-1" />{" "}
-                  </div>
-
-                  <p>{expense.description}</p>
-
-                  <small className="text-muted">
-                    {new Date(expense.date).toLocaleDateString(undefined, {
-                      month: "long",
-                      day: "2-digit",
-                      year: "numeric",
-                    })}{" "}
-                    | {expense.category} | {expense.method}
-                  </small>
-                </div>
-              ))
+              spendingarr
+                .slice(0, 3)
+                .map((expense) => (
+                  <TransactionCard
+                    key={expense.expense_id}
+                    transaction={expense}
+                    type="expense"
+                    currencySymbol={currencySymbol}
+                  />
+                ))
             ) : (
               <h3 className="py-4 text-muted">
                 You have no recent expenses recorded.
@@ -135,11 +103,11 @@ const Expenses = async () => {
             )}
             <div className="flex space-x-2">
               <button className="p-2 rounded-lg w-fit bg-foreground text-accent border border-border hover:border-white cursor-pointer transition-colors text-start">
-              See All
-            </button>
+                See All
+              </button>
               <button className="p-2 rounded-lg w-fit bg-accent text-foreground border border-border hover:border-white cursor-pointer transition-colors text-start">
-              Add
-            </button>
+                Add
+              </button>
             </div>
           </div>
           <div className="border-l border-border h-full w-2/3 flex justify-center items-center">

@@ -10,16 +10,16 @@ export async function GET(request: Request) {
   }
   try {
     const res = await pool.query(
-      'SELECT currency FROM "User" WHERE user_id = $1',
+      'SELECT * FROM "User" WHERE user_id = $1',
       [user_id]
     );
     if (res.rows.length === 0) {
       return new Response("User not found", { status: 404 });
     }
-    return new Response(JSON.stringify({ currency: res.rows[0].currency }), {
+    return new Response(JSON.stringify({  ...res.rows[0] }), {
       status: 200,
     });
   } catch (error) {
-    return new Response("Failed to fetch user currency", { status: 500 });
+    return new Response("Failed to fetch user", { status: 500 });
   }
 }

@@ -1,5 +1,5 @@
 "use client";
-import { Expense } from "@/models";
+import { Expense, Income } from "@/models";
 import React from "react";
 import {
   LineChart,
@@ -11,15 +11,20 @@ import {
   Tooltip,
 } from "recharts";
 
-export default function Chart({ data }: { data: Array<Expense> }) {
+export default function Chart({ data }: { data: Array<Expense | Income> }) {
   // Format data for the chart
-  const chartData = data.map((expense) => ({
-    date: new Date(expense.date).toLocaleDateString("en-US", {
+  const chartData = data.map((data) => ({
+    date: new Date(data.date).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
     }),
-    amount: expense.amount,
-    category: expense.category || "Other",
+    amount: data.amount,
+    category:
+      "category" in data
+        ? data.category || "Other"
+        : "source" in data
+        ? (data as Income).source || "Other"
+        : "Other",
   }));
 
   return (
