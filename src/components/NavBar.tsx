@@ -1,10 +1,10 @@
 "use client";
-import { AnimatePresence, motion } from "framer-motion";
+import {  motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
-import { Download, Inbox, LayoutDashboard, Upload, Wallet } from "lucide-react";
-const NavBar = () => {
+import React, { ReactNode } from "react";
+import { Download, LayoutDashboard, Upload } from "lucide-react";
+const NavBar = ({logoutButton}: {logoutButton: ReactNode}) => {
   const path = usePathname();
   console.log("Current path:", path);
   const paths: [string, string, React.ReactNode][] = [
@@ -43,6 +43,9 @@ const NavBar = () => {
             </Link>
           ))}
         </ul>
+        <div className="absolute bottom-4 left-4 ">
+          {logoutButton}
+        </div>
       </nav>
     </div>
   );

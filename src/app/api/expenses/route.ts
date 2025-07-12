@@ -211,7 +211,7 @@ export async function GET(request: Request) {
     //   paramIndex++;
     // }
 
-    query += " ORDER BY date DESC";
+    query += " ORDER BY date ASC";
 
     const result = await pool.query(query, params);
     const usercurrencyquery = await pool.query(
