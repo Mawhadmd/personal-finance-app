@@ -1,15 +1,20 @@
 "use client";
 import { AnimatePresence, motion } from "framer-motion";
-import React, { useActionState, useState } from "react";
+import React, { useActionState, useEffect, useState } from "react";
 import register from "./registerServerAction";
 import {Check, Eye,EyeOff, X} from 'lucide-react'
-import currencySelect from "./currencySelect";
 import currencies from "@/constants/currencies";
 const Register = () => {
   const [state, action, pending] = useActionState(register, {
     error: "",
-    // success should be undefined initially to match the expected type
+    success: false,
   });
+  const resetpassword = () => {
+
+    setPassword("");
+    setConfirmPassword("");
+  }
+  useEffect(() => {resetpassword()}, [state]);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showpassword, setshowpassword] = useState(false);
@@ -64,6 +69,7 @@ const Register = () => {
   return (
     <>
       <motion.form
+      
         action={action}
         className="space-y-4 p-4 bg-foreground rounded border-border border w-80 h-fit flex flex-col"
         animate={pending ? { translateY: [0, 10, 0] } : { translateY: 0 }}
@@ -200,11 +206,7 @@ const Register = () => {
         </button>
       </motion.form>
       <div className="text-red-500">{state.error}</div>
-      {state.success && (
-        <div className="text-green-500">
-          Registration successful! Please login.
-        </div>
-      )}
+
       <div className="text-center mt-4">
         <span className="text-muted">Already have an account? </span>
         <a href="/login" className="text-accent hover:text-accent/80 underline">

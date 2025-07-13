@@ -18,7 +18,9 @@ const login = async (
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        
       },
+
       body: JSON.stringify({ email, password }),
     });
     
@@ -38,9 +40,9 @@ const login = async (
     console.log("Login successful:", data);
 
     // Set the token in cookies using Next.js server-side cookies
-    (await cookies()).set("token", data.token, {
+    (await cookies()).set("AccessToken", data.token, {
       path: "/",
-      maxAge: 3600, // 1 hour
+      maxAge: parseInt(process.env.AccessTokenTimeout!),
       httpOnly: true, // More secure
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -53,7 +55,8 @@ const login = async (
   }
 
   // Redirect to the dashboard (this happens after successful login)
-  redirect("/");
+  redirect("/dashboard");
+  
 };
 
 export default login;

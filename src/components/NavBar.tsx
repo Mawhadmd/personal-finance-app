@@ -8,9 +8,12 @@ const NavBar = ({logoutButton}: {logoutButton: ReactNode}) => {
   const path = usePathname();
   console.log("Current path:", path);
   const paths: [string, string, React.ReactNode][] = [
-    ["/", "Dashboard", <LayoutDashboard size={18} className="mr-2 size-6 " />],
+    ["/dashboard", "Dashboard", <LayoutDashboard size={18} className="mr-2 size-6 " />],
     ["/expenses", "Expenses", <Upload size={18} className="mr-2  size-6 " />],
-    ["/income", "Income", <Download size={18} className="mr-2 size-6 " />],
+    ["/income", "Income", <Download size={18} className="mr-2 size-6 " />], //TODO soon add profile, settings, budget, etc.
+    // ["/profile", "Profile", <User size={18} className="mr-2 size-6 " />],
+    // ["/settings", "Settings", <Settings size={18} className="mr-2 size-6 " />],
+    // ["/budget", "Budget", <Budget size={18} className="mr-2 size-6 " />],
   ];
   return (
     <div>

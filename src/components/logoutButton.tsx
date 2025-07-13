@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { useFormState } from "react-dom";
 
 export default function logoutButton() {
     function handleLogout() {
@@ -9,7 +8,7 @@ export default function logoutButton() {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
-            "Credentials": "include",
+        
           },
           body: JSON.stringify({}),
         }).then((response) => {

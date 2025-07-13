@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 
 export default async function GetUserId() {
     // Get user ID from token
-  const token = (await cookies()).get("token")?.value;
+  const token = (await cookies()).get("AccessToken")?.value;
   let user_id = null; // fallback
 
   if (token) {
@@ -12,8 +12,8 @@ export default async function GetUserId() {
         token,
         new TextEncoder().encode(process.env.JWT_SECRET!)
       );
-      console.log("Token payload:", payload);
-      user_id = payload.userId as number;
+
+      user_id = payload.user_id as number;
     } catch (error) {
       console.log("Token verification failed:", error);
     }

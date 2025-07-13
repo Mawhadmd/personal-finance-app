@@ -5,6 +5,7 @@ import ConvertCurrency from "@/lib/ConvertCurrency";
 import GetUserId from "@/lib/getUserId";
 import GetUserIncome from "@/lib/getUserIncome";
 import { Income as incometype, User } from "@/models";
+import { cookies } from "next/headers";
 import React from "react";
 
 const Income = async () => {
@@ -12,7 +13,12 @@ const Income = async () => {
 
   const currency = await fetch(
     `http://localhost:3000/api/User?user_id=${user_id}`,
-    { method: "GET" }
+    {
+      method: "GET",
+      headers: {
+        Cookie: `${(await cookies()).toString()}`,
+      },
+    }
   );
   const currencyjson: User = await currency.json();
 
@@ -23,7 +29,7 @@ const Income = async () => {
   const incomearr = (await GetUserIncome(user_id)).map((income) => {
     let amount = ConvertCurrency({
       amount: income.amount,
-      toCurrency: currencyjson.currency ,
+      toCurrency: currencyjson.currency,
     });
     return { ...income, amount };
   });
@@ -56,8 +62,6 @@ const Income = async () => {
     (acc, income) => acc + income.amount,
     0
   );
-
-
 
   return (
     <>

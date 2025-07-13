@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import zod, { ZodError } from "zod";
 import { SignJWT } from "jose";
 
+
 interface RegisterResponse {
   success: boolean;
   error?: string;
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
     const insertUserQuery = `
       INSERT INTO "User" (name, email, password, Currency) 
       VALUES ($1, $2, $3, $4) 
-      RETURNING user_id, name, email
+      RETURNING user_id, name, email, is_verified
     `;
 
     const newUser = await pool.query(insertUserQuery, [
@@ -100,18 +101,15 @@ export async function POST(request: NextRequest) {
     // Generate JWT token
     const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
     const token = await new SignJWT({
-        userId: user.user_id,
+        user_id: user.user_id,
         email: user.email,
-        name: user.name,
+        is_verified: user.is_verified,
     })
         .setProtectedHeader({ alg: "HS256" })
         .setExpirationTime("1h")
         .sign(secret);
 
-    console.log("User registered successfully:", {
-      id: user.user_id,
-      email: user.email,
-    });
+
 
     const response: RegisterResponse = {
       success: true,

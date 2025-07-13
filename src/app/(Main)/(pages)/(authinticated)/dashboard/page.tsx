@@ -8,15 +8,21 @@ import BalanceCard from "@/components/BalanceCard";
 import TransactionCard from "@/components/TransactionCard";
 
 import TwoLinesChart from "@/components/TwoLinesChart";
-import Expenses from "../expenses/page";
+
 import PieChartComponent from "@/components/pieChart";
 import ConvertCurrency from "@/lib/ConvertCurrency";
+import { cookies } from "next/headers";
 
 export default async function Home() {
   let user_id = await GetUserId();
   const user = await fetch(
     `http://localhost:3000/api/User?user_id=${user_id}`,
-    { method: "GET" }
+    {
+      method: "GET",
+      headers: {
+        Cookie: `${(await cookies()).toString()}`,
+      },
+    }
   );
   const userjson: User = await user.json();
   const spendingsarr = (await GetUserExpenses(user_id)).map((expense) => {
@@ -40,7 +46,12 @@ export default async function Home() {
 
   const balancerq = await fetch(
     `http://localhost:3000/api/User/GetBalance?user_id=${user_id}`,
-    { method: "GET" }
+    {
+      method: "GET",
+      headers: {
+        Cookie: `${(await cookies()).toString()}`,
+      },
+    }
   );
   const balancejson = await balancerq.json();
   const balance = ConvertCurrency({
@@ -138,6 +149,7 @@ export default async function Home() {
       }),
       headers: {
         "Content-Type": "application/json",
+        Cookie: `${(await cookies()).toString()}`,
       },
       method: "POST",
     });
@@ -149,8 +161,8 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex">
-      <div className="flex w-2/3 space-y-4 flex-col p-2">
+    <div className="flex h-full">
+      <div className="flex w-2/3 space-y-4  flex-col p-2">
         <div>
           <div>
             <h1>Welcome, {userjson.name}</h1>
@@ -181,9 +193,9 @@ export default async function Home() {
             />
           </div>
         </div>
-        <div>
+        <div className="">
           <h2 className="border-b border-border">Transactions</h2>
-          <div className="flex  gap-2 mt-4 scroll-auto">
+          <div className="flex   gap-2 mt-4 scroll-auto">
             <div className="flex flex-col w-1/3">
               {combinedtransactions.map((v, i) => (
                 <TransactionCard
@@ -195,7 +207,14 @@ export default async function Home() {
               ))}
             </div>
             <div className=" w-2/3 flex justify-center items-center">
-              <TwoLinesChart Expenses={spendingsarr} Income={Incomearr} />
+             {spendingsarr.length > 0 && Incomearr.length > 0 ? (
+                <TwoLinesChart Expenses={spendingsarr} Income={Incomearr} />
+              ) : (
+                <div className="text-muted text-center">
+                  <p>No transactions recorded yet.</p>
+                  <p>Add some to see the chart</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -204,9 +223,9 @@ export default async function Home() {
         <h3 className="">Expenses by catagory</h3>
         <div className="flex flex-col h-4/7">
           {" "}
-          <div className="h-full">
+          <div className=" flex justify-center items-center">
             {" "}
-            <PieChartComponent COLORS={COLORS} spendingsarr={spendingsarr} />
+           {spendingsarr.length > 0 ?  <PieChartComponent COLORS={COLORS} spendingsarr={spendingsarr} /> : <div className="text-muted text-center"><p>No expenses recorded yet.</p> <p>Add some to see the pie chart</p> </div> }
           </div>
           <div className="flex flex-wrap justify-around items-center p-2">
             {[...new Set(spendingsarr.map((e) => e.category))].map(

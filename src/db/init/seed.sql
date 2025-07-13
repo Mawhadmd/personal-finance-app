@@ -9,7 +9,11 @@ CREATE TABLE "User" (
   Balance NUMERIC(12,2) DEFAULT 0.00,
   Currency VARCHAR(10) DEFAULT 'USD',
   Field VARCHAR(50),
+  refresh_token VARCHAR(255),
+  last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  is_verified BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  Verification-Code VARCHAR(6),
 );
 
 -- Income table
@@ -34,6 +38,19 @@ CREATE TABLE "Expenses" (
   Method VARCHAR(50),
 
 );
+
+-- verification_codes table
+CREATE TABLE verification_codes (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES "User"(user_id) ON DELETE CASCADE,
+  code VARCHAR(255) NOT NULL,
+  expires_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+  email VARCHAR(100) NOT NULL,
+
+);
+
+
 
 -- Insert sample users
 INSERT INTO "User" (email, password, name, Balance, Currency, Field)

@@ -5,6 +5,7 @@ import ConvertCurrency from "@/lib/ConvertCurrency";
 import getUserExpenses from "@/lib/getUserExpenses";
 import GetUserId from "@/lib/getUserId";
 import { Expense, User } from "@/models";
+import { cookies } from "next/headers";
 
 import React from "react";
 
@@ -13,7 +14,12 @@ const Expenses = async () => {
 
   const currency = await fetch(
     `http://localhost:3000/api/User?user_id=${user_id}`,
-    { method: "GET" }
+    {
+      method: "GET",
+      headers: {
+        Cookie: `${(await cookies()).toString()}`,
+      },
+    }
   );
   const currencyjson: User = await currency.json();
   const currencySymbol = currencies.find(
@@ -26,7 +32,7 @@ const Expenses = async () => {
       toCurrency: currencyjson.currency,
     });
     return { ...expense, amount };
-  });;
+  });
   // Calculate spending for this month, last month, and overall
   const now = new Date();
   const thisMonth = now.getMonth();
@@ -55,7 +61,6 @@ const Expenses = async () => {
     (acc, expense) => acc + expense.amount,
     0
   );
-
 
   return (
     <>

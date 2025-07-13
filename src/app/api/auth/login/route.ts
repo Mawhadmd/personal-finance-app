@@ -1,7 +1,7 @@
 import { Request } from "./../../../../../node_modules/groq-sdk/_shims/index.d";
 import { NextRequest, NextResponse } from "next/server";
 import { LoginResponse } from "@/models/login";
-import zod from "zod";
+import zod, { jwt } from "zod";
 import pool from "@/db/postgres";
 import bcrypt from "bcryptjs";
 import { SignJWT } from "jose";
@@ -13,8 +13,9 @@ const validator = zod.object({
 export async function POST(Request: NextRequest) {
 
   const { email, password } = await Request.json();
-
+const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
   try {
+   
     validator.parse({ email, password });
     const res = await pool.query(
       'SELECT * FROM "User" WHERE email = $1',
@@ -43,11 +44,12 @@ export async function POST(Request: NextRequest) {
         { status: 401 }
       );
     }
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+    
     const token = await new SignJWT({
-      userId: user.user_id,
+      user_id: user.user_id,
       email: user.email,
       name: user.name,
+      is_verified: user.is_verified,
     })
       .setProtectedHeader({ alg: "HS256" })
       .setExpirationTime("1h")

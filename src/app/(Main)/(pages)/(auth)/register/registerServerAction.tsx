@@ -6,9 +6,9 @@ import { redirect } from "next/navigation";
 
 
 const register = async (
-  state: { error?: string; success?: boolean },
+  {success,error}: { error?: string; success?: boolean },
   formData: FormData
-) => {
+):  Promise<{ error?: string; success?: boolean }> => {
   const name = formData.get("name");
   const email = formData.get("email");
   const password = formData.get("password");
@@ -61,15 +61,15 @@ const register = async (
 
     // If registration is successful and we get a token, set it and redirect
     if (data.token) {
-      (await cookies()).set("token", data.token, {
+      (await cookies()).set("AccessToken", data.token, {
         path: "/",
-        maxAge: 3600, // 1 hour
+        maxAge: parseInt(process.env.AccessTokenTimeout!), 
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
       });
 
-      console.log("Token set in cookies, redirecting to home");
+
     }
 
     return { success: true };
