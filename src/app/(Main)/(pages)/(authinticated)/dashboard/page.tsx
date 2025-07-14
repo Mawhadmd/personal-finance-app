@@ -6,12 +6,11 @@ import { Expense, Income, User } from "@/models";
 import { Download, Upload, Wallet } from "lucide-react";
 import BalanceCard from "@/components/BalanceCard";
 import TransactionCard from "@/components/TransactionCard";
-
 import TwoLinesChart from "@/components/TwoLinesChart";
-
 import PieChartComponent from "@/components/pieChart";
 import ConvertCurrency from "@/lib/ConvertCurrency";
 import { cookies } from "next/headers";
+import Link from "next/link";
 
 export default async function Home() {
   let user_id = await GetUserId();
@@ -162,133 +161,186 @@ export default async function Home() {
 
   return (
     <div className="flex h-full">
-      <div className="flex w-2/3 space-y-4  flex-col p-2">
-        <div>
-          <div>
-            <h1>Welcome, {userjson.name}</h1>
-            <small className="text-muted">This is your financial summary</small>
+      {/* Check if there are any transactions */}
+      {combinedtransactions.length === 0 ? (
+        // No transactions layout - centered and simplified
+        <div className="w-full flex flex-col p-2">
+          {/* Header Section */}
+          <div className="mb-6">
+            <div>
+              <h1>Welcome, {userjson.name}</h1>
+              <small className="text-muted">
+                This is your financial summary
+              </small>
+            </div>
+            <div className="flex gap-2 mt-4">
+              <BalanceCard
+                balance={balance}
+                icon={<Wallet />}
+                currencySymbol={currencySympol ?? ""}
+                text="Current Balance"
+              />
+
+              <BalanceCard
+                balance={incomeThisMonth}
+                icon={<Download className="text-green-500" />}
+                currencySymbol={currencySympol ?? ""}
+                text="Income This Month"
+                changepercentage={percentageChangeIncome}
+              />
+
+              <BalanceCard
+                balance={spendingThisMonth}
+                icon={<Upload className="text-red-500" />}
+                currencySymbol={currencySympol ?? ""}
+                text="Spending This Month"
+                changepercentage={percentageChangeSpending}
+              />
+            </div>
           </div>
-          <div className="flex gap-2 ">
-            <BalanceCard
-              balance={balance}
-              icon={<Wallet />}
-              currencySymbol={currencySympol ?? ""}
-              text="Current Balance"
-            />
 
-            <BalanceCard
-              balance={incomeThisMonth}
-              icon={<Download className="text-green-500" />}
-              currencySymbol={currencySympol ?? ""}
-              text="Income This Month"
-              changepercentage={percentageChangeIncome}
-            />
-
-            <BalanceCard
-              balance={spendingThisMonth}
-              icon={<Upload className="text-red-500" />}
-              currencySymbol={currencySympol ?? ""}
-              text="Spending This Month"
-              changepercentage={percentageChangeSpending}
-            />
+          {/* Transactions Section - Centered */}
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-semibold">No Transactions Yet</h2>
+              <p className="text-muted text-lg">
+                Start by adding your first transaction
+              </p>
+              <div className="flex gap-4 mt-6">
+                <Link href="/income">
+                  <button className="bg-accent  cursor-pointer hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors shadow-custom">
+                    Add Income
+                  </button>
+                </Link>
+                <Link href="/expenses">
+                  <button className="bg-red-600 shadow-custom cursor-pointer hover:bg-red-700 text-white px-6 py-3 rounded-lg transition-colors">
+                    Add Expense
+                  </button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="">
-          <h2 className="border-b border-border">Transactions</h2>
-          <div className="flex   gap-2 mt-4 scroll-auto">
-            <div className="flex flex-col w-1/3">
-              {combinedtransactions.map((v, i) => (
-                <TransactionCard
-                  transaction={v}
-                  type={"source" in v ? "income" : "expense"}
-                  currencySymbol={currencySympol}
-                  key={i}
+      ) : (
+        // Full layout with transactions
+        <>
+          <div className="flex w-2/3 space-y-4 flex-col p-2">
+            <div>
+              <div>
+                <h1>Welcome, {userjson.name}</h1>
+                <small className="text-muted">
+                  This is your financial summary
+                </small>
+              </div>
+              <div className="flex gap-2 ">
+                <BalanceCard
+                  balance={balance}
+                  icon={<Wallet />}
+                  currencySymbol={currencySympol ?? ""}
+                  text="Current Balance"
                 />
-              ))}
+
+                <BalanceCard
+                  balance={incomeThisMonth}
+                  icon={<Download className="text-green-500" />}
+                  currencySymbol={currencySympol ?? ""}
+                  text="Income This Month"
+                  changepercentage={percentageChangeIncome}
+                />
+
+                <BalanceCard
+                  balance={spendingThisMonth}
+                  icon={<Upload className="text-red-500" />}
+                  currencySymbol={currencySympol ?? ""}
+                  text="Spending This Month"
+                  changepercentage={percentageChangeSpending}
+                />
+              </div>
             </div>
-            <div className=" w-2/3 flex justify-center items-center">
-             {spendingsarr.length > 0 && Incomearr.length > 0 ? (
-                <TwoLinesChart Expenses={spendingsarr} Income={Incomearr} />
-              ) : (
-                <div className="text-muted text-center">
-                  <p>No transactions recorded yet.</p>
-                  <p>Add some to see the chart</p>
+            <div className="flex-1">
+              <h2 className="border-b border-border">Transactions</h2>
+              <div className="flex gap-2 box-border h-full scroll-auto">
+                <div className="flex flex-col w-1/3">
+                  {combinedtransactions.map((transaction, i) => (
+                    <TransactionCard
+                      transaction={transaction}
+                      type={"source" in transaction ? "income" : "expense"}
+                      currencySymbol={currencySympol}
+                      key={i}
+                    />
+                  ))}
                 </div>
-              )}
+                <div className=" w-2/3 flex justify-center items-center">
+                  {spendingsarr.length > 0 && Incomearr.length > 0 ? (
+                    <TwoLinesChart Expenses={spendingsarr} Income={Incomearr} />
+                  ) : (
+                    <div className="text-muted text-center">
+                      <p>Add both income and expenses to see the chart</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div className=" m-2 p-4 bg-foreground rounded w-1/3 space-y-2 flex flex-col border border-border overflow-hidden ">
-        <h3 className="">Expenses by catagory</h3>
-        <div className="flex flex-col h-4/7">
-          {" "}
-          <div className=" flex justify-center items-center">
-            {" "}
-           {spendingsarr.length > 0 ?  <PieChartComponent COLORS={COLORS} spendingsarr={spendingsarr} /> : <div className="text-muted text-center"><p>No expenses recorded yet.</p> <p>Add some to see the pie chart</p> </div> }
+          <div className=" m-2 p-4 bg-foreground rounded w-1/3 space-y-2 flex flex-col border border-border overflow-hidden ">
+            <h3 className="">Expenses by category</h3>
+            <div className="flex flex-col h-4/7">
+              <div className=" flex justify-center items-center">
+                {spendingsarr.length > 0 ? (
+                  <PieChartComponent
+                    COLORS={COLORS}
+                    spendingsarr={spendingsarr}
+                  />
+                ) : (
+                  <div className="text-muted text-center">
+                    <p>No expenses recorded yet.</p>
+                    <p>Add some to see the pie chart</p>
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-wrap justify-around items-center p-2">
+                {[...new Set(spendingsarr.map((e) => e.category))].map(
+                  (entry, index) => (
+                    <div className="flex space-x-2 items-center" key={index}>
+                      <div
+                        style={{
+                          backgroundColor: COLORS[index % COLORS.length],
+                        }}
+                        className={`size-3 rounded `}
+                      ></div>
+                      <span className="text-sm">{entry}</span>
+                      <span className=" text-xs text-muted">
+                        {(() => {
+                          const value = spendingsarr.reduce((acc, data) => {
+                            if (data.category === entry) {
+                              return acc + data.amount;
+                            }
+                            return acc;
+                          }, 0);
+                          return (
+                            <span>
+                              {currencySympol}
+                              {value} (
+                              {((value / totalSpending) * 100).toFixed(2)}
+                              %)
+                            </span>
+                          );
+                        })()}
+                      </span>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+            <div className="h-3/7 border-t border-border space-y-1 p-1">
+              <h3>AI evaluation</h3>
+              <div className="overflow-auto h-40 flex justify-center items-center">
+                {aiEvaluation.response}
+              </div>
+            </div>
           </div>
-          <div className="flex flex-wrap justify-around items-center p-2">
-            {[...new Set(spendingsarr.map((e) => e.category))].map(
-              (entry, index) => (
-                <div className="flex space-x-2 items-center" key={index}>
-                  <div
-                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                    className={`size-3 rounded `}
-                  ></div>
-                  <span className="text-sm">{entry}</span>
-                  <span className=" text-xs text-muted">
-                    {(() => {
-                      const value = spendingsarr.reduce((acc, data) => {
-                        if (data.category === entry) {
-                          return acc + data.amount;
-                        }
-                        return acc;
-                      }, 0);
-                      return (
-                        <span>
-                          {currencySympol}
-                          {value} ({((value / totalSpending) * 100).toFixed(2)}
-                          %)
-                        </span>
-                      );
-                    })()}
-                  </span>
-                </div>
-              )
-            )}
-          </div>
-        </div>
-        <div className="h-3/7 border-t border-border  space-y-1 p-1">
-          <h3>Ai evaluation</h3>
-          <div className="overflow-auto h-40 flex justify-center items-center">
-            {aiEvaluation.response}
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Et esse
-            atque laborum ipsam quis repudiandae optio est cumque praesentium
-            velit quidem impedit voluptate tenetur possimus totam, repellat
-            quisquam blanditiis. Perferendis. Lorem ipsum dolor sit amet
-            consectetur adipisicing elit. Ullam dolores aliquam perspiciatis in
-            debitis, veritatis soluta sint totam nemo distinctio nisi
-            dignissimos quo architecto autem eaque blanditiis libero explicabo
-            hic?Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam,
-            facere officia amet excepturi minima est maiores voluptate corporis!
-            Sit dicta, debitis atque voluptatibus minus beatae? Obcaecati qui
-            similique repellendus suscipit. Lorem ipsum dolor, sit amet
-            consectetur adipisicing elit. Dolores nisi unde recusandae, iste
-            nemo id culpa tempore eius, nam sint autem! Natus nemo tempora neque
-            eveniet voluptatem vitae debitis molestiae? Lorem ipsum, dolor sit
-            amet consectetur adipisicing elit. Optio quae cupiditate nostrum aut
-            accusamus? Corrupti placeat ipsa dolorem sit vel quidem explicabo
-            dolor optio repellat, porro consectetur accusantium cum assumenda.
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi
-            aspernatur nulla obcaecati illo quisquam culpa cupiditate sed ullam
-            dolore ducimus! Voluptatem sunt accusantium soluta quas. Ut quae
-            vero dolores quam? Lorem ipsum dolor sit amet consectetur
-            adipisicing elit. Dolorem, commodi iusto consectetur saepe, aliquid
-            numquam, ab nulla culpa ad soluta illo asperiores ipsa cum totam
-            quia eaque atque minima eligendi?
-          </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 }

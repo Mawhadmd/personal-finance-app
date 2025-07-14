@@ -104,6 +104,8 @@ export async function POST(request: NextRequest) {
         user_id: user.user_id,
         email: user.email,
         is_verified: user.is_verified,
+        name: user.name,
+        type: "access",
     })
         .setProtectedHeader({ alg: "HS256" })
         .setExpirationTime("1h")

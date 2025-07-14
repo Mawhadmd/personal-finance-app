@@ -11,16 +11,23 @@ const validator = zod.object({
   password: zod.string().min(6),
 });
 export async function POST(Request: NextRequest) {
-
   const { email, password } = await Request.json();
-const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+  const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
   try {
-   
-    validator.parse({ email, password });
-    const res = await pool.query(
-      'SELECT * FROM "User" WHERE email = $1',
-      [email]
-    );
+    const res = await pool.query('SELECT * FROM "User" WHERE email = $1', [email]);
+    try {
+      validator.parse({ email, password });
+    
+    } catch (error) {
+      return NextResponse.json(
+        {
+          error: "Email or password is invalid",
+          success: false,
+          token: "",
+        } as LoginResponse,
+        { status: 400 }
+      );
+    }
     if (res.rows.length === 0) {
       return NextResponse.json(
         {
@@ -44,12 +51,13 @@ const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
         { status: 401 }
       );
     }
-    
+
     const token = await new SignJWT({
       user_id: user.user_id,
       email: user.email,
       name: user.name,
       is_verified: user.is_verified,
+      type: "access",
     })
       .setProtectedHeader({ alg: "HS256" })
       .setExpirationTime("1h")
@@ -65,11 +73,11 @@ const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
     console.error("Login error:", error);
     return NextResponse.json(
       {
-        error: "Invalid email or password format.",
+        error: "Error during login. Please try again.",
         success: false,
         token: "",
       } as LoginResponse,
-      { status: 400 }
+      { status: 500 }
     );
-  } 
+  }
 }

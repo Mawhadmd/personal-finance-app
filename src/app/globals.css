@@ -2,15 +2,31 @@
 @plugin "@tailwindcss/typography";
 
 :root {
+
   --text: hsl(0, 0%, 10%);
   --muted: hsl(0, 0%, 50%);
   --accent: hsl(82, 65%, 48%);
   --border: hsl(0, 0%, 70%);
-  --background: hsl(0, 0%, 100%);
-  --foreground: hsl(0, 0%, 85%);
+  --background: hsl(0, 0%, 95%);
+  --foreground: hsl(0, 0%, 100%);
+  --shadow: hsla(0, 0%, 0%, 0.199);
 }
 
+/* Dark theme via class/data-attribute (takes precedence over media query) */
+.dark,
+[data-theme="dark"] {
+  --text: hsl(0, 0%, 90%);
+  --muted: hsl(0, 0%, 50%);
+  --accent: hsl(90, 50%, 40%);
+  --border: hsl(0, 0%, 25%);
+  --background: hsl(0, 0%, 5%);
+  --foreground: hsl(0, 0%, 15%);
+}
+
+
+
 @theme inline {
+    --shadow-custom: 2px 2px 3px 1px var(--shadow);
   --color-text: var(--text);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
@@ -21,17 +37,18 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Fallback for users who prefer dark mode but haven't set a theme manually */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --text: hsl(0, 0%, 90%);
     --muted: hsl(0, 0%, 50%);
-    --accent: hsl(82, 65%, 48%);
+    --accent: hsl(90, 50%, 40%);
     --border: hsl(0, 0%, 25%);
     --background: hsl(0, 0%, 5%);
     --foreground: hsl(0, 0%, 15%);
   }
 }
-*{
+* {
   box-sizing: border-box !important;
 }
 body {

@@ -1,26 +1,52 @@
 "use client";
-import {  motion } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { ReactNode } from "react";
-import { Download, LayoutDashboard, Upload } from "lucide-react";
-const NavBar = ({logoutButton}: {logoutButton: ReactNode}) => {
+import React, { ReactNode, useState, useEffect } from "react";
+import { Download, LayoutDashboard, Upload, Moon, Sun } from "lucide-react";
+import ThemeControl from "@/lib/ThemeControl";
+import handleLogout from "@/lib/auth/HandleLogout";
+
+const NavBar = () => {
   const path = usePathname();
+  const [currentTheme, setCurrentTheme] = useState<"dark" | "light">("light");
+
   console.log("Current path:", path);
   const paths: [string, string, React.ReactNode][] = [
-    ["/dashboard", "Dashboard", <LayoutDashboard size={18} className="mr-2 size-6 " />],
-    ["/expenses", "Expenses", <Upload size={18} className="mr-2  size-6 " />],
-    ["/income", "Income", <Download size={18} className="mr-2 size-6 " />], //TODO soon add profile, settings, budget, etc.
-    // ["/profile", "Profile", <User size={18} className="mr-2 size-6 " />],
-    // ["/settings", "Settings", <Settings size={18} className="mr-2 size-6 " />],
-    // ["/budget", "Budget", <Budget size={18} className="mr-2 size-6 " />],
+    [
+      "/dashboard",
+      "Dashboard",
+      <LayoutDashboard size={18} className="mr-2 size-6 " key="dashboard" />,
+    ],
+    [
+      "/expenses",
+      "Expenses",
+      <Upload size={18} className="mr-2  size-6 " key="expenses" />,
+    ],
+    [
+      "/income",
+      "Income",
+      <Download size={18} className="mr-2 size-6 " key="income" />,
+    ],
   ];
+
+  // Initialize theme
+  useEffect(() => {
+    const theme = ThemeControl.getTheme();
+    setCurrentTheme(theme);
+  }, []);
+
+  const handleThemeToggle = () => {
+    const newTheme = ThemeControl.toggleTheme(); // Toggle theme
+    setCurrentTheme(newTheme);
+  };
+
   return (
     <div>
       <nav className="flex h-screen  relative flex-col p-4 bg-foreground border-r border-foreground">
         {" "}
-        <div className="text-white font-extrabold border-b">
-          Personal Finance
+        <div className="text-text font-extrabold border-b border-border">
+          Personal Finance App
         </div>
         <ul className="pt-4 w-full">
           {paths.map(([route, label, icon]) => (
@@ -39,15 +65,33 @@ const NavBar = ({logoutButton}: {logoutButton: ReactNode}) => {
                 {path === route && (
                   <motion.div
                     layoutId="whatever"
-                    className={`absolute inset-0 rounded  bg-green-400/80  `}
+                    className={`absolute inset-0 rounded  bg-accent  `}
                   ></motion.div>
                 )}
               </li>
             </Link>
           ))}
         </ul>
-        <div className="absolute bottom-4 left-4 ">
-          {logoutButton}
+        <div className="absolute flex  justify-between items-center w-full bottom-0 left-0 p-4 space-x-2">
+            <button
+              onClick={() => {
+                handleLogout();
+              }}
+              className="bg-red-500 font-bold shadow-custom p-2 max-h-10 rounded cursor-pointer"
+              type="button"
+              aria-label="Logout"
+            >
+              Logout
+            </button>
+          <div>
+            <button
+              onClick={handleThemeToggle}
+              className="flex items-center cursor-pointer shadow-custom justify-center w-10 h-10 rounded-lg bg-background text-text hover:bg-accent/80 transition-colors"
+              aria-label="Toggle theme"
+            >
+              {currentTheme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+          </div>
         </div>
       </nav>
     </div>

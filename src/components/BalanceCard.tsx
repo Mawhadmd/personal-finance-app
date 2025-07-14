@@ -16,7 +16,7 @@ export default function BalanceCard({
   return (
     <>
       {" "}
-      <div className="bg-foreground rounded p-4 w-1/3 flex justify-around  items-center space-x-4">
+      <div className="shadow-custom bg-foreground rounded p-4 w-1/3 flex justify-around  items-center space-x-4">
         {" "}
         <div className="flex flex-col justify-center items-center gap-1">
           <div className="p-2 bg-muted/50 w-fit rounded-full">{icon}</div>

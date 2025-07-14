@@ -1,8 +1,4 @@
-"use client";
-import React from "react";
-
-export default function logoutButton() {
-    function handleLogout() {
+export default function handleLogout() {
          fetch("/api/auth/logout", {
           method: "POST",
           headers: {
@@ -19,15 +15,3 @@ export default function logoutButton() {
           }
         });
     }
-  return (
-    <button
-      onClick={() => {
-       handleLogout();
-      }}
-      className="bg-red-900 p-1 rounded cursor-pointer"
-      type="submit"
-    >
-      Logout
-    </button>
-  );
-}
