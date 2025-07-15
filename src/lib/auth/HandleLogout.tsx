@@ -1,4 +1,7 @@
 export default function handleLogout() {
+  if (!confirm("Are you sure you want to log out?")) {
+    return
+  }
          fetch("/api/auth/logout", {
           method: "POST",
           headers: {

@@ -17,10 +17,10 @@ import pool from "@/db/postgres";
  *         description: User ID to fetch income for
  *         example: 1
  *       - in: query
- *         name: source
+ *         name: category
  *         schema:
  *           type: string
- *         description: Filter income by source
+ *         description: Filter income by category
  *         example: "Salary"
  *       - in: query
  *         name: startDate
@@ -73,11 +73,16 @@ import pool from "@/db/postgres";
  *                 format: date
  *                 description: Date of the income (YYYY-MM-DD)
  *                 example: "2025-07-10"
- *               source:
+ *               category:
  *                 type: string
  *                 maxLength: 100
- *                 description: Income source (optional)
+ *                 description: Income category (optional)
  *                 example: "Salary"
+ *               method:
+ *                 type: string
+ *                 maxLength: 50
+ *                 description: Payment method (optional)
+ *                 example: "Bank Transfer"
  *               description:
  *                 type: string
  *                 description: Description of the income (optional)
@@ -117,11 +122,16 @@ import pool from "@/db/postgres";
  *                 format: date
  *                 description: Updated date
  *                 example: "2025-07-10"
- *               source:
+ *               category:
  *                 type: string
  *                 maxLength: 100
- *                 description: Updated income source
+ *                 description: Updated income category
  *                 example: "Salary"
+ *               method:
+ *                 type: string
+ *                 maxLength: 50
+ *                 description: Updated payment method
+ *                 example: "Bank Transfer"
  *               description:
  *                 type: string
  *                 description: Updated description
@@ -166,11 +176,10 @@ import pool from "@/db/postgres";
 
 // GET - Fetch income records with optional filtering
 export async function GET(request: Request) {
-
   try {
     const { searchParams } = new URL(request.url);
     const user_id = searchParams.get("user_id");
-    const source = searchParams.get("source");
+    const category = searchParams.get("category");
     // const startDate = searchParams.get("startDate");
     // const endDate = searchParams.get("endDate");
 
@@ -180,13 +189,13 @@ export async function GET(request: Request) {
     }
 
     // Build dynamic query based on filters
-    let query = 'SELECT * FROM "Income" WHERE user_id = $1';
+    let query = 'SELECT * FROM "income" WHERE user_id = $1';
     const params: (string | number)[] = [parseInt(user_id)];
     let paramIndex = 2;
 
-    if (source) {
-      query += ` AND source = $${paramIndex}`;
-      params.push(source);
+    if (category) {
+      query += ` AND category = $${paramIndex}`;
+      params.push(category);
       paramIndex++;
     }
 
@@ -219,14 +228,18 @@ export async function GET(request: Request) {
       user_id: row.user_id,
       amount: parseFloat(row.amount),
       date: row.date,
-      source: row.source,
+      category: row.category,
+      method: row.method,
       description: row.description,
       currency: userCurrencyResult,
     }));
 
     return Response.json({
       message: "Income retrieved successfully",
-      filters: { user_id: parseInt(user_id), source /* startDate, endDate */ },
+      filters: {
+        user_id: parseInt(user_id),
+        category /* startDate, endDate */,
+      },
       income,
       count: income.length,
     });
@@ -238,7 +251,6 @@ export async function GET(request: Request) {
 
 // POST - Create a new income record
 export async function POST(request: Request) {
-
   try {
     let body;
     try {
@@ -257,7 +269,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { user_id, amount, date, source, description } = body;
+    const { user_id, amount, date, category, method, description } = body;
 
     // Validate required fields
     if (!user_id || !amount || !date) {
@@ -269,8 +281,15 @@ export async function POST(request: Request) {
 
     // Insert income into database
     const result = await pool.query(
-      'INSERT INTO "Income" (user_id, amount, date, source, description) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [user_id, amount, date, source || null, description || null]
+      'INSERT INTO "income" (user_id, amount, date, category, method, description) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [
+        user_id,
+        amount,
+        date,
+        category || null,
+        method || null,
+        description || null,
+      ]
     );
 
     const newIncome = result.rows[0];
@@ -283,7 +302,8 @@ export async function POST(request: Request) {
           user_id: newIncome.user_id,
           amount: parseFloat(newIncome.amount),
           date: newIncome.date,
-          source: newIncome.source,
+          category: newIncome.category,
+          method: newIncome.method,
           description: newIncome.description,
         },
       },
@@ -292,12 +312,11 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Database error:", error);
     return Response.json({ error: "Failed to create income" }, { status: 500 });
-  } 
+  }
 }
 
 // PUT - Update an existing income record
 export async function PUT(request: Request) {
-  
   try {
     let body;
     try {
@@ -309,7 +328,7 @@ export async function PUT(request: Request) {
       );
     }
 
-    const { income_id, amount, date, source, description } = body;
+    const { income_id, amount, date, category, method, description } = body;
 
     if (!income_id) {
       return Response.json({ error: "income_id is required" }, { status: 400 });
@@ -332,9 +351,15 @@ export async function PUT(request: Request) {
       paramIndex++;
     }
 
-    if (source !== undefined) {
-      updateFields.push(`source = $${paramIndex}`);
-      params.push(source);
+    if (category !== undefined) {
+      updateFields.push(`category = $${paramIndex}`);
+      params.push(category);
+      paramIndex++;
+    }
+
+    if (method !== undefined) {
+      updateFields.push(`method = $${paramIndex}`);
+      params.push(method);
       paramIndex++;
     }
 
@@ -348,7 +373,7 @@ export async function PUT(request: Request) {
       return Response.json({ error: "No fields to update" }, { status: 400 });
     }
 
-    const query = `UPDATE "Income" SET ${updateFields.join(
+    const query = `UPDATE "income" SET ${updateFields.join(
       ", "
     )} WHERE income_id = $1 RETURNING *`;
 
@@ -367,19 +392,19 @@ export async function PUT(request: Request) {
         user_id: updatedIncome.user_id,
         amount: parseFloat(updatedIncome.amount),
         date: updatedIncome.date,
-        source: updatedIncome.source,
+        category: updatedIncome.category,
+        method: updatedIncome.method,
         description: updatedIncome.description,
       },
     });
   } catch (error) {
     console.error("Database error:", error);
     return Response.json({ error: "Failed to update income" }, { status: 500 });
-  } 
+  }
 }
 
 // DELETE - Delete an income record
 export async function DELETE(request: Request) {
-
   try {
     let body;
     try {
@@ -399,7 +424,7 @@ export async function DELETE(request: Request) {
 
     // Delete income from database
     const result = await pool.query(
-      'DELETE FROM "Income" WHERE income_id = $1 RETURNING income_id',
+      'DELETE FROM "income" WHERE income_id = $1 RETURNING income_id',
       [income_id]
     );
 
@@ -414,5 +439,5 @@ export async function DELETE(request: Request) {
   } catch (error) {
     console.error("Database error:", error);
     return Response.json({ error: "Failed to delete income" }, { status: 500 });
-  } 
+  }
 }

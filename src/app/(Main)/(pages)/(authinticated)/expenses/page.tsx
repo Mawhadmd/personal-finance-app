@@ -5,6 +5,7 @@ import ConvertCurrency from "@/lib/ConvertCurrency";
 import getUserExpenses from "@/lib/getUserExpenses";
 import GetUserId from "@/lib/getUserId";
 import { Expense, User } from "@/models";
+import { CircleOff } from "lucide-react";
 import { cookies } from "next/headers";
 
 import React from "react";
@@ -66,7 +67,7 @@ const Expenses = async () => {
     <>
       <div className="flex flex-col mt-2 h-full ">
         <h2 className="font-bold text-2xl">Your Expenses</h2>
-        <div className="flex   space-x-2 border-b border-border pb-2">
+        <div className="flex   space-x-2  pb-2">
           <div className="w-1/3 bg-foreground p-2 rounded-lg">
             <p className="text-3xl font-bold m-1 mb-0 ">
               {currencySymbol}
@@ -89,8 +90,8 @@ const Expenses = async () => {
             <p className="text-muted ml-1">Overall </p>
           </div>
         </div>
-        <div className="flex justify-between items-start flex-1">
-          <div className="w-1/3 border-border border-b border-l p-2 py-4">
+        <div className="flex justify-between gap-2 items-start flex-1">
+          <div className="w-1/3 bg-foreground rounded-xl p-2 py-4 flex flex-col h-full">
             <h3 className="border-b py-1 border-border my-2">Latest</h3>
             {spendingarr.length > 0 ? (
               spendingarr
@@ -104,9 +105,14 @@ const Expenses = async () => {
                   />
                 ))
             ) : (
-              <h3 className="py-4 text-muted">
-                You have no recent expenses recorded.
+                <div className="py-4 flex-1 text-muted flex flex-col items-center justify-center ">
+                  <CircleOff className="w-1/3 h-fit text-red-500" />{" "}
+              <h3 className="text-center">
+          
+                    You have no recent expenses recorded.
+               
               </h3>
+                </div>
             )}
             <div className="flex space-x-2">
               <button className="p-2 rounded-lg w-fit bg-foreground text-accent border border-border hover:border-white cursor-pointer transition-colors text-start">
@@ -117,7 +123,7 @@ const Expenses = async () => {
               </button>
             </div>
           </div>
-          <div className="border-l border-border h-full w-2/3 flex justify-center items-center">
+          <div className="h-full bg-foreground rounded-xl  w-2/3 flex justify-center items-center">
             {spendingarr.length > 0 ? (
               <Chart data={spendingarr} />
             ) : (

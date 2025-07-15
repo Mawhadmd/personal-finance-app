@@ -5,7 +5,6 @@ import bcrypt from "bcryptjs";
 import zod, { ZodError } from "zod";
 import { SignJWT } from "jose";
 
-
 interface RegisterResponse {
   success: boolean;
   error?: string;
@@ -55,7 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    const existingUserQuery = 'SELECT user_id FROM "User" WHERE email = $1';
+    const existingUserQuery = 'SELECT user_id FROM "users" WHERE email = $1';
     const existingUser = await pool.query(existingUserQuery, [email]);
 
     if (existingUser.rows.length > 0) {
@@ -74,7 +73,7 @@ export async function POST(request: NextRequest) {
 
     // Insert new user
     const insertUserQuery = `
-      INSERT INTO "User" (name, email, password, Currency) 
+      INSERT INTO "users" (name, email, password, currency) 
       VALUES ($1, $2, $3, $4) 
       RETURNING user_id, name, email, is_verified
     `;
@@ -101,17 +100,15 @@ export async function POST(request: NextRequest) {
     // Generate JWT token
     const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
     const token = await new SignJWT({
-        user_id: user.user_id,
-        email: user.email,
-        is_verified: user.is_verified,
-        name: user.name,
-        type: "access",
+      user_id: user.user_id,
+      email: user.email,
+      is_verified: user.is_verified,
+      name: user.name,
+      type: "access",
     })
-        .setProtectedHeader({ alg: "HS256" })
-        .setExpirationTime("1h")
-        .sign(secret);
-
-
+      .setProtectedHeader({ alg: "HS256" })
+      .setExpirationTime("1h")
+      .sign(secret);
 
     const response: RegisterResponse = {
       success: true,

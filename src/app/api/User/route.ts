@@ -9,14 +9,13 @@ export async function GET(request: Request) {
     return new Response("User ID is required", { status: 400 });
   }
   try {
-    const res = await pool.query(
-      'SELECT * FROM "User" WHERE user_id = $1',
-      [user_id]
-    );
+    const res = await pool.query('SELECT * FROM "users" WHERE user_id = $1', [
+      user_id,
+    ]);
     if (res.rows.length === 0) {
       return new Response("User not found", { status: 404 });
     }
-    return new Response(JSON.stringify({  ...res.rows[0] }), {
+    return new Response(JSON.stringify({ ...res.rows[0] }), {
       status: 200,
     });
   } catch (error) {

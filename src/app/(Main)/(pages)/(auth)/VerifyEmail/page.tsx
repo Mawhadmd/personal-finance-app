@@ -32,7 +32,7 @@ export default function page() {
                 type="text"
                 placeholder="Verificaiton Code"
                 name="code"
-                className=" text-muted p-3 w-full h-full m-0    bg-text"
+                className=" text-black border border-border p-3 w-full h-full m-0    bg-white"
               />
               <button
                 type="button"

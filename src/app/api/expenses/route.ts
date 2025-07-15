@@ -175,12 +175,11 @@ import pool from "@/db/postgres";
 
 // GET - Fetch expenses with optional filtering
 export async function GET(request: Request) {
-
   try {
     const { searchParams } = new URL(request.url);
     const user_id = searchParams.get("user_id");
     const category = searchParams.get("category");
- // const startDate = searchParams.get("startDate");
+    // const startDate = searchParams.get("startDate");
     // const endDate = searchParams.get("endDate");
 
     // Validate required user_id
@@ -189,7 +188,7 @@ export async function GET(request: Request) {
     }
 
     // Build dynamic query based on filters
-    let query = 'SELECT * FROM "Expenses" WHERE user_id = $1';
+    let query = 'SELECT * FROM "expenses" WHERE user_id = $1';
     const params: (string | number)[] = [parseInt(user_id)];
     let paramIndex = 2;
 
@@ -198,8 +197,8 @@ export async function GET(request: Request) {
       params.push(category);
       paramIndex++;
     }
-    
- // if (startDate) {
+
+    // if (startDate) {
     //   query += ` AND date >= $${paramIndex}`;
     //   params.push(startDate);
     //   paramIndex++;
@@ -219,7 +218,7 @@ export async function GET(request: Request) {
       [parseInt(user_id)]
     );
     const userCurrencyResult = usercurrencyquery.rows[0]?.currency || "USD"; //
-   
+
     // Format the response data
     const expenses = result.rows.map((row) => ({
       expense_id: row.expense_id,
@@ -244,12 +243,11 @@ export async function GET(request: Request) {
       { error: "Failed to fetch expenses" },
       { status: 500 }
     );
-  } 
+  }
 }
 
 // POST - Create a new expense
 export async function POST(request: Request) {
-
   try {
     let body;
     try {
@@ -280,7 +278,7 @@ export async function POST(request: Request) {
 
     // Insert expense into database
     const result = await pool.query(
-      'INSERT INTO "Expenses" (user_id, amount, date, category, description, Method) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      'INSERT INTO "expenses" (user_id, amount, date, category, description, method) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
       [
         user_id,
         amount,
@@ -314,12 +312,11 @@ export async function POST(request: Request) {
       { error: "Failed to create expense" },
       { status: 500 }
     );
-  } 
+  }
 }
 
 // PUT - Update an existing expense
 export async function PUT(request: Request) {
-
   try {
     let body;
     try {
@@ -370,7 +367,7 @@ export async function PUT(request: Request) {
     }
 
     if (method !== undefined) {
-      updateFields.push(`Method = $${paramIndex}`);
+      updateFields.push(`method = $${paramIndex}`);
       params.push(method);
       paramIndex++;
     }
@@ -379,7 +376,7 @@ export async function PUT(request: Request) {
       return Response.json({ error: "No fields to update" }, { status: 400 });
     }
 
-    const query = `UPDATE "Expenses" SET ${updateFields.join(
+    const query = `UPDATE "expenses" SET ${updateFields.join(
       ", "
     )} WHERE expense_id = $1 RETURNING *`;
 
@@ -409,12 +406,11 @@ export async function PUT(request: Request) {
       { error: "Failed to update expense" },
       { status: 500 }
     );
-  } 
+  }
 }
 
 // DELETE - Delete an expense
 export async function DELETE(request: Request) {
-
   try {
     let body;
     try {
@@ -437,7 +433,7 @@ export async function DELETE(request: Request) {
 
     // Delete expense from database
     const result = await pool.query(
-      'DELETE FROM "Expenses" WHERE expense_id = $1 RETURNING expense_id',
+      'DELETE FROM "expenses" WHERE expense_id = $1 RETURNING expense_id',
       [expense_id]
     );
 
@@ -455,5 +451,5 @@ export async function DELETE(request: Request) {
       { error: "Failed to delete expense" },
       { status: 500 }
     );
-  } 
+  }
 }

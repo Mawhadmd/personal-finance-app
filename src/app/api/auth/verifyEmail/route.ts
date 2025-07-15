@@ -21,40 +21,31 @@ export async function POST(request: NextRequest) {
   );
   console.log("Real code from DB:", realcode.rows[0]);
   if (realcode.rows[0].code == code) {
-    try{
-        pool.query(`UPDATE "User" SET is_verified = true WHERE email = $1`, [
-      payload.email,
-    ]);
+    try {
+      pool.query(`UPDATE "users" SET is_verified = true WHERE email = $1`, [
+        payload.email,
+      ]);
 
-    const update = await new SignJWT({ is_verified: true, ...payload })
-      .setProtectedHeader({ alg: "HS256" })
-      .setIssuedAt()
-      .setExpirationTime("1h")
-      .sign(new TextEncoder().encode(process.env.JWT_SECRET!));
-    (await cookies()).set("AccessToken",update, {
-        path: "/",
-        maxAge: parseInt(process.env.AccessTokenTimeout!), 
-        httpOnly: true, 
-        secure: process.env.NODE_ENV === "production", 
-        sameSite: "lax", 
-      });
-
-    return NextResponse.json(
-      { success: true, message: "Email verified successfully." },
-      { status: 200 }
-    )
-
-    }catch (error) {
+      const update = await new SignJWT({ is_verified: true, ...payload })
+        .setProtectedHeader({ alg: "HS256" })
+        .setIssuedAt()
+        .setExpirationTime("1h")
+        .sign(new TextEncoder().encode(process.env.JWT_SECRET!));
+   
+      return NextResponse.json(
+        { success: true, message: "Email verified successfully.", token: update },
+        { status: 200 }
+      );
+    } catch (error) {
       console.error("Error verifying email:", error);
       return NextResponse.json(
         { error: "Failed to verify email. Please try again later." },
         { status: 500 }
       );
     }
-
   }
   return NextResponse.json(
     { error: "Invalid verification code." },
     { status: 400 }
-    );
+  );
 }

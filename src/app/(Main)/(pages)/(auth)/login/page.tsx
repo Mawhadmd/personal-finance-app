@@ -26,7 +26,7 @@ const [showpassword, setshowpassword] = useState(false);
         </div>
         <div className="space-y-2">
           <input
-            className="w-full bg-text p-2 text-background rounded"
+            className="w-full border border-border bg-white p-2 text-black/80 rounded"
             placeholder="Email"
             type="email"
             name="email"
@@ -34,7 +34,7 @@ const [showpassword, setshowpassword] = useState(false);
             required
           />
           <input
-            className="w-full bg-text p-2 text-background rounded"
+            className="w-full border border-border bg-white p-2 text-black/80 rounded"
             placeholder="Password"
             type={showpassword ? "text" : "password"}
             name="password"

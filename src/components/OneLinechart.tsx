@@ -19,12 +19,7 @@ export default function Chart({ data }: { data: Array<Expense | Income> }) {
       day: "numeric",
     }),
     amount: data.amount,
-    category:
-      "category" in data
-        ? data.category || "Other"
-        : "source" in data
-        ? (data as Income).source || "Other"
-        : "Other",
+    category: "category" in data ? data.category || "Other" : "Other",
   }));
 
   return (

@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     // Get user by email
     const userResult = await pool.query(
-      'SELECT user_id FROM "User" WHERE email = $1',
+      'SELECT user_id FROM "users" WHERE email = $1',
       [email]
     );
 
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     await pool.query(
       `INSERT INTO verification_codes (user_id, code,email, expires_at) 
        VALUES ($1, $2, $3, $4)`,
-      [user_id, code,email, expiresAt]
+      [user_id, code, email, expiresAt]
     );
 
     // Send verification email

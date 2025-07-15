@@ -85,7 +85,7 @@ const Register = () => {
         </div>
         <div className="space-y-2">
           <input
-            className="w-full bg-text p-2 text-background rounded"
+            className="w-full border border-border bg-white p-2 text-black/80 rounded"
             placeholder="Full Name"
             type="text"
             name="name"
@@ -93,7 +93,7 @@ const Register = () => {
             required
           />
           <input
-            className="w-full bg-text p-2 text-background rounded"
+            className="w-full  border border-border  bg-white p-2 text-black/80  rounded"
             placeholder="Email"
             type="email"
             name="email"
@@ -102,7 +102,7 @@ const Register = () => {
           />
           <div>
             <input
-              className="w-full bg-text p-2 text-background rounded"
+              className="w-full border border-border bg-white p-2 text-black/80 rounded"
               placeholder="Password"
               type={showpassword ? "text" : "password"}
               name="password"
@@ -114,7 +114,7 @@ const Register = () => {
           </div>
           <div>
             <input
-              className={`w-full bg-text p-2 text-background rounded ${
+              className={`w-full border border-border bg-white p-2 text-black/80 rounded ${
                 showPasswordMismatch ? "ring-2 ring-red-500" : ""
               }`}
               placeholder="Confirm Password"
@@ -162,7 +162,7 @@ const Register = () => {
                   <select
       name="Currency"
       id="Currency"
-      className="w-full bg-text p-2 text-background rounded"
+      className="w-full border border-border bg-white p-2 text-black/80 rounded"
       defaultValue="USD"
     >
       {currencies.map((currency) => (

@@ -3,14 +3,22 @@ import GetUserExpenses from "@/lib/getUserExpenses";
 import GetUserId from "@/lib/getUserId";
 import GetUserIncome from "@/lib/getUserIncome";
 import { Expense, Income, User } from "@/models";
-import { Download, Upload, Wallet } from "lucide-react";
+import {
+  Banknote,
+  Download,
+  LockIcon,
+  Target,
+  Upload,
+  Wallet,
+} from "lucide-react";
 import BalanceCard from "@/components/BalanceCard";
 import TransactionCard from "@/components/TransactionCard";
 import TwoLinesChart from "@/components/TwoLinesChart";
 import PieChartComponent from "@/components/pieChart";
 import ConvertCurrency from "@/lib/ConvertCurrency";
 import { cookies } from "next/headers";
-import Link from "next/link";
+import AddtransactionModal from "@/components/AddTransactionsModal/AddTransactionsModal";
+import GettingStarted from "./GettingStarted";
 
 export default async function Home() {
   let user_id = await GetUserId();
@@ -164,63 +172,49 @@ export default async function Home() {
       {/* Check if there are any transactions */}
       {combinedtransactions.length === 0 ? (
         // No transactions layout - centered and simplified
-        <div className="w-full flex flex-col p-2">
-          {/* Header Section */}
-          <div className="mb-6">
-            <div>
-              <h1>Welcome, {userjson.name}</h1>
-              <small className="text-muted">
-                This is your financial summary
-              </small>
-            </div>
-            <div className="flex gap-2 mt-4">
-              <BalanceCard
-                balance={balance}
-                icon={<Wallet />}
-                currencySymbol={currencySympol ?? ""}
-                text="Current Balance"
-              />
 
-              <BalanceCard
-                balance={incomeThisMonth}
-                icon={<Download className="text-green-500" />}
-                currencySymbol={currencySympol ?? ""}
-                text="Income This Month"
-                changepercentage={percentageChangeIncome}
-              />
+        <>
+          <div className="w-full flex flex-col p-2">
+            {/* Header Section */}
+            <div className="mb-6">
+              <div>
+                <h1>Welcome, {userjson.name}</h1>
+                <small className="text-muted">
+                  This is your financial summary
+                </small>
+              </div>
+              <div className="flex gap-2 mt-4">
+                <BalanceCard
+                  balance={balance}
+                  icon={<Wallet className="size-full" />}
+                  currencySymbol={currencySympol ?? ""}
+                  text="Current Balance"
+                />
 
-              <BalanceCard
-                balance={spendingThisMonth}
-                icon={<Upload className="text-red-500" />}
-                currencySymbol={currencySympol ?? ""}
-                text="Spending This Month"
-                changepercentage={percentageChangeSpending}
-              />
-            </div>
-          </div>
+                <BalanceCard
+                  balance={incomeThisMonth}
+                  icon={<Download className="text-green-500 size-full" />}
+                  currencySymbol={currencySympol ?? ""}
+                  text="Income This Month"
+                  changepercentage={percentageChangeIncome}
+                />
 
-          {/* Transactions Section - Centered */}
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-semibold">No Transactions Yet</h2>
-              <p className="text-muted text-lg">
-                Start by adding your first transaction
-              </p>
-              <div className="flex gap-4 mt-6">
-                <Link href="/income">
-                  <button className="bg-accent  cursor-pointer hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors shadow-custom">
-                    Add Income
-                  </button>
-                </Link>
-                <Link href="/expenses">
-                  <button className="bg-red-600 shadow-custom cursor-pointer hover:bg-red-700 text-white px-6 py-3 rounded-lg transition-colors">
-                    Add Expense
-                  </button>
-                </Link>
+                <BalanceCard
+                  balance={spendingThisMonth}
+                  icon={<Upload className="text-red-500 size-full" />}
+                  currencySymbol={currencySympol ?? ""}
+                  text="Spending This Month"
+                  changepercentage={percentageChangeSpending}
+                />
               </div>
             </div>
+
+            {/* Transactions Section - Centered */}
+            <AddtransactionModal />
           </div>
-        </div>
+          {/* Get Started */}
+    <GettingStarted/>
+        </>
       ) : (
         // Full layout with transactions
         <>
@@ -232,7 +226,7 @@ export default async function Home() {
                   This is your financial summary
                 </small>
               </div>
-              <div className="flex gap-2 ">
+              <div className="flex gap-2  ">
                 <BalanceCard
                   balance={balance}
                   icon={<Wallet />}
@@ -264,7 +258,7 @@ export default async function Home() {
                   {combinedtransactions.map((transaction, i) => (
                     <TransactionCard
                       transaction={transaction}
-                      type={"source" in transaction ? "income" : "expense"}
+                      type={"income_id" in transaction ? "income" : "expense"}
                       currencySymbol={currencySympol}
                       key={i}
                     />

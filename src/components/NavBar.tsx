@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { ReactNode, useState, useEffect } from "react";
-import { Download, LayoutDashboard, Upload, Moon, Sun } from "lucide-react";
+import { Download, LayoutDashboard, Upload, Moon, Sun, LogOut } from "lucide-react";
 import ThemeControl from "@/lib/ThemeControl";
 import handleLogout from "@/lib/auth/HandleLogout";
 
@@ -54,18 +54,20 @@ const NavBar = () => {
               <li
                 className={`${
                   route == path
-                    ? "text-text font-semibold"
-                    : "text-muted font-normal"
+                    ? "text-text  font-semibold"
+                    : "text-text/50 font-normal"
                 } text-center   rounded-lg p-1 relative transition-all duration-300`}
               >
                 <div className="relative z-5 flex items-center text-xl">
-                  {icon}
+                  <div className={`${route === path && "text-accent"}`}>
+                    {icon}
+                  </div>
                   <p>{label}</p>
                 </div>
                 {path === route && (
                   <motion.div
                     layoutId="whatever"
-                    className={`absolute inset-0 rounded  bg-accent  `}
+                    className={`absolute inset-0 rounded  bg-accent/20  `}
                   ></motion.div>
                 )}
               </li>
@@ -77,11 +79,11 @@ const NavBar = () => {
               onClick={() => {
                 handleLogout();
               }}
-              className="bg-red-500 font-bold shadow-custom p-2 max-h-10 rounded cursor-pointer"
+              className="bg-red-500 font-semibold flex justify-center items-center shadow-custom p-2 max-h-10 rounded-lg cursor-pointer text-white"
               type="button"
               aria-label="Logout"
             >
-              Logout
+             Logout  <LogOut size={18} className="ml-2 size-6" />
             </button>
           <div>
             <button

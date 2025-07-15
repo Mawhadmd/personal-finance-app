@@ -14,10 +14,11 @@ export async function POST(Request: NextRequest) {
   const { email, password } = await Request.json();
   const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
   try {
-    const res = await pool.query('SELECT * FROM "User" WHERE email = $1', [email]);
+    const res = await pool.query('SELECT * FROM "users" WHERE email = $1', [
+      email,
+    ]);
     try {
       validator.parse({ email, password });
-    
     } catch (error) {
       return NextResponse.json(
         {

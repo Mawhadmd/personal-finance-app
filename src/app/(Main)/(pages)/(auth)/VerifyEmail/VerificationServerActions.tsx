@@ -1,12 +1,13 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 async function sendEmail(state: {
   success?: boolean;
   error?: string;
 }): Promise<{ success?: boolean; error?: string }> {
-  const Cookies = (await cookies());
+  const Cookies = await cookies();
   if (Cookies.get("AccessToken") === undefined) {
     return { error: "You must be logged in to send a verification email." };
   }
@@ -62,14 +63,25 @@ async function verify(
     if (!requestverifcation.ok) {
       return { error: response.error || "Failed to verify email" };
     }
+    if (!response.update){
+      return { error: "No token received after verification - please inform Support" };
+    }
+   (await cookies()).set("AccessToken", response.update, {
+        path: "/",
+        maxAge: parseInt(process.env.AccessTokenTimeout!),
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      });
 
-    // Set AccessToken with proper configuration if verification was successful
-
- 
-
+    // Verification successful - redirect to dashboard
+    redirect("/dashboard");
   } catch {
+    console.error("Error verifying email:");
     return { error: "Failed to verify email" };
   }
+
+  // This line should never be reached due to redirect, but keeping for type safety
   return { success: true };
 }
 

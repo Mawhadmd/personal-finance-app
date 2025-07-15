@@ -3,12 +3,16 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-
+type RegisterResponse = {
+  success: boolean;
+  error?: string;
+  token?: string;
+};
 
 const register = async (
-  {success,error}: { error?: string; success?: boolean },
+  { success, error }: { error?: string; success?: boolean },
   formData: FormData
-):  Promise<{ error?: string; success?: boolean }> => {
+): Promise<{ error?: string; success?: boolean }> => {
   const name = formData.get("name");
   const email = formData.get("email");
   const password = formData.get("password");
@@ -25,8 +29,6 @@ const register = async (
   if (password !== confirmPassword) {
     return { error: "Passwords do not match." };
   }
-
-  
 
   try {
     const fetchResponse = await fetch(
@@ -63,22 +65,21 @@ const register = async (
     if (data.token) {
       (await cookies()).set("AccessToken", data.token, {
         path: "/",
-        maxAge: parseInt(process.env.AccessTokenTimeout!), 
+        maxAge: parseInt(process.env.AccessTokenTimeout!),
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
       });
 
-
+      // Redirect to dashboard after successful registration
+      redirect("/dashboard");
     }
 
-    return { success: true };
+    throw new Error("Registration successful but no token received.");
   } catch (error) {
     console.error("Registration error:", error);
     return { error: "Network error. Please try again." };
   }
-
-
 };
 
 export default register;

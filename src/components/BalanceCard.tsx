@@ -16,19 +16,23 @@ export default function BalanceCard({
   return (
     <>
       {" "}
-      <div className="shadow-custom bg-foreground rounded p-4 w-1/3 flex justify-around  items-center space-x-4">
+      <div className="shadow-custom flex-col flex justify-center bg-foreground rounded-2xl p-2 w-1/3 h-30">
         {" "}
-        <div className="flex flex-col justify-center items-center gap-1">
-          <div className="p-2 bg-muted/50 w-fit rounded-full">{icon}</div>
-          <small className={`text-center `}>{text}</small>
-        </div>
-        <div className="flex flex-col justify-center items-center">
-          <div className={`text-3xl font-bold`}>
-            {currencySymbol}
-            {balance}
-          </div>
-          {changepercentage != undefined && (
-            <div className="relative text-sm text-muted text-center flex items-center gap-1 justify-center group cursor-help">
+        <div className="flex gap-2 items-center">
+          <div className="p-1 size-7 w-fit bg-muted/10 rounded-xl">{icon}</div>
+          <p className={`text-center `}>{text}</p>
+            {changepercentage != undefined && (
+            <div className={`relative text-sm rounded-lg p-1 text-muted text-center flex items-center gap-1 justify-center group cursor-help   ${
+                  changepercentage === 0
+                    ? "bg-neutral-500/10 "
+                    : text === "Spending This Month"
+                    ? changepercentage > 0
+                      ? "!bg-red-500/10"
+                      : "!bg-green-500/10"
+                    : changepercentage > 0
+                    ? "!bg-green-500/10"
+                    : "!bg-red-500/10"
+                }`}>
               {changepercentage != 0 && changepercentage > 0 ? (
                 <ArrowUp className="size-4" />
               ) : (
@@ -60,6 +64,13 @@ export default function BalanceCard({
               </span>
             </div>
           )}
+        </div>
+        <div className="flex flex-1 flex-col justify-center items-center">
+          <div className={`text-3xl font-bold`}>
+            {currencySymbol}
+            {balance}
+          </div>
+        
         </div>
       </div>
     </>
