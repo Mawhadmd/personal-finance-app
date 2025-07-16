@@ -9,6 +9,7 @@ import { Income as incometype, User } from "@/models";
 import { CircleOff } from "lucide-react";
 import { cookies } from "next/headers";
 import React from "react";
+import AmountCard from "../components/AmountCard";
 
 const Income = async () => {
   let user_id = await GetUserId();
@@ -70,27 +71,21 @@ const Income = async () => {
       <div className="flex flex-col mt-2 h-full ">
         <h2 className="font-bold text-2xl">Your Income</h2>
         <div className="flex   space-x-2  pb-2">
-          <div className="w-1/3 bg-foreground p-2 rounded-lg">
-            <p className="text-3xl font-bold m-1 mb-0 ">
-              {currencySymbol}
-              {incomeThisMonth.toFixed(2)}
-            </p>
-            <p className="text-muted  ml-1  ">This month</p>
-          </div>
-          <div className="w-1/3 bg-foreground p-2 rounded-lg">
-            <p className="text-3xl font-bold m-1 mb-0 ">
-              {currencySymbol}
-              {incomeLastMonth.toFixed(2)}
-            </p>
-            <p className="text-muted ml-1  ">Last month</p>
-          </div>
-          <div className="w-1/3 bg-foreground p-2 rounded-lg">
-            <p className="text-3xl font-bold m-1 mb-0 ">
-              {currencySymbol}
-              {incomeOverall.toFixed(2)}
-            </p>
-            <p className="text-muted ml-1">Overall </p>
-          </div>
+            <AmountCard
+            amount={incomeThisMonth}
+            label="This month"
+            currencySymbol={currencySymbol}
+          />
+          <AmountCard
+            amount={incomeLastMonth}
+            label="Last month"
+            currencySymbol={currencySymbol}
+          />
+          <AmountCard
+            amount={incomeOverall}
+            label="Overall"
+            currencySymbol={currencySymbol}
+          />
         </div>
         <div className="flex justify-between gap-2 items-start flex-1">
           <div className="w-1/3 bg-foreground rounded-xl p-2 py-4 flex flex-col h-full">

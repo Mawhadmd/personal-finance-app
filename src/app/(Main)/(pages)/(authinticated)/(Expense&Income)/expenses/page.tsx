@@ -1,18 +1,19 @@
 import AddtransactionModal from "@/app/(Main)/(pages)/(authinticated)/components/AddTransactionsModal/AddTransactionsModal";
 import Chart from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/components/OneLinechart";
 import TransactionCard from "@/app/(Main)/(pages)/(authinticated)/components/TransactionCard";
+import SpendingCard from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/components/AmountCard";
 import currencies from "@/constants/currencies";
 import ConvertCurrency from "@/lib/ConvertCurrency";
 import { formatNumber } from "@/lib/formatNumber";
 import getUserExpenses from "@/lib/getUserExpenses";
 import GetUserId from "@/lib/getUserId";
-import { Expense, User } from "@/models";
-import { motion } from "framer-motion";
+import { User } from "@/models";
+
 import { CircleOff } from "lucide-react";
 import { cookies } from "next/headers";
-import { format } from "path";
 
 import React from "react";
+import AmountCard from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/components/AmountCard";
 
 const Expenses = async () => {
   let user_id = await GetUserId();
@@ -72,27 +73,21 @@ const Expenses = async () => {
       <div className="flex flex-col mt-2 h-full ">
         <h2 className="font-bold text-2xl">Your Expenses</h2>
         <div className="flex   space-x-2  pb-2">
-          <div className="w-1/3 bg-foreground p-2 rounded-lg">
-            <p className="text-3xl font-bold m-1 mb-0 ">
-              {currencySymbol}
-              {formatNumber(spendingThisMonth)}
-            </p>
-            <p className="text-muted  ml-1  ">This month</p>
-          </div>
-          <div className="w-1/3 bg-foreground p-2 rounded-lg">
-            <p className="text-3xl font-bold m-1 mb-0 ">
-              {currencySymbol}
-              {formatNumber(spendingLastMonth)}
-            </p>
-            <p className="text-muted ml-1  ">Last month</p>
-          </div>
-          <div className="w-1/3 bg-foreground p-2 rounded-lg">
-            <p className="text-3xl font-bold m-1 mb-0 ">
-              {currencySymbol}
-              {formatNumber(spendingOverall)}
-            </p>
-            <p className="text-muted ml-1">Overall </p>
-          </div>
+          <AmountCard
+            amount={spendingThisMonth}
+            label="This month"
+            currencySymbol={currencySymbol}
+          />
+          <AmountCard
+            amount={spendingLastMonth}
+            label="Last month"
+            currencySymbol={currencySymbol}
+          />
+          <AmountCard
+            amount={spendingOverall}
+            label="Overall"
+            currencySymbol={currencySymbol}
+          />
         </div>
         <div className="flex justify-between gap-2 items-start flex-1">
           <div className="w-1/3 bg-foreground rounded-xl p-2 py-4 flex flex-col h-full">
