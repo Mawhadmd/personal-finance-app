@@ -5,20 +5,22 @@ import GetUserIncome from "@/lib/getUserIncome";
 import { Expense, Income, User } from "@/models";
 import {
   Banknote,
+  BanknoteArrowDown,
   Download,
   LockIcon,
   Target,
   Upload,
   Wallet,
 } from "lucide-react";
-import BalanceCard from "@/components/BalanceCard";
-import TransactionCard from "@/components/TransactionCard";
-import TwoLinesChart from "@/components/TwoLinesChart";
-import PieChartComponent from "@/components/pieChart";
+import BalanceCard from "@/app/(Main)/(pages)/(authinticated)/components/BalanceCard";
+import TransactionCard from "@/app/(Main)/(pages)/(authinticated)/components/TransactionCard";
+import TwoLinesChart from "@/app/(Main)/(pages)/(authinticated)/components/TwoLinesChart";
+import PieChartComponent from "@/app/(Main)/(pages)/(authinticated)/components/pieChart";
 import ConvertCurrency from "@/lib/ConvertCurrency";
 import { cookies } from "next/headers";
-import AddtransactionModal from "@/components/AddTransactionsModal/AddTransactionsModal";
+import AddtransactionModal from "@/app/(Main)/(pages)/(authinticated)/components/AddTransactionsModal/AddTransactionsModal";
 import GettingStarted from "./GettingStarted";
+import { formatNumber } from "@/lib/formatNumber";
 
 export default async function Home() {
   let user_id = await GetUserId();
@@ -101,12 +103,6 @@ export default async function Home() {
     })
     .reduce((acc, expense) => acc + expense.amount, 0);
 
-  console.log(
-    incomeThisMonth,
-    incomeLastMonth,
-    spendingThisMonth,
-    spendingLastMonth
-  );
   const percentageChangeIncome =
     incomeLastMonth === 0
       ? incomeThisMonth > 0
@@ -115,7 +111,7 @@ export default async function Home() {
       : ((incomeThisMonth - incomeLastMonth) / incomeLastMonth) * 100 || 0;
   const percentageChangeSpending =
     spendingLastMonth === 0
-      ? incomeThisMonth > 0
+      ? spendingThisMonth > 0
         ? 999
         : 0
       : ((spendingThisMonth - spendingLastMonth) / spendingLastMonth) * 100 ||
@@ -131,11 +127,6 @@ export default async function Home() {
   )?.symbol;
 
   const COLORS = [
-    // "#4CAFA0", // Green
-    // "#3B4AaC", // Dark Green
-    // "#A21444", // Light Green
-    // "#A556A7", // Pale Green
-    // "#43A047", // Medium Green
     ...Array(6)
       .fill(0)
       .map(() => {
@@ -146,26 +137,18 @@ export default async function Home() {
         return `rgb(${r},${g},${b})`;
       }),
   ];
-  let aiEvaluation = { response: "Loading AI evaluation..." };
-  try {
-    const aieval = await fetch(`http://localhost:3000/api/groq-Ai`, {
-      body: JSON.stringify({
-        name: userjson.name,
-        income: Incomearr.map((item) => ({ ...item })),
-        expenses: spendingsarr.map((item) => ({ ...item })),
-      }),
+
+  const aieval = await fetch(
+    `http://localhost:3000/api/groq-Ai?user_id=${user_id}`,
+    {
+      method: "GET",
       headers: {
-        "Content-Type": "application/json",
         Cookie: `${(await cookies()).toString()}`,
       },
-      method: "POST",
-    });
-    aiEvaluation = await aieval.json();
-  } catch (error) {
-    console.error("Error fetching AI evaluation:", error);
-    aiEvaluation = { response: "Failed to fetch AI evaluation." };
-    alert("Failed to fetch AI evaluation. Please try again later.");
-  }
+    }
+  );
+
+  let aiEvaluation = await aieval.json();
 
   return (
     <div className="flex h-full">
@@ -213,13 +196,13 @@ export default async function Home() {
             <AddtransactionModal />
           </div>
           {/* Get Started */}
-    <GettingStarted/>
+          <GettingStarted />
         </>
       ) : (
         // Full layout with transactions
         <>
           <div className="flex w-2/3 space-y-4 flex-col p-2">
-            <div>
+            <div className="">
               <div>
                 <h1>Welcome, {userjson.name}</h1>
                 <small className="text-muted">
@@ -229,7 +212,7 @@ export default async function Home() {
               <div className="flex gap-2  ">
                 <BalanceCard
                   balance={balance}
-                  icon={<Wallet />}
+                  icon={<Wallet className="" />}
                   currencySymbol={currencySympol ?? ""}
                   text="Current Balance"
                 />
@@ -251,10 +234,12 @@ export default async function Home() {
                 />
               </div>
             </div>
-            <div className="flex-1">
+            <div className="">
               <h2 className="border-b border-border">Transactions</h2>
-              <div className="flex gap-2 box-border h-full scroll-auto">
-                <div className="flex flex-col w-1/3">
+              <div className="flex gap-2 box-border">
+                <div className="relative w-1/3 pb-3">
+
+                <div className="flex flex-col  overflow-y-scroll  h-100 ">
                   {combinedtransactions.map((transaction, i) => (
                     <TransactionCard
                       transaction={transaction}
@@ -263,9 +248,13 @@ export default async function Home() {
                       key={i}
                     />
                   ))}
+                  
+                   <div className="absolute inset-0 bg-gradient-to-b from-transparent pointer-events-none from-80% to-100% to-background"></div>
+                  
+                  </div>
                 </div>
-                <div className=" w-2/3 flex justify-center items-center">
-                  {spendingsarr.length > 0 && Incomearr.length > 0 ? (
+                <div className=" w-2/3 flex justify-center items-center h-calc(100vh_-_5rem)">
+                  {spendingsarr.length > 0 || Incomearr.length > 0 ? (
                     <TwoLinesChart Expenses={spendingsarr} Income={Incomearr} />
                   ) : (
                     <div className="text-muted text-center">
@@ -276,10 +265,12 @@ export default async function Home() {
               </div>
             </div>
           </div>
-          <div className=" m-2 p-4 bg-foreground rounded w-1/3 space-y-2 flex flex-col border border-border overflow-hidden ">
-            <h3 className="">Expenses by category</h3>
+          <div className=" m-2 p-4 bg-foreground rounded w-1/3 space-y-2 flex flex-col border border-border  ">
+            <h3 className="flex gap-1 items-center">
+              <BanknoteArrowDown /> Expenses by category
+            </h3>
             <div className="flex flex-col h-4/7">
-              <div className=" flex justify-center items-center">
+              <div className=" flex justify-center items-center  h-full">
                 {spendingsarr.length > 0 ? (
                   <PieChartComponent
                     COLORS={COLORS}
@@ -314,7 +305,7 @@ export default async function Home() {
                           return (
                             <span>
                               {currencySympol}
-                              {value} (
+                              {formatNumber(value)} (
                               {((value / totalSpending) * 100).toFixed(2)}
                               %)
                             </span>
@@ -329,7 +320,14 @@ export default async function Home() {
             <div className="h-3/7 border-t border-border space-y-1 p-1">
               <h3>AI evaluation</h3>
               <div className="overflow-auto h-40 flex justify-center items-center">
-                {aiEvaluation.response}
+                {aiEvaluation.error ? (
+                  <div>{aiEvaluation.error}</div>
+                ) : (
+                  <p className="text-muted">
+                    {aiEvaluation.ai_eval ??
+                      "Please add transactions to get Ai Eval"}
+                  </p>
+                )}
               </div>
             </div>
           </div>

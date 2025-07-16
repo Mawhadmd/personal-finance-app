@@ -11,7 +11,9 @@ CREATE TABLE "users" (
   last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   is_verified BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  verification_code VARCHAR(6)
+  verification_code VARCHAR(6),
+  ai_eval TEXT DEFAULT NULL,
+  latest_ai_eval TIMESTAMP DEFAULT NULL
 );
 
 -- Income table

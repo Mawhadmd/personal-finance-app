@@ -14,5 +14,5 @@ export default async function GetUserIncome(
     }
   );
   const incomejson = await incomerequest.json();
-  return incomejson.income as Array<Income>;
+  return incomejson.income as Array<Income> || [];
 }

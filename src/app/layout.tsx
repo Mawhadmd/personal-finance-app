@@ -39,10 +39,11 @@ export default function RootLayout({
               })();
             `,
           }}
+          async
         />
       </head>
       <body
-        className={`${inter.className} antialiased bg-background !max-h-screen text-text font-sans   `}
+        className={`${inter.className} antialiased bg-background  text-text h-svh`}
       >
         {children}
       </body>

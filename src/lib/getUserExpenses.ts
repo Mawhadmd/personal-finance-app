@@ -14,5 +14,5 @@ export default async function GetUserExpenses(
     }
   );
   const spendingjson = await spendingrequest.json();
-  return spendingjson.expenses as Array<Expense>;
+  return spendingjson.expenses as Array<Expense> || [];
 }

@@ -1,5 +1,6 @@
-import Chart from "@/components/OneLinechart";
-import TransactionCard from "@/components/TransactionCard";
+import AddtransactionModal from "@/app/(Main)/(pages)/(authinticated)/components/AddTransactionsModal/AddTransactionsModal";
+import Chart from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/components/OneLinechart";
+import TransactionCard from "@/app/(Main)/(pages)/(authinticated)/components/TransactionCard";
 import currencies from "@/constants/currencies";
 import ConvertCurrency from "@/lib/ConvertCurrency";
 import GetUserId from "@/lib/getUserId";
@@ -117,9 +118,7 @@ const Income = async () => {
               <button className="p-2 rounded-lg w-fit bg-foreground text-accent border border-border hover:border-white cursor-pointer transition-colors text-start">
                 See All
               </button>
-              <button className="p-2 rounded-lg w-fit bg-accent text-foreground border border-border hover:border-white cursor-pointer transition-colors text-start">
-                Add
-              </button>
+              <AddtransactionModal type="income" />
             </div>
           </div>
           <div className="h-full bg-foreground rounded-xl  w-2/3 flex justify-center items-center">

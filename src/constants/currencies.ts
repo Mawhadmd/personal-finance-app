@@ -1,4 +1,4 @@
-const currencies = [
+const currencies: {code:string, name: string, symbol: string, exchangeRate: number}[] = [
   { code: "USD", name: "US Dollar", symbol: "$", exchangeRate: 1.0 },
   { code: "EUR", name: "Euro", symbol: "€", exchangeRate: 0.92 },
   { code: "GBP", name: "British Pound", symbol: "£", exchangeRate: 0.79 },
@@ -52,7 +52,7 @@ const currencies = [
   { code: "BHD", name: "Bahraini Dinar", symbol: ".د.ب", exchangeRate: 0.38 },
   { code: "OMR", name: "Omani Rial", symbol: "﷼", exchangeRate: 0.38 },
   { code: "JOD", name: "Jordanian Dinar", symbol: "د.ا", exchangeRate: 0.71 },
-  { code: "LBP", name: "Lebanese Pound", symbol: "£", exchangeRate: 89500.0 },
+  { code: "LBP", name: "Lebanese Pound", symbol: "LBP ", exchangeRate: 89500.0 },
   { code: "CLP", name: "Chilean Peso", symbol: "$", exchangeRate: 890.0 },
   { code: "PEN", name: "Peruvian Sol", symbol: "S/", exchangeRate: 3.78 },
   { code: "COP", name: "Colombian Peso", symbol: "$", exchangeRate: 4125.0 },

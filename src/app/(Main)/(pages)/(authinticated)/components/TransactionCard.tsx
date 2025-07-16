@@ -1,5 +1,6 @@
 import { Upload, Download } from "lucide-react";
 import { Expense, Income } from "@/models";
+import { formatNumber } from "@/lib/formatNumber";
 
 type TransactionCardProps = {
   transaction: Expense | Income;
@@ -17,14 +18,14 @@ const TransactionCard = ({
   const income = transaction as Income;
 
   return (
-    <div className="bg-foreground p-2 rounded-lg my-1 w-full">
+    <div className="bg-foreground border-border dark:shadow-none dark:border shadow-custom p-2 rounded-lg my-1 w-full">
       <div
         className={`flex items-center font-bold text-2xl ${
           isExpense ? "text-red-500" : "text-green-500"
         }`}
       >
         {currencySymbol}
-        {transaction.amount.toFixed(2)}
+        {formatNumber(transaction.amount)}
         {isExpense ? (
           <Upload size={18} className="inline ml-1" />
         ) : (

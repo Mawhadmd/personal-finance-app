@@ -8,7 +8,7 @@ const Layout = ({children}: Readonly<{
   return (
      <div className="flex max-h-screen  ">
          <NavBar />
-          <div className="p-10 flex-1">
+          <div className="p-5 flex-1 h-[calc(100vh-2rem)]">
             {children}
           </div>
         </div>

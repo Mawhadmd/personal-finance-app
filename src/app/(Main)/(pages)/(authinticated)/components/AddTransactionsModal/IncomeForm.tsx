@@ -1,0 +1,138 @@
+import { Plus } from "lucide-react";
+import React, { useActionState } from "react";
+import { AddIncome } from "./AddTransactionsServerAction";
+
+export default function IncomeForm({ button }: { button: React.ReactNode }) {
+  const [Customcategory, setCustomcategory] = React.useState(false);
+  const optionColors = {
+    backgroundColor: "var(--color-background)",
+    color: "var(--color-text)",
+  };
+  const CustomcategoryHandle = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (e.target.value === "Other") {
+      setCustomcategory(true);
+    } else {
+      setCustomcategory(false);
+    }
+  };
+  const [state, action, pending] = useActionState(AddIncome, {
+    error: "",
+    success: false,
+  });
+  return (
+    <form action={action} className="flex flex-col gap-4 mt-4">
+      {state.error && (
+        <div className="text-red-500 text-sm bg-red-50 p-2 rounded">
+          {state.error}
+        </div>
+      )}
+      {state.success && (
+        <div className="text-green-500 text-sm bg-green-50 p-2 rounded">
+          Income added successfully!
+        </div>
+      )}
+
+      <input
+        type="number"
+        min="0"
+        step="0.01"
+        className="border rounded px-3 py-2 focus:outline-none focus:ring"
+        placeholder="Enter amount"
+        required
+        name="amount"
+      />
+
+      <select
+        className="border rounded p-2 focus:outline-none focus:ring"
+        required
+        name={`${Customcategory ? "" : "category"}`}
+        onChange={CustomcategoryHandle}
+      >
+        <option style={optionColors} disabled selected>
+          Select Category
+        </option>
+        <option style={optionColors} value="Salary">
+          Salary
+        </option>
+        <option style={optionColors} value="Freelance">
+          Freelance
+        </option>
+        <option style={optionColors} value="Investment">
+          Investment
+        </option>
+        <option style={optionColors} value="Business">
+          Business
+        </option>
+        <option style={optionColors} value="Gift">
+          Gift
+        </option>
+        <option style={optionColors} value="Bonus">
+          Bonus
+        </option>
+        <option style={optionColors} value="Rental">
+          Rental Income
+        </option>
+        <option style={optionColors} value="Other">
+          <Plus className="inline w-4 h-4 mr-1" /> Add category
+        </option>
+      </select>
+
+      {Customcategory && (
+        <input
+          className="border rounded px-3 py-2 focus:outline-none focus:ring"
+          placeholder="Category"
+          type="text"
+          name="category"
+        />
+      )}
+
+      <input
+        type="date"
+        className="border rounded px-3 py-2 focus:outline-none focus:ring"
+        required
+        name="date"
+      />
+
+      <textarea
+        className="border rounded px-3 py-2 focus:outline-none focus:ring resize-none"
+        placeholder="description"
+        name="description"
+        rows={2}
+      />
+
+      <select
+        name="Method"
+        id="method"
+        className="border rounded p-2 focus:outline-none focus:ring"
+      >
+        <option style={optionColors} disabled selected>
+          Select Method
+        </option>
+        <option style={optionColors} value="Bank Transfer">
+          Bank Transfer
+        </option>
+        <option style={optionColors} value="Direct Deposit">
+          Direct Deposit
+        </option>
+        <option style={optionColors} value="Cash">
+          Cash
+        </option>
+        <option style={optionColors} value="Check">
+          Check
+        </option>
+        <option style={optionColors} value="PayPal">
+          PayPal
+        </option>
+        <option style={optionColors} value="Other">
+          Other
+        </option>
+      </select>
+
+      <small className="text-muted">
+        This will be added to your total income
+      </small>
+
+      {button}
+    </form>
+  );
+}

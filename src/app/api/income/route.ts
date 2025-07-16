@@ -1,4 +1,6 @@
+import currencies from "@/constants/currencies";
 import pool from "@/db/postgres";
+import ConvertCurrency from "@/lib/ConvertCurrency";
 
 /**
  * @swagger
@@ -190,6 +192,8 @@ export async function GET(request: Request) {
 
     // Build dynamic query based on filters
     let query = 'SELECT * FROM "income" WHERE user_id = $1';
+
+
     const params: (string | number)[] = [parseInt(user_id)];
     let paramIndex = 2;
 
@@ -217,7 +221,7 @@ export async function GET(request: Request) {
 
     // Get user currency
     const usercurrencyquery = await pool.query(
-      'SELECT Currency FROM "User" WHERE user_id = $1',
+      'SELECT Currency FROM "users" WHERE user_id = $1',
       [parseInt(user_id)]
     );
     const userCurrencyResult = usercurrencyquery.rows[0]?.currency || "USD";
@@ -277,14 +281,19 @@ export async function POST(request: Request) {
         { error: "user_id, amount, and date are required" },
         { status: 400 }
       );
-    }
-
+    } const fromCurrency =await pool.query(
+      'SELECT currency FROM "users" WHERE user_id = $1',[parseInt(user_id)])
+       const amountToUSD = ConvertCurrency({
+          amount: amount,
+          toCurrency: "USD",
+          fromCurrency: fromCurrency.rows[0].currency, // optional, if not provided, it will be assumed that the amount is in USD
+        });
     // Insert income into database
     const result = await pool.query(
       'INSERT INTO "income" (user_id, amount, date, category, method, description) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
       [
         user_id,
-        amount,
+        amountToUSD,
         date,
         category || null,
         method || null,
@@ -333,15 +342,23 @@ export async function PUT(request: Request) {
     if (!income_id) {
       return Response.json({ error: "income_id is required" }, { status: 400 });
     }
-
+      const fromCurrency = await pool.query(
+      'SELECT currency FROM "users" WHERE user_id = (SELECT user_id FROM "income" WHERE income_id = $1)',
+      [income_id]
+    );
+    const amountToUSD = amount? ConvertCurrency({
+          amount: amount,
+          toCurrency: "USD",
+          fromCurrency: fromCurrency.rows[0].currency, // optional, if not provided, it will be assumed that the amount is in USD
+        }): undefined;
     // Build dynamic update query
     const updateFields: string[] = [];
     const params: (string | number)[] = [income_id];
     let paramIndex = 2;
 
-    if (amount !== undefined) {
+    if (amountToUSD !== undefined) {
       updateFields.push(`amount = $${paramIndex}`);
-      params.push(amount);
+      params.push(amountToUSD);
       paramIndex++;
     }
 

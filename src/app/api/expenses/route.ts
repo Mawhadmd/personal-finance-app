@@ -1,4 +1,5 @@
 import pool from "@/db/postgres";
+import ConvertCurrency from "@/lib/ConvertCurrency";
 /**
  * @swagger
  * /api/expenses:
@@ -210,11 +211,11 @@ export async function GET(request: Request) {
     //   paramIndex++;
     // }
 
-    query += " ORDER BY date ASC";
+    query += " ORDER BY date DESC";
 
     const result = await pool.query(query, params);
     const usercurrencyquery = await pool.query(
-      'SELECT currency FROM "User" WHERE user_id = $1',
+      'SELECT currency FROM "users" WHERE user_id = $1',
       [parseInt(user_id)]
     );
     const userCurrencyResult = usercurrencyquery.rows[0]?.currency || "USD"; //
@@ -275,13 +276,22 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
+    const fromCurrency = await pool.query(
+      'SELECT currency FROM "users" WHERE user_id = $1',
+      [parseInt(user_id)]
+    );
+    const amountToUSD = ConvertCurrency({
+      amount: amount,
+      toCurrency: "USD",
+      fromCurrency: fromCurrency.rows[0].currency, // optional, if not provided, it will be assumed that the amount is in USD
+    });
+    console.log(amountToUSD, amount);
     // Insert expense into database
     const result = await pool.query(
       'INSERT INTO "expenses" (user_id, amount, date, category, description, method) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
       [
         user_id,
-        amount,
+        amountToUSD,
         date,
         category || null,
         description || null,
@@ -336,15 +346,27 @@ export async function PUT(request: Request) {
         { status: 400 }
       );
     }
-
+    const fromCurrency = await pool.query(
+      'SELECT currency FROM "users" WHERE user_id = (SELECT user_id FROM "expenses" WHERE expense_id = $1)',
+      [expense_id]
+    );
+    
+    const amountToUSD = amount
+      ? ConvertCurrency({
+          amount: amount,
+          toCurrency: "USD",
+          fromCurrency: fromCurrency.rows[0].currency, // optional, if not provided, it will be assumed that the amount is in USD
+        })
+      : undefined;
+    console.log(amountToUSD, amount);
     // Build dynamic update query
     const updateFields: string[] = [];
     const params: (string | number)[] = [expense_id];
     let paramIndex = 2;
 
-    if (amount !== undefined) {
+    if (amountToUSD !== undefined) {
       updateFields.push(`amount = $${paramIndex}`);
-      params.push(amount);
+      params.push(amountToUSD);
       paramIndex++;
     }
 

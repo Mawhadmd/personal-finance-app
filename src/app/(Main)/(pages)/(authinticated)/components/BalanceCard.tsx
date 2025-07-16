@@ -1,4 +1,5 @@
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { formatNumber } from "@/lib/formatNumber";
+import { ArrowDown, ArrowUp, Equal } from "lucide-react";
 
 export default function BalanceCard({
   balance,
@@ -19,8 +20,8 @@ export default function BalanceCard({
       <div className="shadow-custom flex-col flex justify-center bg-foreground rounded-2xl p-2 w-1/3 h-30">
         {" "}
         <div className="flex gap-2 items-center">
-          <div className="p-1 size-7 w-fit bg-muted/10 rounded-xl">{icon}</div>
-          <p className={`text-center `}>{text}</p>
+          <div className="p-1  w-fit bg-muted/10 rounded-xl">{icon}</div>
+          <p className={`text-center whitespace-nowrap text-sm`}>{text}</p>
             {changepercentage != undefined && (
             <div className={`relative text-sm rounded-lg p-1 text-muted text-center flex items-center gap-1 justify-center group cursor-help   ${
                   changepercentage === 0
@@ -33,11 +34,11 @@ export default function BalanceCard({
                     ? "!bg-green-500/10"
                     : "!bg-red-500/10"
                 }`}>
-              {changepercentage != 0 && changepercentage > 0 ? (
+              {changepercentage != 0? changepercentage > 0 ? (
                 <ArrowUp className="size-4" />
               ) : (
                 <ArrowDown className="size-4" />
-              )}
+              ): <Equal className="size-4" />}
               <span
                 className={
                   changepercentage === 0
@@ -68,7 +69,7 @@ export default function BalanceCard({
         <div className="flex flex-1 flex-col justify-center items-center">
           <div className={`text-3xl font-bold`}>
             {currencySymbol}
-            {balance}
+            {formatNumber(balance)}
           </div>
         
         </div>

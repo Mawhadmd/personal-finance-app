@@ -18,15 +18,40 @@ export async function middleware(request: NextRequest) {
 
   // Handle verification token logic
   let isValidToken = false;
+  const searchParams = request.nextUrl.searchParams;
+  const userIdFromParams = searchParams.get("user_id");
+
+  let userIdFromBody;
+  if (request.method === "POST" || request.method === "PUT") {
+    try {
+      const body = await request.json();
+      userIdFromBody = body.userId;
+    } catch (error) {
+      console.log("Error parsing request body:", error);
+    }
+  }
+
   if (tokencookie) {
     let payload;
     try {
       const data = await jwtVerify(tokencookie.value, Secret);
-    isValidToken = true;
+      payload = data.payload;
+
+      const tokenUserId = payload?.user_id;
+  
+      if (
+        (userIdFromParams && userIdFromParams != tokenUserId) ||
+        (userIdFromBody && userIdFromBody != tokenUserId)
+      ) {
+        console.log("User ID mismatch detected");
+        return NextResponse.json({ error: "User ID mismatch" }, { status: 403 });
+      }
+
+      isValidToken = true;
       if (pathname.startsWith("/api")) {
+        
         return NextResponse.next();
       }
-      payload = data.payload;
  
     } catch (error) {
       if (pathname.startsWith("/api")) {
@@ -36,9 +61,9 @@ export async function middleware(request: NextRequest) {
       // Clear invalid token
       const response = NextResponse.redirect(new URL("/login", request.url));
       response.cookies.delete("AccessToken");
-      if (!isAuthPage) {
+
         return response;
-      }
+
     }
   
     if (pathname !== "/VerifyEmail") {

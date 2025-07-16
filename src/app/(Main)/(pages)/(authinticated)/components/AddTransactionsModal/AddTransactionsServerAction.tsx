@@ -1,8 +1,9 @@
 "use server";
 
-import { Income } from "@/models";
+
 import GetUserId from "@/lib/getUserId";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 
 export async function AddExpense(
   prevState: { error: string; success: boolean },
@@ -39,6 +40,7 @@ export async function AddExpense(
       {
         method: "POST",
         headers: {
+                  Cookie: `${(await cookies()).toString()}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -113,6 +115,7 @@ export async function AddIncome(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Cookie: `${(await cookies()).toString()}`,
         },
         body: JSON.stringify({
           user_id,

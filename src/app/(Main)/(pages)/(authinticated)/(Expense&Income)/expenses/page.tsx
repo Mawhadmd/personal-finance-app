@@ -1,12 +1,16 @@
-import Chart from "@/components/OneLinechart";
-import TransactionCard from "@/components/TransactionCard";
+import AddtransactionModal from "@/app/(Main)/(pages)/(authinticated)/components/AddTransactionsModal/AddTransactionsModal";
+import Chart from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/components/OneLinechart";
+import TransactionCard from "@/app/(Main)/(pages)/(authinticated)/components/TransactionCard";
 import currencies from "@/constants/currencies";
 import ConvertCurrency from "@/lib/ConvertCurrency";
+import { formatNumber } from "@/lib/formatNumber";
 import getUserExpenses from "@/lib/getUserExpenses";
 import GetUserId from "@/lib/getUserId";
 import { Expense, User } from "@/models";
+import { motion } from "framer-motion";
 import { CircleOff } from "lucide-react";
 import { cookies } from "next/headers";
+import { format } from "path";
 
 import React from "react";
 
@@ -71,21 +75,21 @@ const Expenses = async () => {
           <div className="w-1/3 bg-foreground p-2 rounded-lg">
             <p className="text-3xl font-bold m-1 mb-0 ">
               {currencySymbol}
-              {spendingThisMonth.toFixed(2)}
+              {formatNumber(spendingThisMonth)}
             </p>
             <p className="text-muted  ml-1  ">This month</p>
           </div>
           <div className="w-1/3 bg-foreground p-2 rounded-lg">
             <p className="text-3xl font-bold m-1 mb-0 ">
               {currencySymbol}
-              {spendingLastMonth.toFixed(2)}
+              {formatNumber(spendingLastMonth)}
             </p>
             <p className="text-muted ml-1  ">Last month</p>
           </div>
           <div className="w-1/3 bg-foreground p-2 rounded-lg">
             <p className="text-3xl font-bold m-1 mb-0 ">
               {currencySymbol}
-              {spendingOverall.toFixed(2)}
+              {formatNumber(spendingOverall)}
             </p>
             <p className="text-muted ml-1">Overall </p>
           </div>
@@ -105,22 +109,18 @@ const Expenses = async () => {
                   />
                 ))
             ) : (
-                <div className="py-4 flex-1 text-muted flex flex-col items-center justify-center ">
-                  <CircleOff className="w-1/3 h-fit text-red-500" />{" "}
-              <h3 className="text-center">
-          
-                    You have no recent expenses recorded.
-               
-              </h3>
-                </div>
+              <div className="py-4 flex-1 text-muted flex flex-col items-center justify-center ">
+                <CircleOff className="w-1/3 h-fit text-red-500" />{" "}
+                <h3 className="text-center">
+                  You have no recent expenses recorded.
+                </h3>
+              </div>
             )}
             <div className="flex space-x-2">
               <button className="p-2 rounded-lg w-fit bg-foreground text-accent border border-border hover:border-white cursor-pointer transition-colors text-start">
                 See All
               </button>
-              <button className="p-2 rounded-lg w-fit bg-accent text-foreground border border-border hover:border-white cursor-pointer transition-colors text-start">
-                Add
-              </button>
+              <AddtransactionModal type="expense" />
             </div>
           </div>
           <div className="h-full bg-foreground rounded-xl  w-2/3 flex justify-center items-center">

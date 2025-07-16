@@ -1,4 +1,5 @@
 "use client";
+import { formatNumber } from "@/lib/formatNumber";
 import { Expense, Income } from "@/models";
 import React from "react";
 import {
@@ -31,16 +32,16 @@ export default function Chart({ data }: { data: Array<Expense | Income> }) {
           <YAxis
             stroke="#9CA3AF"
             fontSize={12}
-            tickFormatter={(value) => `$${value}`}
+            tickFormatter={(value) => `${formatNumber(value)}`}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#1F2937",
-              border: "1px solid #374151",
+              backgroundColor: "var(--color-background)",
+              border: "var(--color-border)",
               borderRadius: "6px",
               color: "#F9FAFB",
             }}
-            formatter={(value: number) => [`$${value.toFixed(2)}`, "Amount"]}
+            formatter={(value: number) => [`${formatNumber(value)}`, "Amount"]}
           />
           <Line
             type="monotone"
