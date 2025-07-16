@@ -89,7 +89,7 @@ const Expenses = async () => {
           />
         </div>
         <div className="flex justify-between gap-2 items-start flex-1">
-          <div className="w-1/3 bg-foreground rounded-xl p-2 py-4 flex flex-col h-full">
+          <div className="shadow-custom w-1/3 bg-foreground rounded-xl p-2 py-4 flex flex-col h-full">
             <h3 className="border-b py-1 border-border my-2">Latest</h3>
             {spendingarr.length > 0 ? (
               spendingarr
@@ -117,7 +117,7 @@ const Expenses = async () => {
               <AddtransactionModal type="expense" />
             </div>
           </div>
-          <div className="h-full bg-foreground rounded-xl  w-2/3 flex justify-center items-center">
+          <div className="shadow-custom  h-full bg-foreground rounded-xl  w-2/3 flex justify-center items-center">
             {spendingarr.length > 0 ? (
               <Chart data={spendingarr} />
             ) : (
