@@ -1,5 +1,5 @@
 import pool from "@/db/postgres";
-import { NextRequest } from "next/server";
+
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     return new Response(JSON.stringify({ ...res.rows[0] }), {
       status: 200,
     });
-  } catch (error) {
+  } catch {
     return new Response("Failed to fetch user", { status: 500 });
   }
 }

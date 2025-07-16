@@ -1,4 +1,4 @@
-interface RegisterResponse {
+export interface RegisterResponse {
   success: boolean;
   error?: string;
   token?: string;

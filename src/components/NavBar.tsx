@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { ReactNode, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Download, LayoutDashboard, Upload, Moon, Sun, LogOut } from "lucide-react";
 import ThemeControl from "@/lib/ThemeControl";
 import handleLogout from "@/lib/auth/HandleLogout";

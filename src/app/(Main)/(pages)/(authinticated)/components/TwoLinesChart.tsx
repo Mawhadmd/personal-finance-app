@@ -3,17 +3,16 @@ import { formatNumber } from "@/lib/formatNumber";
 import { Expense, Income } from "@/models";
 import React from "react";
 import {
-  LineChart,
-  Line,
+
   CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
+
   ResponsiveContainer,
   Area,
   AreaChart,
-  ReferenceLine,
+
 } from "recharts";
 
 export default function TwoLinesChart({

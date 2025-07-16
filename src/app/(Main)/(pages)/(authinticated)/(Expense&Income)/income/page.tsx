@@ -5,14 +5,14 @@ import currencies from "@/constants/currencies";
 import ConvertCurrency from "@/lib/ConvertCurrency";
 import GetUserId from "@/lib/getUserId";
 import GetUserIncome from "@/lib/getUserIncome";
-import { Income as incometype, User } from "@/models";
+import {  User } from "@/models";
 import { CircleOff } from "lucide-react";
 import { cookies } from "next/headers";
 import React from "react";
 import AmountCard from "../components/AmountCard";
 
 const Income = async () => {
-  let user_id = await GetUserId();
+  const user_id = await GetUserId();
 
   const currency = await fetch(
     `http://localhost:3000/api/User?user_id=${user_id}`,
@@ -30,7 +30,7 @@ const Income = async () => {
   )?.symbol;
 
   const incomearr = (await GetUserIncome(user_id)).map((income) => {
-    let amount = ConvertCurrency({
+    const amount = ConvertCurrency({
       amount: income.amount,
       toCurrency: currencyjson.currency,
     });

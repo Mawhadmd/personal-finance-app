@@ -1,7 +1,6 @@
-import { Request } from "./../../../../../node_modules/groq-sdk/_shims/index.d";
 import { NextRequest, NextResponse } from "next/server";
 import { LoginResponse } from "@/models/login";
-import zod, { jwt } from "zod";
+import zod from "zod";
 import pool from "@/db/postgres";
 import bcrypt from "bcryptjs";
 import { SignJWT } from "jose";
@@ -19,7 +18,7 @@ export async function POST(Request: NextRequest) {
     ]);
     try {
       validator.parse({ email, password });
-    } catch (error) {
+    } catch  {
       return NextResponse.json(
         {
           error: "Email or password is invalid",

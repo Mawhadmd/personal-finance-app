@@ -11,6 +11,10 @@ export default function ExpenseForm(   {button}: {button: React.ReactNode}) {
       setCustomcategory(false);
     }
   };
+    const optionColors = {
+    backgroundColor: "var(--color-background)",
+    color: "var(--color-text)",
+  };
   const [state, action, pending] = useActionState(AddExpense, {
     error: "",
     success: false,
@@ -18,16 +22,20 @@ export default function ExpenseForm(   {button}: {button: React.ReactNode}) {
 
   return (
     <form action={action} className="flex flex-col gap-4 mt-4">
-      {state.error && (
-        <div className="text-red-500 text-sm bg-red-50 p-2 rounded">
-          {state.error}
-        </div>
-      )}
-      {state.success && (
-        <div className="text-green-500 text-sm bg-green-50 p-2 rounded">
-          Expense added successfully!
-        </div>
-      )}
+       {pending ? "Loading..." : (
+      <>
+        {state.error && (
+          <div className="text-red-500 text-sm bg-red-50 p-2 rounded">
+            {state.error}
+          </div>
+        )}
+        {state.success && (
+          <div className="text-green-500 text-sm bg-green-50 p-2 rounded">
+            Income added successfully!
+          </div>
+        )}
+      </>
+    )}
 
       <input
         type="number"
@@ -45,15 +53,15 @@ export default function ExpenseForm(   {button}: {button: React.ReactNode}) {
         name={`${Customcategory ? "" : "category"}`}
         onChange={CustomcategoryHandle}
       >
-        <option  disabled defaultChecked selected> 
+        <option style={optionColors}  disabled defaultChecked selected> 
           Select Category
         </option>
-        <option value="Food">Food</option>
-        <option value="Transport">Transport</option>
-        <option value="Entertainment">Entertainment</option>
-        <option value="Bills">Bills</option>
-        <option value="Health">Health</option>
-        <option value="Other">
+        <option style={optionColors} value="Food">Food</option>
+        <option style={optionColors} value="Transport">Transport</option>
+        <option style={optionColors} value="Entertainment">Entertainment</option>
+        <option style={optionColors} value="Bills">Bills</option>
+        <option style={optionColors} value="Health">Health</option>
+        <option style={optionColors} value="Other">
           <Plus className="inline w-4 h-4 mr-1" />
           Add category
         </option>
@@ -84,15 +92,29 @@ export default function ExpenseForm(   {button}: {button: React.ReactNode}) {
       <select
         name="Method"
         id="method"
-        className="border rounded p-2 focus:outline-none focus:ring text-text"
+        className="border rounded p-2 focus:outline-none focus:ring"
       >
-        <option defaultChecked value="Credit Card">
-          Credit Card
+        <option style={optionColors} disabled selected>
+          Select Method
         </option>
-        <option value="Debit Card">Debit Card</option>
-        <option value="Cash">Cash</option>
-        <option value="Bank Transfer">Bank Transfer</option>
-        <option value="Other">Other</option>
+        <option style={optionColors} value="Bank Transfer">
+          Bank Transfer
+        </option>
+        <option style={optionColors} value="Direct Deposit">
+          Direct Deposit
+        </option>
+        <option style={optionColors} value="Cash">
+          Cash
+        </option>
+        <option style={optionColors} value="Check">
+          Check
+        </option>
+        <option style={optionColors} value="PayPal">
+          PayPal
+        </option>
+        <option style={optionColors} value="Other">
+          Other
+        </option>
       </select>
       <small className="text-muted">You are X amount away of your budget</small>
 

@@ -1,10 +1,9 @@
 import AddtransactionModal from "@/app/(Main)/(pages)/(authinticated)/components/AddTransactionsModal/AddTransactionsModal";
 import Chart from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/components/OneLinechart";
 import TransactionCard from "@/app/(Main)/(pages)/(authinticated)/components/TransactionCard";
-import SpendingCard from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/components/AmountCard";
 import currencies from "@/constants/currencies";
 import ConvertCurrency from "@/lib/ConvertCurrency";
-import { formatNumber } from "@/lib/formatNumber";
+
 import getUserExpenses from "@/lib/getUserExpenses";
 import GetUserId from "@/lib/getUserId";
 import { User } from "@/models";
@@ -16,7 +15,7 @@ import React from "react";
 import AmountCard from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/components/AmountCard";
 
 const Expenses = async () => {
-  let user_id = await GetUserId();
+  const user_id = await GetUserId();
 
   const currency = await fetch(
     `http://localhost:3000/api/User?user_id=${user_id}`,
@@ -33,7 +32,7 @@ const Expenses = async () => {
   )?.symbol;
 
   const spendingarr = (await getUserExpenses(user_id)).map((expense) => {
-    let amount = ConvertCurrency({
+    const amount = ConvertCurrency({
       amount: expense.amount,
       toCurrency: currencyjson.currency,
     });

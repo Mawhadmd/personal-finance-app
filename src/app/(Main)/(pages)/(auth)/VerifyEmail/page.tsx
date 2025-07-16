@@ -1,10 +1,9 @@
 "use client";
-import React, { useActionState, useEffect } from "react";
-
+import React, { useActionState,  } from "react";
 import { sendEmail, verify } from "./VerificationServerActions";
-import { MailIcon, MailQuestionMarkIcon } from "lucide-react";
+import { MailIcon,  } from "lucide-react";
 
-export default function page() {
+export default function VerifyEmail() {
   const [SendEmailstate, SednEmailaction, SendEmailpending] = useActionState(
     sendEmail,
     {

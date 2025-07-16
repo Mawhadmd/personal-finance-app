@@ -21,7 +21,9 @@ export default function Chart({ data }: { data: Array<Expense | Income> }) {
     }),
     amount: data.amount,
     category: "category" in data ? data.category || "Other" : "Other",
-  }));
+  })).sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
 
   return (
     <div className="w-full h-80 mt-4">

@@ -4,11 +4,10 @@ import GetUserId from "@/lib/getUserId";
 import GetUserIncome from "@/lib/getUserIncome";
 import { Expense, Income, User } from "@/models";
 import {
-  Banknote,
+
   BanknoteArrowDown,
   Download,
-  LockIcon,
-  Target,
+
   Upload,
   Wallet,
 } from "lucide-react";
@@ -19,11 +18,11 @@ import PieChartComponent from "@/app/(Main)/(pages)/(authinticated)/components/p
 import ConvertCurrency from "@/lib/ConvertCurrency";
 import { cookies } from "next/headers";
 import AddtransactionModal from "@/app/(Main)/(pages)/(authinticated)/components/AddTransactionsModal/AddTransactionsModal";
-import GettingStarted from "./GettingStarted";
+import GettingStarted from "./Components/GettingStarted";
 import { formatNumber } from "@/lib/formatNumber";
 
 export default async function Home() {
-  let user_id = await GetUserId();
+  const user_id = await GetUserId();
   const user = await fetch(
     `http://localhost:3000/api/User?user_id=${user_id}`,
     {
@@ -35,14 +34,14 @@ export default async function Home() {
   );
   const userjson: User = await user.json();
   const spendingsarr = (await GetUserExpenses(user_id)).map((expense) => {
-    let amount = ConvertCurrency({
+    const amount = ConvertCurrency({
       amount: expense.amount,
       toCurrency: userjson.currency,
     });
     return { ...expense, amount };
   });
   const Incomearr = (await GetUserIncome(user_id)).map((income) => {
-    let amount = ConvertCurrency({
+    const amount = ConvertCurrency({
       amount: income.amount,
       toCurrency: userjson.currency,
     });
@@ -139,7 +138,7 @@ export default async function Home() {
   ];
 
   const aieval = await fetch(
-    `http://localhost:3000/api/groq-Ai?user_id=${user_id}`,
+    `http://localhost:3000/api/groq-Ai?user_id=${user_id}&name=${userjson.name}&income=${incomeThisMonth}&expenses=${spendingThisMonth}&currency=${userjson.currency}`,
     {
       method: "GET",
       headers: {
@@ -148,7 +147,7 @@ export default async function Home() {
     }
   );
 
-  let aiEvaluation = await aieval.json();
+  const aiEvaluation = await aieval.json();
 
   return (
     <div className="flex h-full">
@@ -238,19 +237,17 @@ export default async function Home() {
               <h2 className="border-b border-border">Transactions</h2>
               <div className="flex gap-2 box-border">
                 <div className="relative w-1/3 pb-3">
+                  <div className="flex flex-col  overflow-y-scroll  h-100 ">
+                    {combinedtransactions.map((transaction, i) => (
+                      <TransactionCard
+                        transaction={transaction}
+                        type={"income_id" in transaction ? "income" : "expense"}
+                        currencySymbol={currencySympol}
+                        key={i}
+                      />
+                    ))}
 
-                <div className="flex flex-col  overflow-y-scroll  h-100 ">
-                  {combinedtransactions.map((transaction, i) => (
-                    <TransactionCard
-                      transaction={transaction}
-                      type={"income_id" in transaction ? "income" : "expense"}
-                      currencySymbol={currencySympol}
-                      key={i}
-                    />
-                  ))}
-                  
-                   <div className="absolute inset-0 bg-gradient-to-b from-transparent pointer-events-none from-80% to-100% to-background"></div>
-                  
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent pointer-events-none from-80% to-100% to-background"></div>
                   </div>
                 </div>
                 <div className=" w-2/3 flex justify-center items-center h-calc(100vh_-_5rem)">
@@ -318,7 +315,15 @@ export default async function Home() {
               </div>
             </div>
             <div className="h-3/7 border-t border-border space-y-1 p-1">
-              <h3>AI evaluation</h3>
+              <div className="flex space-x-2 items-center justify-center">
+                <h3>AI evaluation</h3>
+                <div>
+                  {new Date(aiEvaluation.latest_ai_eval).toLocaleString(
+                    "en-US",
+                    { month: "long", year: "numeric", day: "numeric" }
+                  )}
+                </div>
+              </div>
               <div className="overflow-auto h-40 flex justify-center items-center">
                 {aiEvaluation.error ? (
                   <div>{aiEvaluation.error}</div>

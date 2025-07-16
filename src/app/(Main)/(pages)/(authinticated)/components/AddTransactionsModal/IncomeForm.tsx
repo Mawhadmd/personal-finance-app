@@ -21,17 +21,21 @@ export default function IncomeForm({ button }: { button: React.ReactNode }) {
   });
   return (
     <form action={action} className="flex flex-col gap-4 mt-4">
-      {state.error && (
-        <div className="text-red-500 text-sm bg-red-50 p-2 rounded">
-          {state.error}
-        </div>
-      )}
-      {state.success && (
-        <div className="text-green-500 text-sm bg-green-50 p-2 rounded">
-          Income added successfully!
-        </div>
-      )}
-
+    {pending ? "Loading..." : (
+      <>
+        {state.error && (
+          <div className="text-red-500 text-sm bg-red-50 p-2 rounded">
+            {state.error}
+          </div>
+        )}
+        {state.success && (
+          <div className="text-green-500 text-sm bg-green-50 p-2 rounded">
+            Income added successfully!
+          </div>
+        )}
+      </>
+    )}
+      
       <input
         type="number"
         min="0"

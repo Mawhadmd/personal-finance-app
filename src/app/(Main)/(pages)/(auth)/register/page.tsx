@@ -5,10 +5,15 @@ import register from "./registerServerAction";
 import {Check, Eye,EyeOff, X} from 'lucide-react'
 import currencies from "@/constants/currencies";
 const Register = () => {
-  const [state, action, pending] = useActionState(register, {
-    error: "",
-    success: false,
-  });
+  const [state, action, pending] = useActionState(
+    async (_state: { error?: string; success?: boolean }, formData: FormData) => {
+      return await register(formData);
+    },
+    {
+      error: "",
+      success: false,
+    }
+  );
   const resetpassword = () => {
 
     setPassword("");

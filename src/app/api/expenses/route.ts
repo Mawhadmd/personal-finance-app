@@ -253,7 +253,7 @@ export async function POST(request: Request) {
     let body;
     try {
       body = await request.json();
-    } catch (jsonError) {
+    } catch  {
       return Response.json(
         { error: "Invalid JSON in request body" },
         { status: 400 }
@@ -331,7 +331,7 @@ export async function PUT(request: Request) {
     let body;
     try {
       body = await request.json();
-    } catch (jsonError) {
+    } catch  {
       return Response.json(
         { error: "Invalid JSON in request body" },
         { status: 400 }
@@ -437,7 +437,7 @@ export async function DELETE(request: Request) {
     let body;
     try {
       body = await request.json();
-    } catch (jsonError) {
+    } catch {
       return Response.json(
         { error: "Invalid JSON in request body" },
         { status: 400 }

@@ -69,7 +69,7 @@ const [showpassword, setshowpassword] = useState(false);
       </motion.form>
       <div className="text-red-500">{state.error}</div>
       <div className="text-center mt-4">
-        <span className="text-muted">Don't have an account? </span>
+        <span className="text-muted">Don&apos;t have an account? </span>
         <a
           href="/register"
           className="text-accent hover:text-accent/80 underline"

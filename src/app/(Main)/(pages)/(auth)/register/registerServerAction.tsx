@@ -10,7 +10,6 @@ type RegisterResponse = {
 };
 
 const register = async (
-  { success, error }: { error?: string; success?: boolean },
   formData: FormData
 ): Promise<{ error?: string; success?: boolean }> => {
   const name = formData.get("name");

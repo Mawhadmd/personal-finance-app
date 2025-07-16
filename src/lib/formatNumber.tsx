@@ -1,6 +1,6 @@
 export function formatNumber(num1: number, long?: boolean): string{
   let res = null;
-  let num = Math.abs(num1); 
+  const num = Math.abs(num1); 
   if( long ){
     return `${Intl.NumberFormat().format(num).toString()}`;
   }

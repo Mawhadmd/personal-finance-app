@@ -3,10 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-async function sendEmail(state: {
-  success?: boolean;
-  error?: string;
-}): Promise<{ success?: boolean; error?: string }> {
+async function sendEmail(): Promise<{ success?: boolean; error?: string }> {
   const Cookies = await cookies();
   if (Cookies.get("AccessToken") === undefined) {
     return { error: "You must be logged in to send a verification email." };

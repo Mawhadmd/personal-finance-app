@@ -1,6 +1,5 @@
 import pool from "@/db/postgres";
 import { jwtVerify, SignJWT } from "jose";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
