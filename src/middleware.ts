@@ -1,7 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-
 // This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -22,12 +21,17 @@ export async function middleware(request: NextRequest) {
   const userIdFromParams = searchParams.get("user_id");
 
   let userIdFromBody;
-  if (request.method === "POST" || request.method === "PUT") {
+
+  if ((request.method === "POST" || request.method === "PUT") && request.headers.get("Content-Type") === "application/json") {
     try {
+
+ 
       const body = await request.json();
       userIdFromBody = body.userId;
     } catch (error) {
       console.log("Error parsing request body:", error);
+    
+      userIdFromBody = null;
     }
   }
 
@@ -38,21 +42,22 @@ export async function middleware(request: NextRequest) {
       payload = data.payload;
 
       const tokenUserId = payload?.user_id;
-  
+
       if (
         (userIdFromParams && userIdFromParams != tokenUserId) ||
         (userIdFromBody && userIdFromBody != tokenUserId)
       ) {
         console.log("User ID mismatch detected");
-        return NextResponse.json({ error: "User ID mismatch" }, { status: 403 });
+        return NextResponse.json(
+          { error: "User ID mismatch" },
+          { status: 403 }
+        );
       }
 
       isValidToken = true;
       if (pathname.startsWith("/api")) {
-        
         return NextResponse.next();
       }
- 
     } catch (error) {
       if (pathname.startsWith("/api")) {
         return NextResponse.json({ error: "Invalid token" }, { status: 401 });
@@ -62,10 +67,9 @@ export async function middleware(request: NextRequest) {
       const response = NextResponse.redirect(new URL("/login", request.url));
       response.cookies.delete("AccessToken");
 
-        return response;
-
+      return response;
     }
-  
+
     if (pathname !== "/VerifyEmail") {
       if (!payload?.is_verified) {
         return NextResponse.redirect(new URL("/VerifyEmail", request.url));
@@ -74,7 +78,6 @@ export async function middleware(request: NextRequest) {
       console.log("User is on verify email page, allowing access");
       return NextResponse.next();
     }
-
   } else {
     if (pathname.startsWith("/api")) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
