@@ -62,7 +62,6 @@ export default function ExpenseForm(   {button}: {button: React.ReactNode}) {
         <option style={optionColors} value="Bills">Bills</option>
         <option style={optionColors} value="Health">Health</option>
         <option style={optionColors} value="Other">
-          <Plus className="inline w-4 h-4 mr-1" />
           Add category
         </option>
       </select>

@@ -77,7 +77,7 @@ export default function IncomeForm({ button }: { button: React.ReactNode }) {
           Rental Income
         </option>
         <option style={optionColors} value="Other">
-          <Plus className="inline w-4 h-4 mr-1" /> Add category
+ Add category
         </option>
       </select>
 
