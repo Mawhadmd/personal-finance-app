@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { NextResponse } from "next/server";
 
 async function sendEmail(): Promise<{ success?: boolean; error?: string }> {
   const Cookies = await cookies();
@@ -44,7 +45,7 @@ async function verify(
   }
 
   try {
-    const requestverifcation = await fetch(
+    const requestverification = await fetch(
       "http://localhost:3000/api/auth/verifyEmail",
       {
         method: "POST",
@@ -55,15 +56,16 @@ async function verify(
         body: JSON.stringify({ code: verificationCode }),
       }
     );
-    const response = await requestverifcation.json();
+    const response = await requestverification.json();
 
-    if (!requestverifcation.ok) {
+    if (!requestverification.ok) {
       return { error: response.error || "Failed to verify email" };
     }
-    if (!response.update){
+    if (!response.token){
+      console.error(response.error, requestverification.status);
       return { error: "No token received after verification - please inform Support" };
     }
-   (await cookies()).set("AccessToken", response.update, {
+   (await cookies()).set("AccessToken", response.token, {
         path: "/",
         maxAge: parseInt(process.env.AccessTokenTimeout!),
         httpOnly: true,
@@ -71,10 +73,10 @@ async function verify(
         sameSite: "lax",
       });
 
-    // Verification successful - redirect to dashboard
-    redirect("/dashboard");
-  } catch {
-    console.error("Error verifying email:");
+
+    return { success: true };
+  } catch(err) {
+    console.error("Error verifying email:", err);
     return { error: "Failed to verify email" };
   }
 

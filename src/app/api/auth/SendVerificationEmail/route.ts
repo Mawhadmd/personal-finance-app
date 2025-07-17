@@ -6,6 +6,7 @@ import { jwtVerify } from "jose";
 
 export async function POST(request: NextRequest) {
   try {
+  
     // Get email from Verificaiton-token cookie (matches your middleware)
     const verificationTokenCookie = request.cookies.get("AccessToken");
     if (!verificationTokenCookie) {
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     const { payload } = await jwtVerify(
       verificationTokenCookie.value,
-      new TextEncoder().encode(process.env.JWT_SECRET!)
+      new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET!)
     );
     const email = payload.email as string;
     if (!email) {
@@ -42,7 +43,8 @@ export async function POST(request: NextRequest) {
     const user_id = userResult.rows[0].user_id;
 
     // Check if there's a valid (non-expired) verification code for this user
-    const existingCodeResult = await pool.query(
+    try{
+       const existingCodeResult = await pool.query(
       `SELECT code, expires_at FROM verification_codes 
        WHERE user_id = $1 AND expires_at > NOW() 
        ORDER BY created_at DESC 
@@ -61,6 +63,13 @@ export async function POST(request: NextRequest) {
           error: `A valid verification code already exists. Please wait ${minutesLeft} minutes before requesting a new one.`,
         }),
         { status: 400 }
+      );
+    }
+   
+    }catch{
+      return new Response(
+        JSON.stringify({ error: "Error checking existing verification code." }),
+        { status: 500 }
       );
     }
 

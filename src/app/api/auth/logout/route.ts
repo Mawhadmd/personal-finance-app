@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-export async function POST(request: Request) { //TODO fix with refresh token
+export async function POST(request: Request) { 
   const cookies = request.headers.get("cookie");
     const token = cookies?.split("; ").find((cookie) => cookie.startsWith("AccessToken="));
     if (!token) {
@@ -11,7 +11,8 @@ export async function POST(request: Request) { //TODO fix with refresh token
     // Clear the token cookie
   
     const response = NextResponse.json({ message: "Logout successful" }, { status: 200 });
-    response.cookies.set("AccessToken", "", { path: "/", expires: new Date(0) });
+    response.cookies.delete("AccessToken");
+    response.cookies.delete("RefreshToken");
     return response;
  
   } catch (error) {

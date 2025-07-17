@@ -1,5 +1,5 @@
 // Expense model based on seed.sql schema
-export interface Expense {
+export type Expense = {
   expense_id: number;
   user_id: number;
   amount: number;
@@ -7,4 +7,4 @@ export interface Expense {
   category?: string;
   description?: string;
   method?: string;
-}
+};

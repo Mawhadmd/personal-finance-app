@@ -1,7 +1,8 @@
 "use client";
-import React, { useActionState,  } from "react";
+import React, { useActionState, useEffect,  } from "react";
 import { sendEmail, verify } from "./VerificationServerActions";
 import { MailIcon,  } from "lucide-react";
+import { redirect } from "next/navigation";
 
 export default function VerifyEmail() {
   const [SendEmailstate, SednEmailaction, SendEmailpending] = useActionState(
@@ -15,7 +16,12 @@ export default function VerifyEmail() {
     success: false,
     error: "",
   });
-
+  useEffect(() => {
+    if(Verifystate.success){
+      redirect('/dashboard');
+    }
+ 
+  }, [Verifystate]);
   return (
     <>
       <div className="w-80 h-80 flex  flex-col items-center  p-4 bg-foreground border-border border ">

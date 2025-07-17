@@ -1,5 +1,5 @@
 // User model based on seed.sql schema
-export interface User {
+export type User = {
   user_id: number;
   email: string;
   password: string;
@@ -12,4 +12,4 @@ export interface User {
   is_verified: boolean;
   created_at: string;
   verification_code?: string;
-}
+};

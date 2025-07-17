@@ -1,62 +1,83 @@
 "use server";
 
-import { LoginResponse } from "@/models/login";
+import pool from "@/db/postgres";
+import bcrypt from "bcryptjs";
+import { createAccessToken } from "@/app/api/CreateAccessToken";
+import { createRefreshToken } from "@/app/api/CreateRefreshToken";
+import { hash } from "@/app/api/hash";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 const login = async (
-  state: { error?: string; success?: boolean },
+  state: { error?: string },
   formData: FormData
-) => {
-  const email = formData.get("email");
-  const password = formData.get("password");
+): Promise<{ error?: string; success?: boolean }> => {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
 
   console.log("Login attempt with email:", email);
 
   try {
-    const fetchResponse = await fetch("http://localhost:3000/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        
-      },
+    // Get user from database
+    const userQuery = 'SELECT * FROM "users" WHERE email = $1';
+    const userResult = await pool.query(userQuery, [email]);
 
-      body: JSON.stringify({ email, password }),
+    if (userResult.rows.length === 0) {
+      return { error: "This user doesn't exist" };
+    }
+
+    const user = userResult.rows[0];
+
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return { error: "Invalid email or password." };
+    }
+
+    // Generate tokens
+    const accessToken = await createAccessToken({
+      user_id: user.user_id,
+      email: user.email,
+      is_verified: user.is_verified,
+      name: user.name,
+      type: "access",
     });
-    
-        if(fetchResponse.status.toString().startsWith("5")){
-            console.log("Fetch response status:", fetchResponse.status);
-            return { error: "Internal Server Error. Please try again later." };
-        }
-          const data: LoginResponse = (await fetchResponse.json());
-        if (!fetchResponse.ok) {
-          console.error("Login failed:", fetchResponse.statusText);
-          return { error: `${fetchResponse.status} Error: ${data.error}` };
-        }
-        if (!data.success) {
-          console.error("Login failed:", data.error);
-          return { error: data.error };
-        }
-    console.log("Login successful:", data);
 
-    // Set the token in cookies using Next.js server-side cookies
-    (await cookies()).set("AccessToken", data.token, {
-      path: "/",
-      maxAge: parseInt(process.env.AccessTokenTimeout!),
-      httpOnly: true, // More secure
+    const refreshToken = await createRefreshToken({
+      user_id: user.user_id,
+      type: "refresh",
+    });
+
+    // Store hashed refresh token in database and update last login
+    await pool.query(
+      `UPDATE users SET refresh_token = $1, last_login = NOW() WHERE user_id = $2`,
+      [hash(refreshToken), user.user_id]
+    );
+
+    // Set cookies
+    const cookieStore = await cookies();
+
+    cookieStore.set("AccessToken", accessToken, {
+      httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "strict",
+
     });
 
-    console.log("Token set in cookies");
+    cookieStore.set("RefreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+
+    });
+
+    console.log("Login successful", accessToken, refreshToken);
+    return { success: true };
   } catch (error) {
     console.error("Login error:", error);
     return { error: "Login failed. Please try again." };
   }
-
-  // Redirect to the dashboard (this happens after successful login)
-  redirect("/dashboard");
-  
 };
 
 export default login;

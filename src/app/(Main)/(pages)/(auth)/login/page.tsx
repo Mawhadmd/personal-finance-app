@@ -1,13 +1,18 @@
 "use client";
 import { motion } from "framer-motion";
-import React, { useActionState, useState } from "react";
+import React, { useActionState, useEffect, useState } from "react";
 import login from "./loginServerAction";
 import { Eye, EyeOff } from "lucide-react";
+import { redirect } from "next/navigation";
 
 const Login = () => {
-  const [state, action, pending] = useActionState(login, { error: "" });
+  const [state, action, pending] = useActionState(login, { error: "", success: false || undefined});
 const [showpassword, setshowpassword] = useState(false);
-
+  useEffect(() => {
+    if (state.success) {
+      redirect("/dashboard");
+    }
+  }, [state]);
   return (
     <>
       <motion.form

@@ -4,18 +4,50 @@ import currencies from "@/constants/currencies";
 export default function ConvertCurrency({
   amount,
   toCurrency,
-  fromCurrency, // add fromCurrency here
+  fromCurrency = "USD", // Set default value instead of optional
 }: {
   amount: number;
   toCurrency: string;
-  fromCurrency?: string; //optional, if not provided, it will be assumed that the amount is in USD
+  fromCurrency?: string;
 }) {
-  if (toCurrency == "USD") {
-    return amount / currencies.find((c) => c.code == fromCurrency)!.exchangeRate; //when user input amount in other currencies
+  // Validate inputs
+  if (!amount || amount < 0) {
+    throw new Error("Amount must be a positive number");
   }
 
+  if (!toCurrency) {
+    throw new Error("toCurrency is required");
+  }
 
+  // No conversion needed
+  if (fromCurrency === toCurrency) {
+    return amount;
+  }
 
+  // Find currency objects with error handling
+  const fromCurrencyObj = currencies.find((c) => c.code === fromCurrency);
+  const toCurrencyObj = currencies.find((c) => c.code === toCurrency);
 
-  return currencies.find((c) => c.code == toCurrency)!.exchangeRate * amount; //USD to other currencies
+  if (!fromCurrencyObj) {
+    throw new Error(`Currency not found: ${fromCurrency}`);
+  }
+
+  if (!toCurrencyObj) {
+    throw new Error(`Currency not found: ${toCurrency}`);
+  }
+
+  // Converting to USD
+  if (toCurrency === "USD") {
+    return amount / fromCurrencyObj.exchangeRate;
+  }
+
+  // Converting from USD to another currency
+  if (fromCurrency === "USD") {
+    return amount * toCurrencyObj.exchangeRate;
+  }
+
+  // Converting between two non-USD currencies
+  // First convert to USD, then to target currency
+  const usdAmount = amount / fromCurrencyObj.exchangeRate;
+  return usdAmount * toCurrencyObj.exchangeRate;
 }

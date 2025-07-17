@@ -1,101 +1,131 @@
+import { RefreshToken } from "./models/tokens";
 import { NextResponse, NextRequest } from "next/server";
-import { jwtVerify } from "jose";
+import { decodeJwt, jwtVerify } from "jose";
+import { JWTExpired } from "jose/errors";
+import { decode } from "punycode";
 
 // This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const Cookies = request.cookies;
-  // console.log("Request path:", pathname);
-  const Secret = new TextEncoder().encode(process.env.JWT_SECRET!);
-
-  const tokencookie = Cookies.get("AccessToken");
-  // console.log(request.cookies)
-  // console.log("Token:", tokencookie ? tokencookie.value : "No AccessToken cookie found");
-  // Check if user has a valid token
-
+  const Secret = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET!);
   const isAuthPage = pathname === "/login" || pathname === "/register";
-
-  // Handle verification token logic
-  let isValidToken = false;
-  const searchParams = request.nextUrl.searchParams;
-  const userIdFromParams = searchParams.get("user_id");
-
-  let userIdFromBody;
-
-  if ((request.method === "POST" || request.method === "PUT") && request.headers.get("Content-Type") === "application/json") {
-    try {
-
- 
-      const body = await request.json();
-      userIdFromBody = body.userId;
-    } catch (error) {
-      console.log("Error parsing request body:", error);
-    
-      userIdFromBody = null;
+  const isVerifyApi = pathname == "/api/auth/verifyEmail" || pathname == "/api/auth/SendVerificationEmail";
+  const AccessToken = Cookies.get("AccessToken");
+  const RefreshToken = Cookies.get("RefreshToken");
+  console.log(pathname)
+  let AccessTokenpayload;
+  if (!AccessToken) {
+    if (pathname.startsWith("/api")) {
+      return NextResponse.json({ error: "No token" }, { status: 401 });
     }
+    if (isAuthPage) {
+      return NextResponse.next();
+    }
+    console.log("No token found, redirecting to login");
+    return NextResponse.redirect(new URL("/login", request.url));
+  } //This will check if the tokens exists in the cookies
+  if (!RefreshToken) {
+    if (pathname.startsWith("/api")) {
+      return NextResponse.json({ error: "No token" }, { status: 401 });
+    }
+    if (isAuthPage) {
+      return NextResponse.next();
+    }
+    console.log("No token found, redirecting to login");
+    return NextResponse.redirect(new URL("/login", request.url));
   }
+  //#TODO make all api routes use the id/emails from the token only
 
-  if (tokencookie) {
-    let payload;
-    try {
-      const data = await jwtVerify(tokencookie.value, Secret);
-      payload = data.payload;
-
-      const tokenUserId = payload?.user_id;
-
-      if (
-        (userIdFromParams && userIdFromParams != tokenUserId) ||
-        (userIdFromBody && userIdFromBody != tokenUserId)
-      ) {
-        console.log("User ID mismatch detected");
-        return NextResponse.json(
-          { error: "User ID mismatch" },
-          { status: 403 }
-        );
-      }
-
-      isValidToken = true;
-      if (pathname.startsWith("/api")) {
-        return NextResponse.next();
-      }
-    } catch (error) {
-      if (pathname.startsWith("/api")) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-      }
-      console.log("Invalid token:", error);
-      // Clear invalid token
-      const response = NextResponse.redirect(new URL("/login", request.url));
-      response.cookies.delete("AccessToken");
-
-      return response;
-    }
+  try {
+    AccessTokenpayload = decodeJwt(AccessToken.value);
+    await jwtVerify(AccessToken.value, Secret);
 
     if (pathname !== "/VerifyEmail") {
-      if (!payload?.is_verified) {
+      if (isVerifyApi){
+        return NextResponse.next();
+      }
+      if (!AccessTokenpayload?.is_verified) {
+        console.log("User is not verified, redirecting to verify email");
+        if (pathname.startsWith("/api")) {
+          return NextResponse.json(
+            { error: "User not verified" },
+            { status: 401 }
+          );
+        }
         return NextResponse.redirect(new URL("/VerifyEmail", request.url));
       }
     } else {
       console.log("User is on verify email page, allowing access");
       return NextResponse.next();
     }
-  } else {
+
     if (pathname.startsWith("/api")) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.next();
     }
-  }
+    if (isAuthPage) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  } catch (error) {
+    if (error instanceof JWTExpired) {
+      console.log("Token Expired, trying to refresh");
+      try {
+        await jwtVerify(
+          RefreshToken.value,
+          new TextEncoder().encode(process.env.REFRESH_TOKEN_SECRET!)
+        );
+        console.log("Refresh token is valid, proceeding to refresh");
+      } catch (error) {
+        console.log("Refresh token expired or invalid, redirecting to login");
+        if (pathname.startsWith("/api")) {
+          return NextResponse.json({ error: "Refresh token expired" }, { status: 401 });
+        }
+        // If the token is invalid, redirect to login
+        console.log("Invalid token:", error);
+        const response = NextResponse.redirect(new URL("/login", request.url));
+        response.cookies.delete("AccessToken");
+        response.cookies.delete("RefreshToken");
+        return response;
+      }
+      const refresh = await fetch(
+        "http://localhost:3000/api/auth/refresh_token",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            user_id: AccessTokenpayload?.user_id,
+            refresh_token: RefreshToken?.value,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+         const refreshData = await refresh?.json();
+      if (!refresh.ok) {
+        console.log("Failed to refresh token, redirecting to login", refreshData.error);
+        if (!isAuthPage)
+        return NextResponse.redirect(new URL("/login", request.url));
+      } else {
+     
+        console.log("Token refreshed successfully",refreshData.error);
+        const response = NextResponse.next();
+        response.cookies.set("AccessToken", refreshData.accessToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+        });
+        return response;
+      }
+    }
+    // If the token is invalid, redirect to login
+    console.log("Invalid token:", error);
 
-  // If user is authenticated and trying to access auth pages, redirect to home
-  if (isValidToken && isAuthPage) {
-    console.log(
-      "Authenticated user trying to access auth page, redirecting to home"
-    );
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
+    // Clear invalid token
+    const response = NextResponse.redirect(new URL("/login", request.url));
+    response.cookies.delete("AccessToken");
+    response.cookies.delete("RefreshToken");
 
-  // If user is not authenticated and not on auth pages, redirect to login
-  if (!isValidToken && !isAuthPage) {
-    console.log("Unauthenticated user, redirecting to login");
-    return NextResponse.redirect(new URL("/login", request.url));
+    return response;
   }
 
   // Allow the request to continue
@@ -106,12 +136,11 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api/auth/login (login API route)
-     * - api/auth/register (register API route)
+     * - api/auth/refresh_token (refresh token API route)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    "/((?!api/auth/login|api/auth/register|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/auth/refresh_token|_next/static|_next/image|favicon.ico).*)",
   ],
 };

@@ -1,5 +1,5 @@
 // Income model based on seed.sql schema
-export interface Income {
+export type Income = {
   income_id: number;
   user_id: number;
   amount: number;
@@ -7,4 +7,4 @@ export interface Income {
   category?: string;
   method?: string;
   description?: string;
-}
+};

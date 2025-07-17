@@ -1,6 +1,8 @@
 import pool from "@/db/postgres";
 import { jwtVerify, SignJWT } from "jose";
 import { NextRequest, NextResponse } from "next/server";
+import { createAccessToken } from "../../CreateAccessToken";
+import { AccessToken } from "@/models/tokens";
 
 export async function POST(request: NextRequest) {
   const { code } = await request.json();
@@ -12,7 +14,7 @@ export async function POST(request: NextRequest) {
   }
   const { payload } = await jwtVerify(
     request.cookies.get("AccessToken")?.value as string,
-    new TextEncoder().encode(process.env.JWT_SECRET!)
+    new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET!)
   );
   const realcode = await pool.query(
     `SELECT code FROM verification_codes WHERE email = $1 AND expires_at > NOW()`,
@@ -24,15 +26,19 @@ export async function POST(request: NextRequest) {
       pool.query(`UPDATE "users" SET is_verified = true WHERE email = $1`, [
         payload.email,
       ]);
+      const update = await createAccessToken({ is_verified: true, ...payload } as AccessToken)
+      // const update = await new SignJWT({ is_verified: true, ...payload })
+      //   .setProtectedHeader({ alg: "HS256" })
+      //   .setIssuedAt()
+      //   .setExpirationTime(process.env.ACCESS_TOKEN_TIMEOUT!)
+      //   .sign(new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET!));
 
-      const update = await new SignJWT({ is_verified: true, ...payload })
-        .setProtectedHeader({ alg: "HS256" })
-        .setIssuedAt()
-        .setExpirationTime("1h")
-        .sign(new TextEncoder().encode(process.env.JWT_SECRET!));
-   
       return NextResponse.json(
-        { success: true, message: "Email verified successfully.", token: update },
+        {
+          success: true,
+          message: "Email verified successfully.",
+          token: update,
+        },
         { status: 200 }
       );
     } catch (error) {

@@ -4,6 +4,7 @@ import React, { useActionState, useEffect, useState } from "react";
 import register from "./registerServerAction";
 import {Check, Eye,EyeOff, X} from 'lucide-react'
 import currencies from "@/constants/currencies";
+import { redirect } from "next/navigation";
 const Register = () => {
   const [state, action, pending] = useActionState(
     async (_state: { error?: string; success?: boolean }, formData: FormData) => {
@@ -19,6 +20,11 @@ const Register = () => {
     setPassword("");
     setConfirmPassword("");
   }
+  useEffect(() => {
+    if (state.success) {
+      redirect("/dashboard");
+    }
+  }, [state]);
   useEffect(() => {resetpassword()}, [state]);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

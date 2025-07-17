@@ -1,5 +1,5 @@
-export interface LoginResponse {
-    token: string;
-    error: string;
-    success: boolean;
-  }
+export type LoginResponse = {
+  token: string;
+  error: string;
+  success: boolean;
+};
