@@ -3,14 +3,7 @@ import GetUserExpenses from "@/lib/getUserExpenses";
 import GetUserId from "@/lib/getUserId";
 import GetUserIncome from "@/lib/getUserIncome";
 import { Expense, Income, User } from "@/models";
-import {
-
-  BanknoteArrowDown,
-  Download,
-
-  Upload,
-  Wallet,
-} from "lucide-react";
+import { BanknoteArrowDown, Download, Upload, Wallet } from "lucide-react";
 import BalanceCard from "@/app/(Main)/(pages)/(authinticated)/components/BalanceCard";
 import TransactionCard from "@/app/(Main)/(pages)/(authinticated)/components/TransactionCard";
 import TwoLinesChart from "@/app/(Main)/(pages)/(authinticated)/components/TwoLinesChart";
@@ -137,6 +130,54 @@ export default async function Home() {
       }),
   ];
 
+  if (combinedtransactions.length === 0) {
+    return (
+      // No transactions layout - centered and simplified
+      <div className="h-full flex">
+        <div className="w-full flex flex-col p-2">
+          {/* Header Section */}
+          <div className="mb-6">
+            <div>
+              <h1>Welcome, {userjson.name}</h1>
+              <small className="text-muted">
+                This is your financial summary
+              </small>
+            </div>
+            <div className="flex gap-2 mt-4">
+              <BalanceCard
+                balance={balance}
+                icon={<Wallet className="size-full" />}
+                currencySymbol={currencySympol ?? ""}
+                text="Current Balance"
+              />
+
+              <BalanceCard
+                balance={incomeThisMonth}
+                icon={<Download className="text-green-500 size-full" />}
+                currencySymbol={currencySympol ?? ""}
+                text="Income This Month"
+                changepercentage={percentageChangeIncome}
+              />
+
+              <BalanceCard
+                balance={spendingThisMonth}
+                icon={<Upload className="text-red-500 size-full" />}
+                currencySymbol={currencySympol ?? ""}
+                text="Spending This Month"
+                changepercentage={percentageChangeSpending}
+              />
+            </div>
+          </div>
+
+          {/* Transactions Section - Centered */}
+          <AddtransactionModal />
+        </div>
+        {/* Get Started */}
+        <GettingStarted />
+      </div>
+    );
+  }
+
   const aieval = await fetch(
     `http://localhost:3000/api/groq-Ai?user_id=${user_id}&name=${userjson.name}&income=${incomeThisMonth}&expenses=${spendingThisMonth}&currency=${userjson.currency}`,
     {
@@ -146,198 +187,141 @@ export default async function Home() {
       },
     }
   );
-
   const aiEvaluation = await aieval.json();
-
   return (
-    <div className="flex h-full">
-      {/* Check if there are any transactions */}
-      {combinedtransactions.length === 0 ? (
-        // No transactions layout - centered and simplified
-
-        <>
-          <div className="w-full flex flex-col p-2">
-            {/* Header Section */}
-            <div className="mb-6">
-              <div>
-                <h1>Welcome, {userjson.name}</h1>
-                <small className="text-muted">
-                  This is your financial summary
-                </small>
-              </div>
-              <div className="flex gap-2 mt-4">
-                <BalanceCard
-                  balance={balance}
-                  icon={<Wallet className="size-full" />}
-                  currencySymbol={currencySympol ?? ""}
-                  text="Current Balance"
-                />
-
-                <BalanceCard
-                  balance={incomeThisMonth}
-                  icon={<Download className="text-green-500 size-full" />}
-                  currencySymbol={currencySympol ?? ""}
-                  text="Income This Month"
-                  changepercentage={percentageChangeIncome}
-                />
-
-                <BalanceCard
-                  balance={spendingThisMonth}
-                  icon={<Upload className="text-red-500 size-full" />}
-                  currencySymbol={currencySympol ?? ""}
-                  text="Spending This Month"
-                  changepercentage={percentageChangeSpending}
-                />
-              </div>
-            </div>
-
-            {/* Transactions Section - Centered */}
-            <AddtransactionModal />
+    <>
+      <div className="flex w-2/3 space-y-4 flex-col p-2">
+        <div className="">
+          <div>
+            <h1>Welcome, {userjson.name}</h1>
+            <small className="text-muted">This is your financial summary</small>
           </div>
-          {/* Get Started */}
-          <GettingStarted />
-        </>
-      ) : (
-        // Full layout with transactions
-        <>
-          <div className="flex w-2/3 space-y-4 flex-col p-2">
-            <div className="">
-              <div>
-                <h1>Welcome, {userjson.name}</h1>
-                <small className="text-muted">
-                  This is your financial summary
-                </small>
-              </div>
-              <div className="flex gap-2  ">
-                <BalanceCard
-                  balance={balance}
-                  icon={<Wallet className="" />}
-                  currencySymbol={currencySympol ?? ""}
-                  text="Current Balance"
-                />
+          <div className="flex gap-2  ">
+            <BalanceCard
+              balance={balance}
+              icon={<Wallet className="" />}
+              currencySymbol={currencySympol ?? ""}
+              text="Current Balance"
+            />
 
-                <BalanceCard
-                  balance={incomeThisMonth}
-                  icon={<Download className="text-green-500" />}
-                  currencySymbol={currencySympol ?? ""}
-                  text="Income This Month"
-                  changepercentage={percentageChangeIncome}
-                />
+            <BalanceCard
+              balance={incomeThisMonth}
+              icon={<Download className="text-green-500" />}
+              currencySymbol={currencySympol ?? ""}
+              text="Income This Month"
+              changepercentage={percentageChangeIncome}
+            />
 
-                <BalanceCard
-                  balance={spendingThisMonth}
-                  icon={<Upload className="text-red-500" />}
-                  currencySymbol={currencySympol ?? ""}
-                  text="Spending This Month"
-                  changepercentage={percentageChangeSpending}
-                />
-              </div>
-            </div>
-            <div className="">
-              <h2 className="border-b border-border">Transactions</h2>
-              <div className="flex gap-2 box-border">
-                <div className="relative w-1/3 pb-3">
-                  <div className="flex flex-col  overflow-y-scroll  h-100 ">
-                    {combinedtransactions.map((transaction, i) => (
-                      <TransactionCard
-                        transaction={transaction}
-                        type={"income_id" in transaction ? "income" : "expense"}
-                        currencySymbol={currencySympol}
-                        key={i}
-                      />
-                    ))}
-
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent pointer-events-none from-80% to-100% to-background"></div>
-                  </div>
-                </div>
-                <div className=" w-2/3 flex justify-center items-center h-calc(100vh_-_5rem)">
-                  {spendingsarr.length > 0 || Incomearr.length > 0 ? (
-                    <TwoLinesChart Expenses={spendingsarr} Income={Incomearr} />
-                  ) : (
-                    <div className="text-muted text-center">
-                      <p>Add both income and expenses to see the chart</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            <BalanceCard
+              balance={spendingThisMonth}
+              icon={<Upload className="text-red-500" />}
+              currencySymbol={currencySympol ?? ""}
+              text="Spending This Month"
+              changepercentage={percentageChangeSpending}
+            />
           </div>
-          <div className=" m-2 p-4 bg-foreground rounded w-1/3 space-y-2 flex flex-col border border-border  ">
-            <h3 className="flex gap-1 items-center">
-              <BanknoteArrowDown /> Expenses by category
-            </h3>
-            <div className="flex flex-col h-4/7">
-              <div className=" flex justify-center items-center  h-full">
-                {spendingsarr.length > 0 ? (
-                  <PieChartComponent
-                    COLORS={COLORS}
-                    spendingsarr={spendingsarr}
+        </div>
+        <div className="">
+          <h2 className="border-b border-border">Transactions</h2>
+          <div className="flex gap-2 box-border">
+            <div className="relative w-1/3 pb-3">
+              <div className="flex flex-col  overflow-y-scroll  h-100 ">
+                {combinedtransactions.map((transaction, i) => (
+                  <TransactionCard
+                    transaction={transaction}
+                    type={"income_id" in transaction ? "income" : "expense"}
+                    currencySymbol={currencySympol}
+                    key={i}
                   />
-                ) : (
-                  <div className="text-muted text-center">
-                    <p>No expenses recorded yet.</p>
-                    <p>Add some to see the pie chart</p>
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-wrap justify-around items-center p-2">
-                {[...new Set(spendingsarr.map((e) => e.category))].map(
-                  (entry, index) => (
-                    <div className="flex space-x-2 items-center" key={index}>
-                      <div
-                        style={{
-                          backgroundColor: COLORS[index % COLORS.length],
-                        }}
-                        className={`size-3 rounded `}
-                      ></div>
-                      <span className="text-sm">{entry}</span>
-                      <span className=" text-xs text-muted">
-                        {(() => {
-                          const value = spendingsarr.reduce((acc, data) => {
-                            if (data.category === entry) {
-                              return acc + data.amount;
-                            }
-                            return acc;
-                          }, 0);
-                          return (
-                            <span>
-                              {currencySympol}
-                              {formatNumber(value)} (
-                              {((value / totalSpending) * 100).toFixed(2)}
-                              %)
-                            </span>
-                          );
-                        })()}
-                      </span>
-                    </div>
-                  )
-                )}
+                ))}
+
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent pointer-events-none from-80% to-100% to-background"></div>
               </div>
             </div>
-            <div className="h-3/7 border-t border-border space-y-1 p-1">
-              <div className="flex space-x-2 items-center justify-center">
-                <h3>AI evaluation</h3>
-                <div>
-                  {new Date(aiEvaluation.latest_ai_eval).toLocaleString(
-                    "en-US",
-                    { month: "long", year: "numeric", day: "numeric" }
-                  )}
+            <div className=" w-2/3 flex justify-center items-center h-calc(100vh_-_5rem)">
+              {spendingsarr.length > 0 || Incomearr.length > 0 ? (
+                <TwoLinesChart Expenses={spendingsarr} Income={Incomearr} />
+              ) : (
+                <div className="text-muted text-center">
+                  <p>Add both income and expenses to see the chart</p>
                 </div>
-              </div>
-              <div className="overflow-auto h-40 flex justify-center items-center">
-                {aiEvaluation.error ? (
-                  <div>{aiEvaluation.error}</div>
-                ) : (
-                  <p className="text-muted">
-                    {aiEvaluation.ai_eval ??
-                      "Please add transactions to get Ai Eval"}
-                  </p>
-                )}
-              </div>
+              )}
             </div>
           </div>
-        </>
-      )}
-    </div>
+        </div>
+      </div>
+      <div className=" m-2 p-4 bg-foreground rounded w-1/3 space-y-2 flex flex-col border border-border  ">
+        <h3 className="flex gap-1 items-center">
+          <BanknoteArrowDown /> Expenses by category
+        </h3>
+        <div className="flex flex-col h-4/7">
+          <div className=" flex justify-center items-center  h-full">
+            {spendingsarr.length > 0 ? (
+              <PieChartComponent COLORS={COLORS} spendingsarr={spendingsarr} />
+            ) : (
+              <div className="text-muted text-center">
+                <p>No expenses recorded yet.</p>
+                <p>Add some to see the pie chart</p>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-wrap justify-around items-center p-2">
+            {[...new Set(spendingsarr.map((e) => e.category))].map(
+              (entry, index) => (
+                <div className="flex space-x-2 items-center" key={index}>
+                  <div
+                    style={{
+                      backgroundColor: COLORS[index % COLORS.length],
+                    }}
+                    className={`size-3 rounded `}
+                  ></div>
+                  <span className="text-sm">{entry}</span>
+                  <span className=" text-xs text-muted">
+                    {(() => {
+                      const value = spendingsarr.reduce((acc, data) => {
+                        if (data.category === entry) {
+                          return acc + data.amount;
+                        }
+                        return acc;
+                      }, 0);
+                      return (
+                        <span>
+                          {currencySympol}
+                          {formatNumber(value)} (
+                          {((value / totalSpending) * 100).toFixed(2)}
+                          %)
+                        </span>
+                      );
+                    })()}
+                  </span>
+                </div>
+              )
+            )}
+          </div>
+        </div>
+        <div className="h-3/7 border-t border-border space-y-1 p-1">
+          <div className="flex space-x-2 items-center justify-center">
+            <h3>AI evaluation</h3>
+            <div>
+              {new Date(aiEvaluation.latest_ai_eval).toLocaleString("en-US", {
+                month: "long",
+                year: "numeric",
+                day: "numeric",
+              })}
+            </div>
+          </div>
+          <div className="overflow-auto h-40 flex justify-center items-center">
+            {aiEvaluation.error ? (
+              <div>{aiEvaluation.error}</div>
+            ) : (
+              <p className="text-muted">
+                {aiEvaluation.ai_eval ??
+                  "Please add transactions to get Ai Eval"}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
