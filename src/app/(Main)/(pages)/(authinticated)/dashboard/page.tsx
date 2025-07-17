@@ -189,7 +189,7 @@ export default async function Home() {
   );
   const aiEvaluation = await aieval.json();
   return (
-    <>
+    <div className="h-full flex">
       <div className="flex w-2/3 space-y-4 flex-col p-2">
         <div className="">
           <div>
@@ -322,6 +322,6 @@ export default async function Home() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

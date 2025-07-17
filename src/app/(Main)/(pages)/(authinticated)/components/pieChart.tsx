@@ -38,7 +38,7 @@ export default function PieChartComponent({
     outerRadius,
     percent,
   }: PieLabelProps) => {
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.3;
     const x = cx + radius * Math.cos(-(midAngle ?? 0) * RADIAN);
     const y = cy + radius * Math.sin(-(midAngle ?? 0) * RADIAN);
 
@@ -46,11 +46,11 @@ export default function PieChartComponent({
       <text
         x={x}
         y={y}
-        fill="white"
+        fill="var(--color-text)"
         textAnchor={x > cx ? "start" : "end"}
         dominantBaseline="central"
       >
-        {`${((percent ?? 1) * 100).toFixed(1)}%`}
+        {`${((percent ?? 1) * 100).toFixed(2)}%`}
       </text>
     );
   };
@@ -60,14 +60,14 @@ export default function PieChartComponent({
     <>
       {" "}
       <ResponsiveContainer width="100%" height="100%">
-        <PieChart width={400} height={400}>
+        <PieChart>
           <Pie
             data={data}
             cx="50%"
             cy="50%"
             labelLine={false}
             label={renderCustomizedLabel}
-            outerRadius={80}
+            outerRadius={100}
             fill="#8884d8"
             dataKey="value"
           >
