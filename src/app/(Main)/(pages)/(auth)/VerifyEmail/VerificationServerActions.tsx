@@ -1,8 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { NextResponse } from "next/server";
+
 
 async function sendEmail(): Promise<{ success?: boolean; error?: string }> {
   const Cookies = await cookies();

@@ -13,9 +13,9 @@ export default function ConvertCurrency({
   // Validate inputs
   // Error fixed, if toCurrency = USD was provided without from currency the app would crash
   console.log(amount,toCurrency,fromCurrency)
-  if (!amount || amount < 0) {
-    throw new Error("Amount must be a positive number");
-  }
+  // if (!amount || amount < 0) {
+  //   throw new Error("Amount must be a positive number");
+  // }
 
   if (!toCurrency) {
     throw new Error("toCurrency is required");

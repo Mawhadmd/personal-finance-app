@@ -1,13 +1,16 @@
-import { RefreshToken } from "./models/tokens";
+
 import { NextResponse, NextRequest } from "next/server";
 import { decodeJwt, jwtVerify } from "jose";
 import { JWTExpired } from "jose/errors";
-import { decode } from "punycode";
+
 
 // This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const Cookies = request.cookies;
+  if (pathname=== "/") {
+    return NextResponse.next()
+  }
   const Secret = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET!);
   const isAuthPage = pathname === "/login" || pathname === "/register";
   const isVerifyApi = pathname == "/api/auth/verifyEmail" || pathname == "/api/auth/SendVerificationEmail";

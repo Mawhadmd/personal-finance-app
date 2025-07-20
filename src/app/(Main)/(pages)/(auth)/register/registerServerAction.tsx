@@ -7,7 +7,7 @@ import { createAccessToken } from "@/app/api/CreateAccessToken";
 import { createRefreshToken } from "@/app/api/CreateRefreshToken";
 import { hash } from "@/app/api/hash";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+
 
 const validator = zod.object({
   Currency: zod

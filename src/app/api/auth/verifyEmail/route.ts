@@ -1,5 +1,5 @@
 import pool from "@/db/postgres";
-import { jwtVerify, SignJWT } from "jose";
+import { jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 import { createAccessToken } from "../../CreateAccessToken";
 import { AccessToken } from "@/models/tokens";

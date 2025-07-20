@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+
 import React, { useActionState } from "react";
 import { AddIncome } from "./AddTransactionsServerAction";
 

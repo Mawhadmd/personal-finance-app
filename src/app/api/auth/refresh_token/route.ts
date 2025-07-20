@@ -39,7 +39,7 @@ export async function POST(request: Request) {
         refresh_token,
         new TextEncoder().encode(process.env.REFRESH_TOKEN_SECRET!)
       );
-    } catch (error) {
+    } catch  {
       return NextResponse.json(
         { error: "Refresh token expired or invalid" },
         { status: 401 }
