@@ -41,14 +41,15 @@ export default function Hero() {
         </div>
       </div>
       <div className="h-full w-2/3 relative">
-        <Image
+    
+          <Image
           src="/HeroImage.jpg"
           alt="Description"
-          layout="fill"
-          objectFit="cover"
+          fill={true}
         />
+      
         <div className="absolute inset-0 bg-gradient-to-l from-transparent to-background pointer-events-none from-10%"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-transparent to-background pointer-events-none  from-40%"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background pointer-events-none  from-0% to-100%"></div>
       </div>
       <div className="absolute top-1/2 left-1 w-64 h-64 blur-[200px] bg-accent rounded-full z-10"></div>
       <div className="absolute top-1 left-1 w-64 h-64 blur-[200px] bg-red-200 rounded-full z-10"></div>

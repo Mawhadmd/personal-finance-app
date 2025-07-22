@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import TestimonialCard from "./TestimonialCard";
 
 export default function TestimonialSection() {
@@ -17,7 +18,7 @@ export default function TestimonialSection() {
     },
   ];
   return (
-    <section style={{backgroundImage: "url('/Testimonials.webp')"}} className="h-80 relative  bg-no-repeat bg-cover bg-center text-text p-10 flex flex-wrap items-center justify-center">
+    <section   className="h-80 relative text-text p-10 flex flex-wrap items-center justify-center bg-[url(/Testimonials.webp)] bg-center bg-cover bg-no-repeat">
       <div className="bg-gradient-to-b from-background via-transparent to-background from-0% to-100% absolute inset-0"></div>
       {testimonials.map((testimonial, index) => (
         <TestimonialCard

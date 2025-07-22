@@ -4,16 +4,22 @@ import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
 
 export default function HeroNav() {
   const { scrollYProgress } = useScroll();
   const [scrolly, setScrolly] = React.useState(0);
   const [hasTriggeredAbove, setHasTriggeredAbove] = React.useState(false);
   const [hasTriggeredBelow, setHasTriggeredBelow] = React.useState(false);
-  const theme = ThemeControl.getTheme()
+  const [theme, setTheme] = React.useState<"light" | "dark">("light");
+  useEffect(() => {
+    const currentTheme = ThemeControl.getTheme();
+    setTheme(currentTheme);
+  }, []);
   const pathname = usePathname();
-  
+  const toggleTheme = () => {
+    ThemeControl.toggleTheme();
+  };
   const array = [
     { name: "Home", href: "#hero" },
     { name: "How it works", href: "#features" },
@@ -61,7 +67,7 @@ export default function HeroNav() {
         ))}
       </ul>
       <div className="flex items-center space-x-4">
-        <div onClick={()=> ThemeControl.toggleTheme()} className="cursor-pointer">
+        <div onClick={toggleTheme} className="cursor-pointer">
           {theme == 'dark' ? <Sun /> : <Moon />}
         </div>
         <Link href="/login" className="p-2 m-1 rounded-lg bg-accent  border border-border cursor-pointer hover:bg-accent/80">

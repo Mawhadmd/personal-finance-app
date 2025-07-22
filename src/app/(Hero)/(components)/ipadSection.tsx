@@ -19,7 +19,7 @@ export default function ipadSection() {
                 hidden: { opacity: 0, transform: 'translateX(-60px)' }
             }}
        >
-         <Image src={"/ipad.webp"} alt="" layout="fill" objectFit="contain"/>
+         <Image src={"/ipad.webp"} alt="ipad" fill={true}/>
        </motion.div>
        <motion.div className="w-1/3 h-full  p-10 flex flex-col justify-center z-20"
           initial="hidden"
