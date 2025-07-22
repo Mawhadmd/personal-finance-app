@@ -5,8 +5,9 @@ import Image from 'next/image';
 import React from 'react'
 
 export default function ipadSection() {
+  
   return (
-    <div className="flex relative w-full h-256 p-10 bg-gradient-to-r from-accent to-transparent via-40% to-700% via-green-300 " id='free'>
+    <div className="flex relative w-full h-256 p-10 bg-gradient-to-r from-accent to-transparent via-40%  via-green-300 " id='free'>
         <div className='absolute z-10 bg-gradient-to-b from-background via-transparent to-background from-1% to-99% inset-0'></div>
        <motion.div className="relative w-full h-full z-20"
             initial="hidden"

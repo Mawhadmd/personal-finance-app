@@ -8,7 +8,7 @@ import { JWTExpired } from "jose/errors";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const Cookies = request.cookies;
-  if (pathname=== "/") {
+  if (pathname=== "/" || pathname.startsWith("/#")) {
     return NextResponse.next()
   }
   const Secret = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET!);

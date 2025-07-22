@@ -1,5 +1,7 @@
 "use client";
+import ThemeControl from "@/lib/ThemeControl";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
@@ -9,6 +11,7 @@ export default function HeroNav() {
   const [scrolly, setScrolly] = React.useState(0);
   const [hasTriggeredAbove, setHasTriggeredAbove] = React.useState(false);
   const [hasTriggeredBelow, setHasTriggeredBelow] = React.useState(false);
+  const theme = ThemeControl.getTheme()
   const pathname = usePathname();
   
   const array = [
@@ -38,7 +41,7 @@ export default function HeroNav() {
     <motion.nav
       id="hero"
       layoutId="nav"
-      className="absolute flex justify-between items-center h-15 p-4 z-30 bg-foreground text-text shadow left-0 right-0"
+      className="absolute flex justify-between items-center h-15 p-4 z-30 text-text  left-0 right-0"
     >
       <h1>PFinance</h1>
       <ul className="flex space-x-8 text-xl">
@@ -57,16 +60,21 @@ export default function HeroNav() {
           </li>
         ))}
       </ul>
-      <Link href="/login" className="p-2 m-1 bg-accent rounded border border-border cursor-pointer hover:bg-accent/80">
+      <div className="flex items-center space-x-4">
+        <div onClick={()=> ThemeControl.toggleTheme()} className="cursor-pointer">
+          {theme == 'dark' ? <Sun /> : <Moon />}
+        </div>
+        <Link href="/login" className="p-2 m-1 rounded-lg bg-accent  border border-border cursor-pointer hover:bg-accent/80">
         Sign in
       </Link>
+      </div>
     </motion.nav>
   ) : (
     <motion.nav
       
       id="hero"
       layoutId="nav"
-      className="flex justify-between items-center h-12 p-4 z-30 bg-foreground opacity-70 text-text fixed top-0 left-0 right-0"
+      className="flex backdrop-blur-sm justify-between items-center h-14 p-4 z-30 bg-background/50  text-text fixed top-4 w-1/2 mx-auto left-0 right-0 shadow-lg rounded-lg transition-all duration-300 ease-in-out"
     >
       <ul className="flex space-x-8 text-xl mx-auto">
         {array.map((item) => (
@@ -84,9 +92,14 @@ export default function HeroNav() {
           </li>
         ))}
       </ul>
-       <Link href="/login" className="p-2 m-1 bg-accent rounded border border-border cursor-pointer hover:bg-accent/80">
+      <div className="flex items-center space-x-4">
+        <div onClick={()=> ThemeControl.toggleTheme()} className="cursor-pointer">
+          {theme == 'dark' ? <Sun /> : <Moon />}
+        </div>
+        <Link href="/login" className="p-2 m-1 rounded-lg bg-accent  border border-border cursor-pointer hover:bg-accent/80">
         Sign in
       </Link>
+      </div>
     </motion.nav>
   );
 }

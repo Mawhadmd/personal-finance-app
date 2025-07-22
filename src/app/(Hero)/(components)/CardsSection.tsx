@@ -2,7 +2,7 @@
 import { motion } from 'framer-motion';
 import { Shield, Play, Gift } from 'lucide-react';
 import React from 'react'
-import Card from './card';
+import Card from './FeaturesCard';
 
 export default function CardsSection() {
     const cardData = [

@@ -2,6 +2,7 @@ import { Montserrat } from "next/font/google";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Rocket } from "lucide-react";
 const montserrat = Montserrat({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -9,7 +10,8 @@ const montserrat = Montserrat({
 export default function Hero() {
   return (
     <div className="mt-15 relative flex justify-between w-full bg-background text-text z-10 h-[calc(100vh-4rem)]">
-      <div className="p-10 flex flex-col justify-center w-1/3 z-20">
+      <div className="p-10 pr-0 pl-40 flex flex-col justify-center w-1/3 z-20 relative ">
+      
         <h1
           className={`!text-5xl font-extrabold leading-tight ${montserrat.className}`}
         >
@@ -17,9 +19,12 @@ export default function Hero() {
             Take Control
           </span>{" "}
           of Your Finances{" "}
-          <span className="bg-gradient-to-l from-accent to-transparent p-1 rounded-lg">
+          <span className="bg-gradient-to-l relative from-accent to-transparent p-1 rounded-lg">
             {" "}
             with Ease
+            <div className="absolute -top-6 -right-6 rounded-full z-10">
+              <Rocket className="size-10  " />
+            </div>
           </span>
         </h1>
         <p className="mt-2 text-xl text-muted-foreground">
@@ -43,6 +48,7 @@ export default function Hero() {
           objectFit="cover"
         />
         <div className="absolute inset-0 bg-gradient-to-l from-transparent to-background pointer-events-none from-10%"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-transparent to-background pointer-events-none  from-40%"></div>
       </div>
       <div className="absolute top-1/2 left-1 w-64 h-64 blur-[200px] bg-accent rounded-full z-10"></div>
       <div className="absolute top-1 left-1 w-64 h-64 blur-[200px] bg-red-200 rounded-full z-10"></div>
