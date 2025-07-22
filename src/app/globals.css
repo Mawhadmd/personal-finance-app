@@ -2,7 +2,7 @@
 @plugin "@tailwindcss/typography";
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 :root {
-
+  scroll-behavior: smooth;
   --text: hsl(0, 0%, 10%);
   --muted: hsl(0, 0%, 50%);
   --accent: hsl(82, 65%, 48%);
