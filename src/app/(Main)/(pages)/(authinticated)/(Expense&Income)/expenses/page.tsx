@@ -18,7 +18,7 @@ const Expenses = async () => {
   const user_id = await GetUserId();
 
   const currency = await fetch(
-    `http://localhost:3000/api/User?user_id=${user_id}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/User?user_id=${user_id}`,
     {
       method: "GET",
       headers: {

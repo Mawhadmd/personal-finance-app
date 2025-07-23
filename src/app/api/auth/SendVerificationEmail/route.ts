@@ -4,6 +4,18 @@ import pool from "@/db/postgres";
 import randomstring from "randomstring";
 import { jwtVerify } from "jose";
 
+/**
+ * @swagger
+ * /api/auth/SendVerificationEmail:
+ *   post:
+ *     summary: Send verification email
+ *     tags: [Authentication]
+ *     responses:
+ *       200:
+ *         description: Verification email sent
+ *       401:
+ *         description: Token not found
+ */
 export async function POST(request: NextRequest) {
   try {
   

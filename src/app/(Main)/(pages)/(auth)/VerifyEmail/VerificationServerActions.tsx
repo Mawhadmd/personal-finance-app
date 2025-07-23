@@ -2,14 +2,13 @@
 
 import { cookies } from "next/headers";
 
-
 async function sendEmail(): Promise<{ success?: boolean; error?: string }> {
   const Cookies = await cookies();
   if (Cookies.get("AccessToken") === undefined) {
     return { error: "You must be logged in to send a verification email." };
   }
   const requestverifcationreq = await fetch(
-    "http://localhost:3000/api/auth/SendVerificationEmail",
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/SendVerificationEmail`,
     {
       method: "POST",
       headers: {
@@ -45,7 +44,7 @@ async function verify(
 
   try {
     const requestverification = await fetch(
-      "http://localhost:3000/api/auth/verifyEmail",
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/verifyEmail`,
       {
         method: "POST",
         headers: {
@@ -60,21 +59,22 @@ async function verify(
     if (!requestverification.ok) {
       return { error: response.error || "Failed to verify email" };
     }
-    if (!response.token){
+    if (!response.token) {
       console.error(response.error, requestverification.status);
-      return { error: "No token received after verification - please inform Support" };
+      return {
+        error: "No token received after verification - please inform Support",
+      };
     }
-   (await cookies()).set("AccessToken", response.token, {
-        path: "/",
-        maxAge: parseInt(process.env.AccessTokenTimeout!),
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-      });
-
+    (await cookies()).set("AccessToken", response.token, {
+      path: "/",
+      maxAge: parseInt(process.env.AccessTokenTimeout!),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
 
     return { success: true };
-  } catch(err) {
+  } catch (err) {
     console.error("Error verifying email:", err);
     return { error: "Failed to verify email" };
   }

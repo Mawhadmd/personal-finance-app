@@ -5,68 +5,48 @@ import pool from "@/db/postgres";
  * /api/custom-category:
  *   get:
  *     summary: Get custom categories for a user
- *     description: Retrieves all custom categories created by the user
- *     tags:
- *       - Custom Categories
+ *     tags: [Custom Categories]
  *     parameters:
- *       - in: query
- *         name: user_id
+ *       - name: user_id
+ *         in: query
  *         required: true
  *         schema:
  *           type: integer
- *         description: User ID to fetch custom categories for
- *         example: 1
- *       - in: query
- *         name: type
+ *       - name: type
+ *         in: query
  *         schema:
  *           type: string
  *           enum: [income, expense]
- *         description: Filter by category type
- *         example: "income"
  *     responses:
  *       200:
- *         description: Successfully retrieved custom categories
+ *         description: Custom categories retrieved
  *       400:
- *         description: Bad request - missing user_id
+ *         description: Missing user_id
  *       500:
  *         description: Internal server error
  *   post:
  *     summary: Create a new custom category
- *     description: Adds a new custom category for the user
- *     tags:
- *       - Custom Categories
+ *     tags: [Custom Categories]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - user_id
- *               - name
- *               - type
+ *             required: [user_id, name, type]
  *             properties:
  *               user_id:
  *                 type: integer
- *                 description: The user ID who owns this category
- *                 example: 1
  *               name:
  *                 type: string
- *                 maxLength: 100
- *                 description: The category name
- *                 example: "Crypto Trading"
  *               type:
  *                 type: string
  *                 enum: [income, expense]
- *                 description: Category type
- *                 example: "income"
  *     responses:
  *       201:
  *         description: Category created successfully
  *       400:
- *         description: Bad request - missing required fields
- *       500:
- *         description: Internal server error
+ *         description: Missing required fields
  */
 
 // GET - Retrieve custom categories

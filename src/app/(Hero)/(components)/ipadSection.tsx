@@ -9,7 +9,7 @@ export default function ipadSection() {
   return (
     <div className="flex relative w-full h-256 p-10 bg-gradient-to-r from-accent to-transparent via-40%  via-green-300 " id='free'>
         <div className='absolute z-10 bg-gradient-to-b from-background via-transparent to-background from-1% to-99% inset-0'></div>
-       <motion.div className="relative w-full h-full z-20"
+       <motion.div className="relative w-full z-20 "
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -19,7 +19,7 @@ export default function ipadSection() {
                 hidden: { opacity: 0, transform: 'translateX(-60px)' }
             }}
        >
-         <Image src={"/ipad.webp"} alt="ipad" fill={true}/>
+         <Image src={"/ipad.webp"} alt="ipad" fill={true} className='object-contain' />
        </motion.div>
        <motion.div className="w-1/3 h-full  p-10 flex flex-col justify-center z-20"
           initial="hidden"

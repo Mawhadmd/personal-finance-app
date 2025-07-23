@@ -1,26 +1,27 @@
-
 import { NextResponse, NextRequest } from "next/server";
 import { decodeJwt, jwtVerify } from "jose";
 import { JWTExpired } from "jose/errors";
-
 
 // This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const Cookies = request.cookies;
   if (
-    pathname === "/" || 
+    pathname === "/" ||
     pathname.startsWith("/#") ||
     /\.(png|jpg|jpeg|gif|webp|svg|ico|bmp|tiff)$/i.test(pathname)
+    || pathname.endsWith('/api-doc')
   ) {
     return NextResponse.next();
   }
   const Secret = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET!);
   const isAuthPage = pathname === "/login" || pathname === "/register";
-  const isVerifyApi = pathname == "/api/auth/verifyEmail" || pathname == "/api/auth/SendVerificationEmail";
+  const isVerifyApi =
+    pathname == "/api/auth/verifyEmail" ||
+    pathname == "/api/auth/SendVerificationEmail";
   const AccessToken = Cookies.get("AccessToken");
   const RefreshToken = Cookies.get("RefreshToken");
-  console.log(pathname)
+  console.log(pathname);
   let AccessTokenpayload;
   if (!AccessToken) {
     if (pathname.startsWith("/api")) {
@@ -49,7 +50,7 @@ export async function middleware(request: NextRequest) {
     await jwtVerify(AccessToken.value, Secret);
 
     if (pathname !== "/VerifyEmail") {
-      if (isVerifyApi){
+      if (isVerifyApi) {
         return NextResponse.next();
       }
       if (!AccessTokenpayload?.is_verified) {
@@ -85,7 +86,10 @@ export async function middleware(request: NextRequest) {
       } catch (error) {
         console.log("Refresh token expired or invalid, redirecting to login");
         if (pathname.startsWith("/api")) {
-          return NextResponse.json({ error: "Refresh token expired" }, { status: 401 });
+          return NextResponse.json(
+            { error: "Refresh token expired" },
+            { status: 401 }
+          );
         }
         // If the token is invalid, redirect to login
         console.log("Invalid token:", error);
@@ -95,7 +99,7 @@ export async function middleware(request: NextRequest) {
         return response;
       }
       const refresh = await fetch(
-        "http://localhost:3000/api/auth/refresh_token",
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/refresh_token`,
         {
           method: "POST",
           body: JSON.stringify({
@@ -107,14 +111,16 @@ export async function middleware(request: NextRequest) {
           },
         }
       );
-         const refreshData = await refresh?.json();
+      const refreshData = await refresh?.json();
       if (!refresh.ok) {
-        console.log("Failed to refresh token, redirecting to login", refreshData.error);
+        console.log(
+          "Failed to refresh token, redirecting to login",
+          refreshData.error
+        );
         if (!isAuthPage)
-        return NextResponse.redirect(new URL("/login", request.url));
+          return NextResponse.redirect(new URL("/login", request.url));
       } else {
-     
-        console.log("Token refreshed successfully",refreshData.error);
+        console.log("Token refreshed successfully", refreshData.error);
         const response = NextResponse.next();
         response.cookies.set("AccessToken", refreshData.accessToken, {
           httpOnly: true,

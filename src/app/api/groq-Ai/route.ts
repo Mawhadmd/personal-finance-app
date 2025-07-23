@@ -2,7 +2,40 @@ import { askgroq } from "./groq";
 import { NextRequest, NextResponse } from "next/server";
 import pool from "@/db/postgres";
 
-
+/**
+ * @swagger
+ * /api/groq-Ai:
+ *   get:
+ *     summary: Get AI financial advice
+ *     tags: [AI]
+ *     parameters:
+ *       - name: user_id
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: name
+ *         in: query
+ *         schema:
+ *           type: string
+ *       - name: income
+ *         in: query
+ *         schema:
+ *           type: string
+ *       - name: expenses
+ *         in: query
+ *         schema:
+ *           type: string
+ *       - name: currency
+ *         in: query
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: AI financial advice
+ *       429:
+ *         description: Rate limited (24h cooldown)
+ */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const user_id = searchParams.get("user_id");

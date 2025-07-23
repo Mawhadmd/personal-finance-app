@@ -17,7 +17,7 @@ import { formatNumber } from "@/lib/formatNumber";
 export default async function Home() {
   const user_id = await GetUserId();
   const user = await fetch(
-    `http://localhost:3000/api/User?user_id=${user_id}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/User?user_id=${user_id}`,
     {
       method: "GET",
       headers: {
@@ -46,7 +46,7 @@ export default async function Home() {
   );
 
   const balancerq = await fetch(
-    `http://localhost:3000/api/User/GetBalance?user_id=${user_id}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/User/GetBalance?user_id=${user_id}`,
     {
       method: "GET",
       headers: {
@@ -179,7 +179,7 @@ export default async function Home() {
   }
 
   const aieval = await fetch(
-    `http://localhost:3000/api/groq-Ai?user_id=${user_id}&name=${userjson.name}&income=${incomeThisMonth}&expenses=${spendingThisMonth}&currency=${userjson.currency}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/groq-Ai?user_id=${user_id}&name=${userjson.name}&income=${incomeThisMonth}&expenses=${spendingThisMonth}&currency=${userjson.currency}`,
     {
       method: "GET",
       headers: {

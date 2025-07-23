@@ -10,8 +10,30 @@ import { createRefreshToken } from "../../CreateRefreshToken";
 import { hash } from "../../hash";
 import bcrypt from "bcryptjs";
 
-// This route takes refresh token and user_id, verifies the refresh token, compares it to database, and returns a new access token and refresh token, updates the database
-
+/**
+ * @swagger
+ * /api/auth/refresh_token:
+ *   post:
+ *     summary: Refresh access token
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [user_id, refresh_token]
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *               refresh_token:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: New tokens generated
+ *       400:
+ *         description: Missing parameters
+ */
 export async function POST(request: Request) {
   try {
     const { user_id, refresh_token } = await request.json();

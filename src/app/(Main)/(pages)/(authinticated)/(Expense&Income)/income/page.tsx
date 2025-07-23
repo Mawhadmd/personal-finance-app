@@ -5,7 +5,7 @@ import currencies from "@/constants/currencies";
 import ConvertCurrency from "@/lib/ConvertCurrency";
 import GetUserId from "@/lib/getUserId";
 import GetUserIncome from "@/lib/getUserIncome";
-import {  User } from "@/models";
+import { User } from "@/models";
 import { CircleOff } from "lucide-react";
 import { cookies } from "next/headers";
 import React from "react";
@@ -15,7 +15,7 @@ const Income = async () => {
   const user_id = await GetUserId();
 
   const currency = await fetch(
-    `http://localhost:3000/api/User?user_id=${user_id}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/User?user_id=${user_id}`,
     {
       method: "GET",
       headers: {
@@ -71,7 +71,7 @@ const Income = async () => {
       <div className="flex flex-col mt-2 h-full ">
         <h2 className="font-bold text-2xl">Your Income</h2>
         <div className="flex   space-x-2  pb-2">
-            <AmountCard
+          <AmountCard
             amount={incomeThisMonth}
             label="This month"
             currencySymbol={currencySymbol}

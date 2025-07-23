@@ -4,6 +4,28 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAccessToken } from "../../CreateAccessToken";
 import { AccessToken } from "@/models/tokens";
 
+/**
+ * @swagger
+ * /api/auth/verifyEmail:
+ *   post:
+ *     summary: Verify email with code
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [code]
+ *             properties:
+ *               code:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Email verified
+ *       400:
+ *         description: Invalid or missing code
+ */
 export async function POST(request: NextRequest) {
   const { code } = await request.json();
   if (!code) {

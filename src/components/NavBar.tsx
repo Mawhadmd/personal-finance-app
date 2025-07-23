@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState, useEffect } from "react";
-import { Download, LayoutDashboard, Upload, Moon, Sun, LogOut } from "lucide-react";
+import { Download, LayoutDashboard, Upload, Moon, Sun, LogOut, Settings } from "lucide-react";
 import ThemeControl from "@/lib/ThemeControl";
 import handleLogout from "@/lib/auth/HandleLogout";
 
@@ -27,6 +27,11 @@ const NavBar = () => {
       "/income",
       "Income",
       <Download size={18} className="mr-2 size-6 " key="income" />,
+    ],
+    [
+      "/settings",
+      "settings",
+      <Settings size={18} className="mr-2 size-6 " key="settings" />,
     ],
   ];
 
