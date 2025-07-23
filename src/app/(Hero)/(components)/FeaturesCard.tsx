@@ -9,13 +9,14 @@ export default function Card({Content, title, icon, iconBg}: {Content: string, t
     if (!ref.current) {
       return;
     }
+    const divref = ref.current
     const handleMouseEnter = () => setHovered(true);
     const handleMouseLeave = () => setHovered(false);
-    ref.current?.addEventListener('mouseenter', handleMouseEnter);
-    ref.current?.addEventListener('mouseleave', handleMouseLeave);
+    divref?.addEventListener('mouseenter', handleMouseEnter);
+    divref?.addEventListener('mouseleave', handleMouseLeave);
     return () => {
-      ref.current?.removeEventListener('mouseenter', handleMouseEnter);
-      ref.current?.removeEventListener('mouseleave', handleMouseLeave);
+      divref?.removeEventListener('mouseenter', handleMouseEnter);
+      divref?.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, []);
   return (
