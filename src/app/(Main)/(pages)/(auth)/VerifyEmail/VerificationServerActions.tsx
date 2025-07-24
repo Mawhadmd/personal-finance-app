@@ -6,7 +6,7 @@ import { AccessToken } from "@/models/tokens";
 
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+
 
 
 async function sendEmail(): Promise<{ success?: boolean; error?: string }> {
