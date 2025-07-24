@@ -1,39 +1,15 @@
 import pool from "@/db/postgres";
 import { User } from "@/models";
 import { AccessToken } from "@/models/tokens";
-import {  jwtVerify } from "jose";
+import { jwtVerify } from "jose";
 import { NextResponse } from "next/server";
 import { createAccessToken } from "../../CreateAccessToken";
-
 
 import { createRefreshToken } from "../../CreateRefreshToken";
 import { hash } from "../../hash";
 import bcrypt from "bcryptjs";
 
-/**
- * @swagger
- * /api/auth/refresh_token:
- *   post:
- *     summary: Refresh access token
- *     tags: [Authentication]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [user_id, refresh_token]
- *             properties:
- *               user_id:
- *                 type: string
- *               refresh_token:
- *                 type: string
- *     responses:
- *       200:
- *         description: New tokens generated
- *       400:
- *         description: Missing parameters
- */
+
 export async function POST(request: Request) {
   try {
     const { user_id, refresh_token } = await request.json();
@@ -56,18 +32,18 @@ export async function POST(request: Request) {
         { status: 401 }
       );
     }
-   try {    // Verify the refresh token is still valid (not expired)
+    try {
+      // Verify the refresh token is still valid (not expired)
       await jwtVerify(
         refresh_token,
         new TextEncoder().encode(process.env.REFRESH_TOKEN_SECRET!)
       );
-    } catch  {
+    } catch {
       return NextResponse.json(
         { error: "Refresh token expired or invalid" },
         { status: 401 }
       );
     }
-
 
     console.log("Stored token hash:", user.refresh_token, refresh_token);
     if (!bcrypt.compareSync(refresh_token, user.refresh_token)) {
@@ -77,8 +53,6 @@ export async function POST(request: Request) {
       );
     }
 
-
- 
     // Create new access token
     const accessTokenPayload: AccessToken = {
       user_id: user_id,

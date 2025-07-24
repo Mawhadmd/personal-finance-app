@@ -4,21 +4,9 @@ import pool from "@/db/postgres";
 import randomstring from "randomstring";
 import { jwtVerify } from "jose";
 
-/**
- * @swagger
- * /api/auth/SendVerificationEmail:
- *   post:
- *     summary: Send verification email
- *     tags: [Authentication]
- *     responses:
- *       200:
- *         description: Verification email sent
- *       401:
- *         description: Token not found
- */
+
 export async function POST(request: NextRequest) {
   try {
-  
     // Get email from Verificaiton-token cookie (matches your middleware)
     const verificationTokenCookie = request.cookies.get("AccessToken");
     if (!verificationTokenCookie) {
@@ -55,30 +43,29 @@ export async function POST(request: NextRequest) {
     const user_id = userResult.rows[0].user_id;
 
     // Check if there's a valid (non-expired) verification code for this user
-    try{
-       const existingCodeResult = await pool.query(
-      `SELECT code, expires_at FROM verification_codes 
+    try {
+      const existingCodeResult = await pool.query(
+        `SELECT code, expires_at FROM verification_codes 
        WHERE user_id = $1 AND expires_at > NOW() 
        ORDER BY created_at DESC 
        LIMIT 1`,
-      [user_id]
-    );
-
-    if (existingCodeResult.rows.length > 0) {
-      const existingCode = existingCodeResult.rows[0];
-      const timeLeft =
-        new Date(existingCode.expires_at).getTime() - new Date().getTime();
-      const minutesLeft = Math.floor(timeLeft / (1000 * 60));
-
-      return new Response(
-        JSON.stringify({
-          error: `A valid verification code already exists. Please wait ${minutesLeft} minutes before requesting a new one.`,
-        }),
-        { status: 400 }
+        [user_id]
       );
-    }
-   
-    }catch{
+
+      if (existingCodeResult.rows.length > 0) {
+        const existingCode = existingCodeResult.rows[0];
+        const timeLeft =
+          new Date(existingCode.expires_at).getTime() - new Date().getTime();
+        const minutesLeft = Math.floor(timeLeft / (1000 * 60));
+
+        return new Response(
+          JSON.stringify({
+            error: `A valid verification code already exists. Please wait ${minutesLeft} minutes before requesting a new one.`,
+          }),
+          { status: 400 }
+        );
+      }
+    } catch {
       return new Response(
         JSON.stringify({ error: "Error checking existing verification code." }),
         { status: 500 }

@@ -1,54 +1,5 @@
 import pool from "@/db/postgres";
 
-/**
- * @swagger
- * /api/custom-category:
- *   get:
- *     summary: Get custom categories for a user
- *     tags: [Custom Categories]
- *     parameters:
- *       - name: user_id
- *         in: query
- *         required: true
- *         schema:
- *           type: integer
- *       - name: type
- *         in: query
- *         schema:
- *           type: string
- *           enum: [income, expense]
- *     responses:
- *       200:
- *         description: Custom categories retrieved
- *       400:
- *         description: Missing user_id
- *       500:
- *         description: Internal server error
- *   post:
- *     summary: Create a new custom category
- *     tags: [Custom Categories]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [user_id, name, type]
- *             properties:
- *               user_id:
- *                 type: integer
- *               name:
- *                 type: string
- *               type:
- *                 type: string
- *                 enum: [income, expense]
- *     responses:
- *       201:
- *         description: Category created successfully
- *       400:
- *         description: Missing required fields
- */
-
 // GET - Retrieve custom categories
 export async function GET(request: Request) {
   try {

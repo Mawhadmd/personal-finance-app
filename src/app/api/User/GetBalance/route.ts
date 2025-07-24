@@ -1,22 +1,6 @@
 import pool from "@/db/postgres";
 import { NextRequest, NextResponse } from "next/server";
 
-/**
- * @swagger
- * /api/User/GetBalance:
- *   get:
- *     summary: Calculate and get user balance
- *     tags: [Users]
- *     parameters:
- *       - name: user_id
- *         in: query
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Updated user balance
- */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);

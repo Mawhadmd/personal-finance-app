@@ -1,23 +1,5 @@
 import pool from "@/db/postgres";
 
-/**
- * @swagger
- * /api/User:
- *   get:
- *     summary: Get user profile
- *     tags: [Users]
- *     parameters:
- *       - name: user_id
- *         in: query
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: User profile data
- *       404:
- *         description: User not found
- */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const user_id = searchParams.get("user_id");

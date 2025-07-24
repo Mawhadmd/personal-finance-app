@@ -1,10 +1,11 @@
 "use client";
-import React, { useActionState, useEffect,  } from "react";
+import React, { useActionState, useEffect } from "react";
 import { sendEmail, verify } from "./VerificationServerActions";
-import { MailIcon,  } from "lucide-react";
-import { redirect } from "next/navigation";
+import { MailIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function VerifyEmail() {
+  const router = useRouter();
   const [SendEmailstate, SednEmailaction, SendEmailpending] = useActionState(
     sendEmail,
     {
@@ -17,11 +18,12 @@ export default function VerifyEmail() {
     error: "",
   });
   useEffect(() => {
-    if(Verifystate.success){
-      redirect('/dashboard');
+    if (Verifystate.success) {
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 300);
     }
- 
-  }, [Verifystate]);
+  }, [Verifystate, router]);
   return (
     <>
       <div className="w-80 h-80 flex  flex-col items-center  p-4 bg-foreground border-border border ">
@@ -42,7 +44,7 @@ export default function VerifyEmail() {
               <button
                 type="button"
                 onClick={SednEmailaction}
-                className="absolute text-sm right-0 top-0 bottom-0 bg-accent text-foreground p-2 hover:bg-accent/80 transition-colors cursor-pointer h-full"
+                className="absolute text-sm right-0 top-0 bottom-0 bg-red-500 text-white p-2 hover:bg-red-400 transition-colors cursor-pointer h-full"
               >
                 {SendEmailpending ? "Sending..." : "Send Email"}
               </button>
@@ -57,13 +59,11 @@ export default function VerifyEmail() {
             <div className="min-h-6 ">
               {(SendEmailstate.error || Verifystate.error) && (
                 <div className=" text-red-500 text-center">
- 
                   {Verifystate.error && <div>{Verifystate.error}</div>}
                 </div>
               )}
               {(SendEmailstate.success || Verifystate.success) && (
                 <div className=" text-green-500 text-center">
-       
                   {Verifystate.success && <div>Email verified!</div>}
                 </div>
               )}
@@ -88,7 +88,7 @@ export default function VerifyEmail() {
             {SendEmailstate.success && (
               <div>
                 Email sent successfully! Wait 24 hours before requesting another
-                day
+                code
               </div>
             )}
           </div>
