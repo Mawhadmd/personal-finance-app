@@ -13,6 +13,10 @@ export default async function GetUserIncome(
       },
     }
   );
+  if (!incomerequest.ok) {
+    console.error("Failed to fetch user income:", await incomerequest.text());
+    return [];
+  }
   const incomejson = await incomerequest.json();
   return (incomejson.income as Array<Income>) || [];
 }

@@ -13,6 +13,10 @@ export default async function GetUserExpenses(
       },
     }
   );
+    if (!spendingrequest.ok) {
+    console.error("Failed to fetch user income:", await spendingrequest.text());
+    return [];
+  }
   const spendingjson = await spendingrequest.json();
   return (spendingjson.expenses as Array<Expense>) || [];
 }

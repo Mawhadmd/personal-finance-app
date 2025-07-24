@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     if (res.rows.length === 0) {
       return new Response("User not found", { status: 404 });
     }
-    return new Response(JSON.stringify({ ...res.rows[0] }), {
+    return Response.json({ ...res.rows[0] }, {
       status: 200,
     });
   } catch {

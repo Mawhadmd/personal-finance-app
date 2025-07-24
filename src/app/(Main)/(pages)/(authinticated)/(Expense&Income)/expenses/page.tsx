@@ -4,7 +4,7 @@ import TransactionCard from "@/app/(Main)/(pages)/(authinticated)/components/Tra
 import currencies from "@/constants/currencies";
 import ConvertCurrency from "@/lib/ConvertCurrency";
 
-import getUserExpenses from "@/lib/getUserExpenses";
+import getUserExpenses from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/utils/getUserExpenses";
 import GetUserId from "@/lib/getUserId";
 import { User } from "@/models";
 
@@ -13,6 +13,7 @@ import { cookies } from "next/headers";
 
 import React from "react";
 import AmountCard from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/components/AmountCard";
+import { notFound } from "next/navigation";
 
 const Expenses = async () => {
   const user_id = await GetUserId();
@@ -26,6 +27,11 @@ const Expenses = async () => {
       },
     }
   );
+  if (!currency.ok) {
+    console.error("Failed to fetch user currency:", await currency.text());
+
+    notFound();
+  }
   const currencyjson: User = await currency.json();
   const currencySymbol = currencies.find(
     (c) => c.code === currencyjson.currency

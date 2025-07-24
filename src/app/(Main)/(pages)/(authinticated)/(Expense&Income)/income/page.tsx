@@ -4,12 +4,13 @@ import TransactionCard from "@/app/(Main)/(pages)/(authinticated)/components/Tra
 import currencies from "@/constants/currencies";
 import ConvertCurrency from "@/lib/ConvertCurrency";
 import GetUserId from "@/lib/getUserId";
-import GetUserIncome from "@/lib/getUserIncome";
+import GetUserIncome from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/utils/getUserIncome";
 import { User } from "@/models";
 import { CircleOff } from "lucide-react";
 import { cookies } from "next/headers";
 import React from "react";
 import AmountCard from "../components/AmountCard";
+import { notFound } from "next/navigation";
 
 const Income = async () => {
   const user_id = await GetUserId();
@@ -23,6 +24,11 @@ const Income = async () => {
       },
     }
   );
+  if (!currency.ok) {
+    console.error("Failed to fetch user currency:", await currency.text());
+
+    notFound();
+  }
   const currencyjson: User = await currency.json();
 
   const currencySymbol = currencies.find(

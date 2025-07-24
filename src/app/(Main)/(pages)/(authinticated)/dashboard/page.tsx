@@ -1,9 +1,14 @@
 import currencies from "@/constants/currencies";
-import GetUserExpenses from "@/lib/getUserExpenses";
+import GetUserExpenses from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/utils/getUserExpenses";
 import GetUserId from "@/lib/getUserId";
-import GetUserIncome from "@/lib/getUserIncome";
+import GetUserIncome from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/utils/getUserIncome";
 import { Expense, Income, User } from "@/models";
-import { BanknoteArrowDown, Download, Upload, Wallet } from "lucide-react";
+import {
+  BanknoteArrowDown,
+  Download,
+  Upload,
+  Wallet,
+} from "lucide-react";
 import BalanceCard from "@/app/(Main)/(pages)/(authinticated)/components/BalanceCard";
 import TransactionCard from "@/app/(Main)/(pages)/(authinticated)/components/TransactionCard";
 import TwoLinesChart from "@/app/(Main)/(pages)/(authinticated)/components/TwoLinesChart";
@@ -13,6 +18,7 @@ import { cookies } from "next/headers";
 import AddtransactionModal from "@/app/(Main)/(pages)/(authinticated)/components/AddTransactionsModal/AddTransactionsModal";
 import GettingStarted from "./Components/GettingStarted";
 import { formatNumber } from "@/lib/formatNumber";
+import { notFound } from "next/navigation";
 
 export default async function Home() {
   const user_id = await GetUserId();
@@ -25,6 +31,10 @@ export default async function Home() {
       },
     }
   );
+  if (!user.ok) {
+    console.error("Failed to fetch user data:", await user.text());
+    notFound();
+  }
   const userjson: User = await user.json();
   const spendingsarr = (await GetUserExpenses(user_id)).map((expense) => {
     const amount = ConvertCurrency({
