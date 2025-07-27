@@ -4,7 +4,7 @@
 :root {
   scroll-behavior: smooth;
   --text: hsl(0, 0%, 10%);
-  --muted: hsl(0, 0%, 50%);
+  --muted: hsl(0, 0%, 40%);
   --accent: hsl(82, 65%, 48%);
   --border: hsl(0, 0%, 70%);
   --background: hsl(0, 0%, 95%);
@@ -16,7 +16,7 @@
 .dark,
 [data-theme="dark"] {
   --text: hsl(0, 0%, 90%);
-  --muted: hsl(0, 0%, 50%);
+  --muted: hsl(0, 0%, 60%);
   --accent: hsl(90, 50%, 40%);
   --border: hsl(0, 0%, 25%);
   --background: hsl(0, 0%, 5%);

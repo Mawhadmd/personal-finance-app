@@ -25,7 +25,7 @@ export async function middleware(request: NextRequest) {
   let AccessTokenpayload;
   if (!AccessToken) {
     if (pathname.startsWith("/api")) {
-      return NextResponse.json({ error: "No token" }, { status: 401 });
+      return NextResponse.json({ error: "No Access token" }, { status: 401 });
     }
     if (isAuthPage) {
       return NextResponse.next();
@@ -35,7 +35,7 @@ export async function middleware(request: NextRequest) {
   } //This will check if the tokens exists in the cookies
   if (!RefreshToken) {
     if (pathname.startsWith("/api")) {
-      return NextResponse.json({ error: "No token" }, { status: 401 });
+      return NextResponse.json({ error: "No Refresh token" }, { status: 401 });
     }
     if (isAuthPage) {
       return NextResponse.next();

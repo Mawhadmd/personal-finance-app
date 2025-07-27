@@ -14,6 +14,7 @@ CREATE TABLE "users" (
   verification_code VARCHAR(6),
   ai_eval TEXT DEFAULT NULL,
   latest_ai_eval TIMESTAMP DEFAULT NULL
+  plaid_access_token VARCHAR(255) DEFAULT NULL, -- JWE ENCRYPTED
 );
 
 -- Income table

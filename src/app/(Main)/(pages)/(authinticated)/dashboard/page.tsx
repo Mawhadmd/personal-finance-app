@@ -6,6 +6,7 @@ import { Expense, Income, User } from "@/models";
 import {
   BanknoteArrowDown,
   Download,
+
   Upload,
   Wallet,
 } from "lucide-react";
@@ -19,6 +20,7 @@ import AddtransactionModal from "@/app/(Main)/(pages)/(authinticated)/components
 import GettingStarted from "./Components/GettingStarted";
 import { formatNumber } from "@/lib/formatNumber";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 export default async function Home() {
   const user_id = await GetUserId();
@@ -202,10 +204,16 @@ export default async function Home() {
     <div className="h-full flex">
       <div className="flex w-2/3 space-y-4 flex-col p-2">
         <div className="">
-          <div>
+         <div >
+         
             <h1>Welcome, {userjson.name}</h1>
-            <small className="text-muted">This is your financial summary</small>
-          </div>
+           <div className="flex gap-2 mb-2 items-center">
+             <small className="text-muted">This is your financial summary</small>
+       
+     <Link href="/Bank" className="bg-accent rounded-full p-1 text-sm cursor-pointer hover:opacity-80 ring ring-border">Connect My bank</Link>
+           </div>
+       
+         </div>
           <div className="flex gap-2  ">
             <BalanceCard
               balance={balance}
