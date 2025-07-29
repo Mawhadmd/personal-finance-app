@@ -1,22 +1,10 @@
 import pool from "@/db/postgres";
+import PlaidClient from "@/hooks/usePlaidClient";
+
 import { decodeJwt, EncryptJWT } from "jose";
 import { cookies } from "next/headers";
-import {
-  Configuration,
-  PlaidApi,
-  PlaidEnvironments,
-  Products,
-  CountryCode,
-} from "plaid";
-const config = new Configuration({
-  basePath: PlaidEnvironments.sandbox,
-  baseOptions: {
-    headers: {
-      "PLAID-CLIENT-ID": process.env.PLAID_CLIENT_ID!,
-      "PLAID-SECRET": process.env.PLAID_SECRET!,
-    },
-  },
-});
+
+
 export async function POST(request: Request) {
   try {
     const userId = decodeJwt((await cookies()).get("AccessToken")?.value!).user_id;
@@ -27,7 +15,7 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    const client = new PlaidApi(config);
+    const client =await PlaidClient();
     const response = await client.itemPublicTokenExchange({
       public_token: public_token,
     });

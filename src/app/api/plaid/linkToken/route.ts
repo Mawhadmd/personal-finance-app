@@ -1,19 +1,11 @@
 import { decodeJwt } from "jose";
 import { cookies } from "next/headers";
-import { Configuration, PlaidApi, PlaidEnvironments, Products, CountryCode } from "plaid";
-const config = new Configuration({
-  basePath: PlaidEnvironments.sandbox,
-  baseOptions: {
-    headers: {
-      "PLAID-CLIENT-ID": process.env.PLAID_CLIENT_ID!,
-      "PLAID-SECRET": process.env.PLAID_SECRET!,
-    },
-  },
-});
+import {Products, CountryCode } from "plaid";
+import PlaidClient from "@/hooks/usePlaidClient";
 export async function GET(request: Request) {
   try {
     const id = decodeJwt((await cookies()).get("AccessToken")?.value!).user_id;
-    const client = new PlaidApi(config);
+    const client = await PlaidClient();
     const response = await client.linkTokenCreate({
       user: {
         client_user_id: `user-id-${id}`,
