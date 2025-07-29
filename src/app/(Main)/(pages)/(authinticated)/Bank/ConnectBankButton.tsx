@@ -1,10 +1,10 @@
 "use client";
 import { usePlaidConnect } from "@/hooks/usePlaid";
-import { DotSquare, LoaderIcon } from "lucide-react";
+import { DotSquare } from "lucide-react";
 import React from "react";
 
 export default function ConnectBankButton() {
-  const { open, ready, exit } = usePlaidConnect();
+  const { open, ready } = usePlaidConnect();
   return (
     <button
       disabled={!ready}

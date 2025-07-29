@@ -2,7 +2,7 @@ import { decodeJwt } from "jose";
 import { cookies } from "next/headers";
 import {Products, CountryCode } from "plaid";
 import PlaidClient from "@/hooks/usePlaidClient";
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const id = decodeJwt((await cookies()).get("AccessToken")?.value!).user_id;
     const client = await PlaidClient();
