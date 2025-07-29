@@ -55,8 +55,8 @@ const NavBar = () => {
     <div>
       <nav className="flex h-screen  relative flex-col p-4 bg-foreground border-r border-foreground">
         {" "}
-        <div className="text-text font-extrabold border-b border-border">
-          Personal Finance App
+        <div className="text-text text-center font-extrabold border-b border-border  w-full text-2xl ">
+          PFinance
         </div>
         <ul className="pt-4 w-full">
           {paths.map(([route, label, icon]) => (

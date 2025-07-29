@@ -77,8 +77,8 @@ export async function POST(request: NextRequest) {
       length: 6,
     });
 
-    // Set expiry to 24 hours from now
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    // Set expiry to 1 hour from now
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
     // Insert new verification code into verification_codes table
     await pool.query(
@@ -88,9 +88,9 @@ export async function POST(request: NextRequest) {
     );
 
     // Send verification email
-    const emailError = await sendEmail(email, code);
-    if (emailError) {
-      console.error("Email sending error:", emailError);
+    const emailstats = await sendEmail(email, code);
+    if (emailstats.error) {
+      console.error("Email sending error:", emailstats.error);
       return new Response(
         JSON.stringify({ error: "Failed to send verification email." }),
         { status: 500 }

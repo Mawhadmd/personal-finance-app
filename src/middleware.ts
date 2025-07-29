@@ -118,15 +118,20 @@ export async function middleware(request: NextRequest) {
           refreshData.error
         );
         if (!isAuthPage)
-          return NextResponse.redirect(new URL("/login", request.url));
+          return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_BASE_URL));
       } else {
         console.log("Token refreshed successfully", refreshData.error);
-        const response = NextResponse.next();
+        let response;
+        if (isAuthPage)
+        response = NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`);
+        else
+          response = NextResponse.next();
         response.cookies.set("AccessToken", refreshData.accessToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "strict",
         });
+        
         return response;
       }
     }

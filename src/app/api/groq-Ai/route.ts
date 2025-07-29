@@ -39,10 +39,10 @@ export async function GET(request: NextRequest) {
           { status: 200 }
         );
       }
-
+      console.log(expenses, income, name, currency);
       // If we have name, income, and expenses, generate new evaluation
       if (name && income && expenses) {
-        const prompt = `The user with name ${name} has an income of ${currency}${income} and expenses of ${currency}${expenses} this month. What advice can you give them? please make the text as short at possible, and make sure to include the currency symbol in the response.`;
+        const prompt = `The user with name ${name} has an income of ${currency}${income} and expenses of ${currency}${expenses} this month. What advice can you give them? please make the text as short at possible, and make sure to include the currency symbol in the response. please make sure to include the currency symbol in the response. and take a close look at . or , in the price`;
 
         const response = await askgroq(prompt);
 
