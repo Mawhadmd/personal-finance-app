@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { ToastContainerComponent } from "@/hooks/useToast";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -9,7 +10,7 @@ const inter = Inter({
 
 
 export const metadata: Metadata = {
-  title: "Personal Finance",
+  title: "PFinance",
   description: "Manage your personal finances with ease",
 };
 
@@ -46,6 +47,7 @@ export default function RootLayout({
         className={`${inter.className} antialiased bg-background  text-text h-svh`}
       >
         {children}
+        <ToastContainerComponent/>
       </body>
     </html>
   );
