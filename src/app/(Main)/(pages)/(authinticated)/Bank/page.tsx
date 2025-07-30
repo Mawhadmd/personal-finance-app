@@ -1,26 +1,50 @@
 import React from "react";
-import ConnectBankButton from "./ConnectBankButton";
 
-export default function page() {
-  return (
-    <div className="flex flex-col h-full">
-      <div className="mb-2">
-        <h1>Connect Your Bank Account</h1>
-        <small className="text-muted">
-          For better financial insights and management
-        </small>
-      </div>
-      <div>
-        <p>
-          Linking your bank account allows us to provide personalized financial
-          advice and track your spending habits more effectively. We use plaid
-          for secure connections.
-        </p>
-        <p>Click the button below to start the process.</p>
-      </div>
-      <div className="flex justify-center items-center flex-1">
-        <ConnectBankButton />
-      </div>
-    </div>
+import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
+import ConnectBank from "./ConnectBank";
+import BankConnected from "./BankConnected";
+
+export default async function page() {
+  const req = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/plaid/check`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: (await cookies()).toString(),
+      },
+    }
   );
+
+  const reqJSON = await req.json();
+
+  if (reqJSON.linked === false) {
+    return ConnectBank();
+  }
+
+  if (!req.ok) {
+    console.error("Failed to check bank link status:", reqJSON.error);
+    return notFound();
+  }
+
+  const datareq = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/plaid/getTransactions`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: (await cookies()).toString(),
+      },
+    }
+  );
+
+  const data = await datareq.json();
+
+  if (!datareq.ok) {
+    console.error("Failed to fetch transactions:", data.error);
+    return notFound();
+  }
+
+  return <BankConnected data={data} />;
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ToastContainerComponent } from "@/hooks/useToast";
+import { PlaidProvider } from "@/context/PlaidContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -46,7 +47,10 @@ export default function RootLayout({
       <body
         className={`${inter.className} antialiased bg-background  text-text h-svh`}
       >
-        {children}
+
+        <PlaidProvider>
+          {children}
+        </PlaidProvider>
         <ToastContainerComponent/>
       </body>
     </html>

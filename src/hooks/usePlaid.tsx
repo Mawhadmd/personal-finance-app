@@ -3,6 +3,7 @@
 import { PlaidLinkOptions, usePlaidLink } from "react-plaid-link";
 import useToast from "./useToast";
 import { useState, useEffect } from "react";
+import { usePlaidContext } from "@/context/PlaidContext";
 const fetchLinkToken = async () => {
   try {
     const req = await fetch(`/api/plaid/linkToken`, {
@@ -34,7 +35,7 @@ const fetchLinkToken = async () => {
 export const usePlaidConnect = () => {
   const { showSuccess, showError } = useToast();
   const [linkToken, setLinkToken] = useState<string | null>(null);
-
+  
   useEffect(() => {
     const getToken = async () => {
       const token = await fetchLinkToken();
@@ -63,6 +64,7 @@ export const usePlaidConnect = () => {
         return;
       }
       showSuccess("bank link successful!");
+      window.location.reload();
     },
     onExit: (err, metadata) => {
       showError("You exited the setup!");

@@ -20,7 +20,7 @@ export async function POST() {
       "select plaid_access_token from users where user_id = $1",
       [user_id]
     );
-    
+
     const encrypt_plaid_access_token =
       encrypt_plaid_access_token_req.rows[0].plaid_access_token;
     if (!encrypt_plaid_access_token) {
@@ -30,9 +30,15 @@ export async function POST() {
       );
     }
 
-    const plaid_access_token_decrypt = await jwtDecrypt(encrypt_plaid_access_token, new TextEncoder().encode(process.env.ENCRYPTION_KEY!));
-    const plaid_access_token = await (plaid_access_token_decrypt).payload.accessToken as string;
-    const stateDate =  formatDate(new Date(Date.now() - 1000 * 60 * 60 * 24 * 30));
+    const plaid_access_token_decrypt = await jwtDecrypt(
+      encrypt_plaid_access_token,
+      new TextEncoder().encode(process.env.ENCRYPTION_KEY!)
+    );
+    const plaid_access_token = (await plaid_access_token_decrypt.payload
+      .accessToken) as string;
+    const stateDate = formatDate(
+      new Date(Date.now() - 1000 * 60 * 60 * 24 * 30)
+    );
     const endDate = formatDate(new Date(Date.now()));
     const request: TransactionsGetRequest = {
       access_token: plaid_access_token,
@@ -40,15 +46,15 @@ export async function POST() {
       start_date: stateDate,
     };
 
-    const client =await PlaidClient();
+    const client = await PlaidClient();
     const transactions = await client.transactionsGet(request);
-    
+    console.log(transactions.data);
     return NextResponse.json(transactions.data, { status: 200 });
   } catch (err) {
     console.log("Something bad happened");
     console.log(err);
     return NextResponse.json(
-      { error: "Failed to fetch transactions"  },
+      { error: "Failed to fetch transactions" },
       { status: 500 }
     );
   }
