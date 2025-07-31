@@ -1,29 +1,27 @@
 import currencies from "@/constants/currencies";
-import GetUserExpenses from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/utils/getUserExpenses";
-import GetUserId from "@/lib/getUserId";
-import GetUserIncome from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/utils/getUserIncome";
+import GetUserExpenses from "@/lib/helpers/getUserExpenses";
+import GetUserId from "@/lib/helpers/getUserId";
+import GetUserIncome from "@/lib/helpers/getUserIncome";
 import { Expense, Income, User } from "@/models";
-import {
-  BanknoteArrowDown,
-  Download,
-
-  Upload,
-  Wallet,
-} from "lucide-react";
+import { BanknoteArrowDown, Download, Upload, Wallet } from "lucide-react";
 import BalanceCard from "@/app/(Main)/(pages)/(authinticated)/components/BalanceCard";
 import TransactionCard from "@/app/(Main)/(pages)/(authinticated)/components/TransactionCard";
 import TwoLinesChart from "@/app/(Main)/(pages)/(authinticated)/components/TwoLinesChart";
 import PieChartComponent from "@/app/(Main)/(pages)/(authinticated)/components/pieChart";
-import ConvertCurrency from "@/lib/ConvertCurrency";
+import ConvertCurrency from "@/lib/utils/ConvertCurrency";
 import { cookies } from "next/headers";
 import AddtransactionModal from "@/app/(Main)/(pages)/(authinticated)/components/AddTransactionsModal/AddTransactionsModal";
 import GettingStarted from "./Components/GettingStarted";
-import { formatNumber } from "@/lib/formatNumber";
+import { formatNumber } from "@/lib/utils/formatNumber";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { getPlaidTransactions } from "@/lib/helpers/PlaidHelpers";
+import { get } from "http";
+import { getDBExpeneses, getDBIncome } from "@/lib/helpers/DBTransactionsHelper";
 
 export default async function Home() {
   const user_id = await GetUserId();
+
   const user = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/User?user_id=${user_id}`,
     {
@@ -33,102 +31,55 @@ export default async function Home() {
       },
     }
   );
+
   if (!user.ok) {
     console.error("Failed to fetch user data:", await user.text());
     notFound();
   }
-  const userjson: User = await user.json();
-  const spendingsarr = (await GetUserExpenses(user_id)).map((expense) => {
-    const amount = ConvertCurrency({
-      amount: expense.amount,
-      toCurrency: userjson.currency,
-    });
-    return { ...expense, amount };
-  });
-  const Incomearr = (await GetUserIncome(user_id)).map((income) => {
-    const amount = ConvertCurrency({
-      amount: income.amount,
-      toCurrency: userjson.currency,
-    });
-    return { ...income, amount };
-  });
-  const totalSpending = spendingsarr.reduce(
-    (acc, expense) => acc + expense.amount,
-    0
-  );
 
-  const balancerq = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/User/GetBalance?user_id=${user_id}`,
-    {
-      method: "GET",
-      headers: {
-        Cookie: `${(await cookies()).toString()}`,
-      },
-    }
-  );
-  const balancejson = await balancerq.json();
+  const { currency, name }: User = await user.json();
+
+
+  const { spendingsarr, totalSpending, spendingThisMonth, spendingLastMonth } = await getDBExpeneses({ currency });
+  const { Incomearr, incomeThisMonth, incomeLastMonth, totalIncome } = await getDBIncome({ currency });
+
   const balance = ConvertCurrency({
-    amount: balancejson.balance,
-    toCurrency: userjson.currency,
+    amount: totalIncome - totalSpending,
+    toCurrency: currency,
   });
 
   // Calculate the difference between this month and last month
-  const now = new Date();
-  const thisMonth = now.getMonth();
-  const thisYear = now.getFullYear();
-  const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
-  const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
 
-  const incomeThisMonth = Incomearr.filter((income) => {
-    const date = new Date(income.date);
-    return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
-  }).reduce((acc, income) => acc + income.amount, 0);
+  function calculatePercentageChange(
+    current: number,
+    previous: number
+  ): number {
+    if (previous === 0) {
+      return current > 0 ? 999 : 0; // Return 999% if
+      // previous is 0 and current is positive, otherwise return 0%
+    }
+    return ((current - previous) / previous) * 100 || 0; // Calculate
+  }
+ 
+  const percentageChangeIncome = calculatePercentageChange(
+    incomeThisMonth,
+    incomeLastMonth
+  );
 
-  const incomeLastMonth = Incomearr.filter((income) => {
-    const date = new Date(income.date);
-    return (
-      date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear
-    );
-  }).reduce((acc, income) => acc + income.amount, 0);
+  const percentageChangeSpending = calculatePercentageChange(
+    spendingThisMonth,
+    spendingLastMonth
+  );
+  
 
-  const spendingThisMonth = spendingsarr
-    .filter((expense) => {
-      const date = new Date(expense.date);
-      return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
-    })
-    .reduce((acc, expense) => acc + expense.amount, 0);
-
-  const spendingLastMonth = spendingsarr
-    .filter((expense) => {
-      const date = new Date(expense.date);
-      return (
-        date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear
-      );
-    })
-    .reduce((acc, expense) => acc + expense.amount, 0);
-
-  const percentageChangeIncome =
-    incomeLastMonth === 0
-      ? incomeThisMonth > 0
-        ? 999
-        : 0
-      : ((incomeThisMonth - incomeLastMonth) / incomeLastMonth) * 100 || 0;
-  const percentageChangeSpending =
-    spendingLastMonth === 0
-      ? spendingThisMonth > 0
-        ? 999
-        : 0
-      : ((spendingThisMonth - spendingLastMonth) / spendingLastMonth) * 100 ||
-        0;
   const combinedtransactions: Array<Income | Expense> = [
     ...spendingsarr,
     ...Incomearr,
   ].sort((a, b) => {
     return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
-  const currencySympol = currencies.find(
-    (c) => c.code === userjson.currency
-  )?.symbol;
+
+  const currencySympol = currencies.find((c) => c.code === currency)?.symbol;
 
   const COLORS = [
     ...Array(6)
@@ -142,6 +93,8 @@ export default async function Home() {
       }),
   ];
 
+
+
   if (combinedtransactions.length === 0) {
     return (
       // No transactions layout - centered and simplified
@@ -150,7 +103,7 @@ export default async function Home() {
           {/* Header Section */}
           <div className="mb-6">
             <div>
-              <h1>Welcome, {userjson.name}</h1>
+              <h1>Welcome, {name}</h1>
               <small className="text-muted">
                 This is your financial summary
               </small>
@@ -191,7 +144,7 @@ export default async function Home() {
   }
 
   const aieval = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/groq-Ai?user_id=${user_id}&name=${userjson.name}&income=${incomeThisMonth}&expenses=${spendingThisMonth}&currency=${userjson.currency}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/groq-Ai?user_id=${user_id}&name=${name}&income=${incomeThisMonth}&expenses=${spendingThisMonth}&currency=${currency}`,
     {
       method: "GET",
       headers: {
@@ -204,16 +157,21 @@ export default async function Home() {
     <div className="h-full flex">
       <div className="flex w-2/3 space-y-4 flex-col p-2">
         <div className="">
-         <div >
-         
-            <h1>Welcome, {userjson.name}</h1>
-           <div className="flex gap-2 mb-2 items-center">
-             <small className="text-muted">This is your financial summary</small>
-       
-     <Link href="/Bank" className="bg-accent rounded-full p-1 text-sm cursor-pointer hover:opacity-80 ring ring-border">Connect My bank</Link>
-           </div>
-       
-         </div>
+          <div>
+            <h1>Welcome, {name}</h1>
+            <div className="flex gap-2 mb-2 items-center">
+              <small className="text-muted">
+                This is your financial summary
+              </small>
+
+              <Link
+                href="/Bank"
+                className="bg-accent rounded-full p-1 text-sm cursor-pointer hover:opacity-80 ring ring-border"
+              >
+                Connect My bank
+              </Link>
+            </div>
+          </div>
           <div className="flex gap-2  ">
             <BalanceCard
               balance={balance}
