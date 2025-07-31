@@ -1,4 +1,4 @@
-import { formatNumber } from "@/lib/formatNumber";
+import { formatNumber } from "@/lib/utils/formatNumber";
 import { ArrowDown, ArrowUp, Equal } from "lucide-react";
 
 export default function BalanceCard({
@@ -22,23 +22,29 @@ export default function BalanceCard({
         <div className="flex gap-2 items-center">
           <div className="p-1  w-fit bg-muted/10 rounded-xl">{icon}</div>
           <p className={`text-center whitespace-nowrap text-sm`}>{text}</p>
-            {changepercentage != undefined && (
-            <div className={`relative text-sm rounded-lg p-1 text-muted text-center flex items-center gap-1 justify-center group cursor-help   ${
-                  changepercentage === 0
-                    ? "bg-neutral-500/10 "
-                    : text === "Spending This Month"
-                    ? changepercentage > 0
-                      ? "!bg-red-500/10"
-                      : "!bg-green-500/10"
-                    : changepercentage > 0
-                    ? "!bg-green-500/10"
-                    : "!bg-red-500/10"
-                }`}>
-              {changepercentage != 0? changepercentage > 0 ? (
-                <ArrowUp className="size-4" />
+          {changepercentage != undefined && (
+            <div
+              className={`relative text-sm rounded-lg p-1 text-muted text-center flex items-center gap-1 justify-center group cursor-help   ${
+                changepercentage === 0
+                  ? "bg-neutral-500/10 "
+                  : text === "Spending This Month"
+                  ? changepercentage > 0
+                    ? "!bg-red-500/10"
+                    : "!bg-green-500/10"
+                  : changepercentage > 0
+                  ? "!bg-green-500/10"
+                  : "!bg-red-500/10"
+              }`}
+            >
+              {changepercentage != 0 ? (
+                changepercentage > 0 ? (
+                  <ArrowUp className="size-4" />
+                ) : (
+                  <ArrowDown className="size-4" />
+                )
               ) : (
-                <ArrowDown className="size-4" />
-              ): <Equal className="size-4" />}
+                <Equal className="size-4" />
+              )}
               <span
                 className={
                   changepercentage === 0
@@ -56,12 +62,14 @@ export default function BalanceCard({
               </span>
               <span className="absolute left-1/2 -translate-x-1/2 top-full w-35 text-text  bg-foreground border-border border transition-all  p-1  rounded opacity-0 group-hover:opacity-100 pointer-events-none z-10">
                 {changepercentage === 0
-                    ? "Same as last month"
-                    : changepercentage > 0
-                    ? text === "Spending This Month"? "You're spending more money than the last month"
+                  ? "Same as last month"
+                  : changepercentage > 0
+                  ? text === "Spending This Month"
+                    ? "You're spending more money than the last month"
                     : "You're earning more money than the last month"
-                    : text === "Spending This Month"? "You're spending less money than the last month"
-                    : "You're earning less money than the last month"}
+                  : text === "Spending This Month"
+                  ? "You're spending less money than the last month"
+                  : "You're earning less money than the last month"}
               </span>
             </div>
           )}
@@ -71,7 +79,6 @@ export default function BalanceCard({
             {currencySymbol}
             {formatNumber(balance)}
           </div>
-        
         </div>
       </div>
     </>

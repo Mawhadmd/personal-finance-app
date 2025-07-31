@@ -1,18 +1,15 @@
 "use client";
-import { formatNumber } from "@/lib/formatNumber";
+import { formatNumber } from "@/lib/utils/formatNumber";
 import { Expense, Income } from "@/models";
 import React from "react";
 import {
-
   CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
-
   ResponsiveContainer,
   Area,
   AreaChart,
-
 } from "recharts";
 
 export default function TwoLinesChart({

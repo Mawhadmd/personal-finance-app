@@ -1,5 +1,5 @@
 import pool from "@/db/postgres";
-import ConvertCurrency from "@/lib/ConvertCurrency";
+import ConvertCurrency from "@/lib/utils/ConvertCurrency";
 
 // GET - Fetch expenses with optional filtering
 export async function GET(request: Request) {
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     let body;
     try {
       body = await request.json();
-    } catch  {
+    } catch {
       return Response.json(
         { error: "Invalid JSON in request body" },
         { status: 400 }
@@ -158,7 +158,7 @@ export async function PUT(request: Request) {
     let body;
     try {
       body = await request.json();
-    } catch  {
+    } catch {
       return Response.json(
         { error: "Invalid JSON in request body" },
         { status: 400 }
@@ -177,7 +177,7 @@ export async function PUT(request: Request) {
       'SELECT currency FROM "users" WHERE user_id = (SELECT user_id FROM "expenses" WHERE expense_id = $1)',
       [expense_id]
     );
-    
+
     const amountToUSD = amount
       ? ConvertCurrency({
           amount: amount,

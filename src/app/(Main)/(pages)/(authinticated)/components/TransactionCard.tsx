@@ -1,6 +1,6 @@
 import { Upload, Download } from "lucide-react";
 import { Expense, Income } from "@/models";
-import { formatNumber } from "@/lib/formatNumber";
+import { formatNumber } from "@/lib/utils/formatNumber";
 
 type TransactionCardProps = {
   transaction: Expense | Income;

@@ -3,7 +3,8 @@ import { decodeJwt, jwtDecrypt } from "jose";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { TransactionsGetRequest } from "plaid";
-import PlaidClient from "@/hooks/usePlaidClient";
+import PlaidClient from "@/hooks/usePlaidAPI";
+import getUserId from "@/lib/helpers/getUserId";
 
 function formatDate(date: Date): string {
   return date.toISOString().split("T")[0]; // YYYY-MM-DD
@@ -11,11 +12,11 @@ function formatDate(date: Date): string {
 
 export async function POST() {
   try {
-    const access_token = (await cookies()).get("AccessToken")?.value;
-
     // access token is assured by the middleware
-    const { user_id } = decodeJwt(access_token!);
-
+    const user_id = await getUserId();
+    if (!user_id) {
+      return NextResponse.json({ error: "User ID not found" }, { status: 401 });
+    }
     const encrypt_plaid_access_token_req = await pool.query(
       "select plaid_access_token from users where user_id = $1",
       [user_id]

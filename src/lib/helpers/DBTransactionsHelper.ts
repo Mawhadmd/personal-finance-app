@@ -7,9 +7,10 @@ const thisMonth = now.getMonth();
 const thisYear = now.getFullYear();
 const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
 const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
-const user_id = await GetUserId();
+
 
 export async function getDBExpeneses({ currency }: { currency: string }) {
+  const user_id = await GetUserId();
   const spendingsarr = (await GetUserExpenses(user_id)).map((expense) => {
     const amount = ConvertCurrency({
       amount: expense.amount,
@@ -46,6 +47,7 @@ export async function getDBExpeneses({ currency }: { currency: string }) {
   };
 }
 export async function getDBIncome({ currency }: { currency: string }) {
+  const user_id = await GetUserId();
   const Incomearr = (await GetUserIncome(user_id)).map((income) => {
     const amount = ConvertCurrency({
       amount: income.amount,

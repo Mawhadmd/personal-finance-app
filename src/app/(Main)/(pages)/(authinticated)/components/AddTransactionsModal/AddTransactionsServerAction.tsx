@@ -1,7 +1,6 @@
 "use server";
 
-
-import GetUserId from "@/lib/getUserId";
+import GetUserId from "@/lib/helpers/getUserId";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -40,7 +39,7 @@ export async function AddExpense(
       {
         method: "POST",
         headers: {
-                  Cookie: `${(await cookies()).toString()}`,
+          Cookie: `${(await cookies()).toString()}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({

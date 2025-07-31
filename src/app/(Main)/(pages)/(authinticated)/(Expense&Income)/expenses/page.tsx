@@ -2,10 +2,10 @@ import AddtransactionModal from "@/app/(Main)/(pages)/(authinticated)/components
 import Chart from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/components/OneLinechart";
 import TransactionCard from "@/app/(Main)/(pages)/(authinticated)/components/TransactionCard";
 import currencies from "@/constants/currencies";
-import ConvertCurrency from "@/lib/ConvertCurrency";
+import ConvertCurrency from "@/lib/utils/ConvertCurrency";
 
-import getUserExpenses from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/utils/getUserExpenses";
-import GetUserId from "@/lib/getUserId";
+import getUserExpenses from "@/lib/helpers/getUserExpenses";
+import GetUserId from "@/lib/helpers/getUserId";
 import { User } from "@/models";
 
 import { CircleOff } from "lucide-react";

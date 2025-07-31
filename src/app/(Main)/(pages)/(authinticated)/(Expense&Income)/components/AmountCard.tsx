@@ -1,4 +1,4 @@
-import { formatNumber } from "@/lib/formatNumber";
+import { formatNumber } from "@/lib/utils/formatNumber";
 import React from "react";
 
 interface SpendingCardProps {

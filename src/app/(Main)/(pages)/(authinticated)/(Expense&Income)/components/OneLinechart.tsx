@@ -1,5 +1,5 @@
 "use client";
-import { formatNumber } from "@/lib/formatNumber";
+import { formatNumber } from "@/lib/utils/formatNumber";
 import { Expense, Income } from "@/models";
 import React from "react";
 import {
@@ -14,16 +14,16 @@ import {
 
 export default function Chart({ data }: { data: Array<Expense | Income> }) {
   // Format data for the chart
-  const chartData = data.map((data) => ({
-    date: new Date(data.date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    }),
-    amount: data.amount,
-    category: "category" in data ? data.category || "Other" : "Other",
-  })).sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-  );
+  const chartData = data
+    .map((data) => ({
+      date: new Date(data.date).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      }),
+      amount: data.amount,
+      category: "category" in data ? data.category || "Other" : "Other",
+    }))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
     <div className="w-full h-80 mt-4">
