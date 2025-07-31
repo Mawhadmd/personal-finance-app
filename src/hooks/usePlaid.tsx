@@ -3,7 +3,9 @@
 import { PlaidLinkOptions, usePlaidLink } from "react-plaid-link";
 import useToast from "./useToast";
 import { useState, useEffect } from "react";
-import { usePlaidContext } from "@/context/PlaidContext";
+
+
+
 const fetchLinkToken = async () => {
   try {
     const req = await fetch(`/api/plaid/linkToken`, {
@@ -28,8 +30,6 @@ const fetchLinkToken = async () => {
     return <div>Error fetching link token</div>;
   }
 };
-
-
 
 
 export const usePlaidConnect = () => {
@@ -85,7 +85,4 @@ export const usePlaidConnect = () => {
   };
 };
 
-export const getPlaidTransactions = () => {
-    
-}
 
