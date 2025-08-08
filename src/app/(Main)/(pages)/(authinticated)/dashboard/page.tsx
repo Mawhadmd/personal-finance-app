@@ -1,47 +1,58 @@
 import currencies from "@/constants/currencies";
-import GetUserExpenses from "@/lib/helpers/getUserExpenses";
-import GetUserId from "@/lib/helpers/getUserId";
-import GetUserIncome from "@/lib/helpers/getUserIncome";
-import { Expense, Income, User } from "@/models";
+import GetUserId from "@/lib/utils/getUserId";
+import { Expense, Income } from "@/models";
 import { BanknoteArrowDown, Download, Upload, Wallet } from "lucide-react";
 import BalanceCard from "@/app/(Main)/(pages)/(authinticated)/components/BalanceCard";
-import TransactionCard from "@/app/(Main)/(pages)/(authinticated)/components/TransactionCard";
-import TwoLinesChart from "@/app/(Main)/(pages)/(authinticated)/components/TwoLinesChart";
 import PieChartComponent from "@/app/(Main)/(pages)/(authinticated)/components/pieChart";
 import ConvertCurrency from "@/lib/utils/ConvertCurrency";
 import { cookies } from "next/headers";
 import AddtransactionModal from "@/app/(Main)/(pages)/(authinticated)/components/AddTransactionsModal/AddTransactionsModal";
 import GettingStarted from "./Components/GettingStarted";
 import { formatNumber } from "@/lib/utils/formatNumber";
-import { notFound } from "next/navigation";
+
 import Link from "next/link";
-import { getPlaidTransactions } from "@/lib/helpers/PlaidHelpers";
-import { get } from "http";
-import { getDBExpeneses, getDBIncome } from "@/lib/helpers/DBTransactionsHelper";
+import {
+  getDBExpeneses,
+  getDBIncome,
+} from "@/lib/utils/helpers/DBTransactionsHelper";
+import { fetchPlaidTransactions } from "@/lib/utils/helpers/plaid/PlaidHelpers";
+import { decodeJwt } from "jose";
+import Transactions from "./Components/Transactions";
+import combineTransactions from "./util/combineTransactions";
 
 export default async function Home() {
   const user_id = await GetUserId();
+  const AccessToken = (await cookies()).get("AccessToken")?.value;
 
-  const user = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/User?user_id=${user_id}`,
-    {
-      method: "GET",
-      headers: {
-        Cookie: `${(await cookies()).toString()}`,
-      },
-    }
-  );
+  const { currency, name }: { currency: string; name: string } = decodeJwt(
+    AccessToken!
+  )!;
+  console.log(currency, name);
+  const expRes = await getDBExpeneses(currency);
 
-  if (!user.ok) {
-    console.error("Failed to fetch user data:", await user.text());
-    notFound();
-  }
+  const { spendingsarr } = expRes;
+  let { totalSpending, spendingThisMonth, spendingLastMonth } = expRes;
 
-  const { currency, name }: User = await user.json();
+  const incRes = await getDBIncome(currency);
+  const { Incomearr } = incRes;
+  let { incomeThisMonth, incomeLastMonth, totalIncome } = incRes;
+  const {
+    allTransactions: plaidTransactions,
+    plaidTotalExpense,
+    plaidExpenseThisMonth,
+    plaidExpenseLastMonth,
+    plaidTotalIncome,
+    plaidIncomeThisMonth,
+    plaidIncomeLastMonth,
+  } = await fetchPlaidTransactions("both");
 
+  incomeThisMonth += plaidIncomeThisMonth!;
+  incomeLastMonth += plaidIncomeLastMonth!;
+  totalIncome += plaidTotalIncome!;
 
-  const { spendingsarr, totalSpending, spendingThisMonth, spendingLastMonth } = await getDBExpeneses({ currency });
-  const { Incomearr, incomeThisMonth, incomeLastMonth, totalIncome } = await getDBIncome({ currency });
+  totalSpending += plaidTotalExpense!;
+  spendingThisMonth += plaidExpenseThisMonth!;
+  spendingLastMonth += plaidExpenseLastMonth!;
 
   const balance = ConvertCurrency({
     amount: totalIncome - totalSpending,
@@ -60,24 +71,30 @@ export default async function Home() {
     }
     return ((current - previous) / previous) * 100 || 0; // Calculate
   }
- 
-  const percentageChangeIncome = calculatePercentageChange(
-    incomeThisMonth,
-    incomeLastMonth
+
+  const percentageChangeIncome = parseInt(
+    calculatePercentageChange(incomeThisMonth, incomeLastMonth).toFixed(2)
   );
 
-  const percentageChangeSpending = calculatePercentageChange(
-    spendingThisMonth,
-    spendingLastMonth
+  const percentageChangeSpending = parseInt(
+    calculatePercentageChange(spendingThisMonth, spendingLastMonth).toFixed(2)
   );
-  
 
-  const combinedtransactions: Array<Income | Expense> = [
-    ...spendingsarr,
-    ...Incomearr,
-  ].sort((a, b) => {
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
-  });
+  const combinedtransactions: Array<Income | Expense> = combineTransactions(
+    Incomearr,
+    [],
+    plaidTransactions
+  );
+  const CombinedPlaidIncomearr: Income[] = combineTransactions(
+    Incomearr,
+    [],
+    plaidTransactions.filter((transaction: Income) => transaction.income_id)
+  );
+  const CombinedPlaidspendingsarr: Expense[] = combineTransactions(
+    [],
+    spendingsarr,
+    plaidTransactions.filter((transaction: Expense) => transaction.expense_id)
+  );
 
   const currencySympol = currencies.find((c) => c.code === currency)?.symbol;
 
@@ -92,8 +109,6 @@ export default async function Home() {
         return `rgb(${r},${g},${b})`;
       }),
   ];
-
-
 
   if (combinedtransactions.length === 0) {
     return (
@@ -152,7 +167,9 @@ export default async function Home() {
       },
     }
   );
+
   const aiEvaluation = await aieval.json();
+
   return (
     <div className="h-full flex">
       <div className="flex w-2/3 space-y-4 flex-col p-2">
@@ -197,34 +214,14 @@ export default async function Home() {
             />
           </div>
         </div>
-        <div className="">
-          <h2 className="border-b border-border">Transactions</h2>
-          <div className="flex gap-2 box-border">
-            <div className="relative w-1/3 pb-3">
-              <div className="flex flex-col  overflow-y-scroll  h-100 ">
-                {combinedtransactions.map((transaction, i) => (
-                  <TransactionCard
-                    transaction={transaction}
-                    type={"income_id" in transaction ? "income" : "expense"}
-                    currencySymbol={currencySympol}
-                    key={i}
-                  />
-                ))}
-
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent pointer-events-none from-80% to-100% to-background"></div>
-              </div>
-            </div>
-            <div className=" w-2/3 flex justify-center items-center h-calc(100vh_-_5rem)">
-              {spendingsarr.length > 0 || Incomearr.length > 0 ? (
-                <TwoLinesChart Expenses={spendingsarr} Income={Incomearr} />
-              ) : (
-                <div className="text-muted text-center">
-                  <p>Add both income and expenses to see the chart</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <Transactions
+          currencySympol={currencySympol}
+          initialData={{
+            combinedtransactions,
+            CombinedPlaidIncomearr,
+            CombinedPlaidspendingsarr,
+          }}
+        />
       </div>
       <div className=" m-2 p-4 bg-foreground rounded w-1/3 space-y-2 flex flex-col border border-border  ">
         <h3 className="flex gap-1 items-center">

@@ -2,76 +2,44 @@ import AddtransactionModal from "@/app/(Main)/(pages)/(authinticated)/components
 import Chart from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/components/OneLinechart";
 import TransactionCard from "@/app/(Main)/(pages)/(authinticated)/components/TransactionCard";
 import currencies from "@/constants/currencies";
-import ConvertCurrency from "@/lib/utils/ConvertCurrency";
-
-import getUserExpenses from "@/lib/helpers/getUserExpenses";
-import GetUserId from "@/lib/helpers/getUserId";
-import { User } from "@/models";
 
 import { CircleOff } from "lucide-react";
 import { cookies } from "next/headers";
 
 import React from "react";
 import AmountCard from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/components/AmountCard";
-import { notFound } from "next/navigation";
+import { decodeJwt } from "jose";
+import { getDBExpeneses } from "@/lib/utils/helpers/DBTransactionsHelper";
+import { fetchPlaidTransactions } from "@/lib/utils/helpers/plaid/PlaidHelpers";
+import { Expense } from "@/models";
+import combineTransactions from "../../dashboard/util/combineTransactions";
 
 const Expenses = async () => {
-  const user_id = await GetUserId();
+  const AccessToken = (await cookies()).get("AccessToken")?.value;
 
-  const currency = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/User?user_id=${user_id}`,
-    {
-      method: "GET",
-      headers: {
-        Cookie: `${(await cookies()).toString()}`,
-      },
-    }
-  );
-  if (!currency.ok) {
-    console.error("Failed to fetch user currency:", await currency.text());
+  const { currency }: { currency: string } = decodeJwt(AccessToken!)!;
 
-    notFound();
-  }
-  const currencyjson: User = await currency.json();
-  const currencySymbol = currencies.find(
-    (c) => c.code === currencyjson.currency
-  )?.symbol;
+  const currencySymbol = currencies.find((c) => c.code === currency)?.symbol;
 
-  const spendingarr = (await getUserExpenses(user_id)).map((expense) => {
-    const amount = ConvertCurrency({
-      amount: expense.amount,
-      toCurrency: currencyjson.currency,
-    });
-    return { ...expense, amount };
-  });
+  const { spendingsarr, totalSpending, spendingThisMonth, spendingLastMonth } =
+    await getDBExpeneses(currency);
   // Calculate spending for this month, last month, and overall
-  const now = new Date();
-  const thisMonth = now.getMonth();
-  const thisYear = now.getFullYear();
-
-  const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
-  const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
-
-  const spendingThisMonth = spendingarr
-    .filter((expense) => {
-      const date = new Date(expense.date);
-      return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
-    })
-    .reduce((acc, expense) => acc + expense.amount, 0);
-
-  const spendingLastMonth = spendingarr
-    .filter((expense) => {
-      const date = new Date(expense.date);
-      return (
-        date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear
-      );
-    })
-    .reduce((acc, expense) => acc + expense.amount, 0);
-
-  const spendingOverall = spendingarr.reduce(
-    (acc, expense) => acc + expense.amount,
-    0
+  const {
+    allTransactions: plaidTransactions,
+    plaidTotalExpense: plaidTotalSpending,
+    plaidExpenseThisMonth: plaidSpendingThisMonth,
+    plaidExpenseLastMonth: plaidSpendingLastMonth,
+  } = await fetchPlaidTransactions("expense");
+  const combinedtransactions: Array<Expense> = combineTransactions<Expense>(
+    undefined,
+    spendingsarr,
+    plaidTransactions
   );
+
+  // Combine database and Plaid amounts
+  const combinedTotalSpending = totalSpending + plaidTotalSpending!;
+  const combinedSpendingThisMonth = spendingThisMonth + plaidSpendingThisMonth!;
+  const combinedSpendingLastMonth = spendingLastMonth + plaidSpendingLastMonth!;
 
   return (
     <>
@@ -79,17 +47,17 @@ const Expenses = async () => {
         <h2 className="font-bold text-2xl">Your Expenses</h2>
         <div className="flex   space-x-2  pb-2">
           <AmountCard
-            amount={spendingThisMonth}
+            amount={combinedSpendingThisMonth}
             label="This month"
             currencySymbol={currencySymbol}
           />
           <AmountCard
-            amount={spendingLastMonth}
+            amount={combinedSpendingLastMonth}
             label="Last month"
             currencySymbol={currencySymbol}
           />
           <AmountCard
-            amount={spendingOverall}
+            amount={combinedTotalSpending}
             label="Overall"
             currencySymbol={currencySymbol}
           />
@@ -97,8 +65,8 @@ const Expenses = async () => {
         <div className="flex justify-between gap-2 items-start flex-1">
           <div className="shadow-custom w-1/3 bg-foreground rounded-xl p-2 py-4 flex flex-col h-full">
             <h3 className="border-b py-1 border-border my-2">Latest</h3>
-            {spendingarr.length > 0 ? (
-              spendingarr
+            {combinedtransactions.length > 0 ? (
+              combinedtransactions
                 .slice(0, 3)
                 .map((expense) => (
                   <TransactionCard
@@ -124,8 +92,8 @@ const Expenses = async () => {
             </div>
           </div>
           <div className="shadow-custom  h-full bg-foreground rounded-xl  w-2/3 flex justify-center items-center">
-            {spendingarr.length > 0 ? (
-              <Chart data={spendingarr} />
+            {combinedtransactions.length > 0 ? (
+              <Chart data={combinedtransactions} />
             ) : (
               <div className="text-muted text-3xl flex items-center justify-center flex-1">
                 <p>No expenses recorded for this month.</p>

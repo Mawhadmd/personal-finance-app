@@ -1,6 +1,6 @@
 "use server";
 
-import GetUserId from "@/lib/helpers/getUserId";
+import GetUserId from "@/lib/utils/getUserId";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 

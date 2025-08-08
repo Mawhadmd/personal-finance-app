@@ -1,4 +1,4 @@
-import { Upload, Download } from "lucide-react";
+import { Upload, Download,Landmark } from "lucide-react";
 import { Expense, Income } from "@/models";
 import { formatNumber } from "@/lib/utils/formatNumber";
 
@@ -18,7 +18,12 @@ const TransactionCard = ({
   const income = transaction as Income;
 
   return (
-    <div className="bg-foreground border-border dark:shadow-none dark:border shadow-custom p-2 rounded-lg my-1 w-full">
+    <div className="bg-foreground relative border-border dark:shadow-none dark:border shadow-custom p-2 rounded-lg my-1 w-full">
+      {(typeof expense.expense_id === "string" || typeof income.income_id === "string") && (
+        <div className="absolute text-muted top-2 right-2">
+          <Landmark />
+        </div>
+      )}
       <div
         className={`flex items-center font-bold text-2xl ${
           isExpense ? "text-red-500" : "text-green-500"

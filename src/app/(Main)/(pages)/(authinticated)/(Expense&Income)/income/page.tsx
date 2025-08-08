@@ -2,75 +2,45 @@ import AddtransactionModal from "@/app/(Main)/(pages)/(authinticated)/components
 import Chart from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/components/OneLinechart";
 import TransactionCard from "@/app/(Main)/(pages)/(authinticated)/components/TransactionCard";
 import currencies from "@/constants/currencies";
-import ConvertCurrency from "@/lib/utils/ConvertCurrency";
-import GetUserId from "@/lib/helpers/getUserId";
-import GetUserIncome from "@/lib/helpers/getUserIncome";
-import { User } from "@/models";
+
 import { CircleOff } from "lucide-react";
 import { cookies } from "next/headers";
 import React from "react";
 import AmountCard from "../components/AmountCard";
-import { notFound } from "next/navigation";
 
-const Income = async () => {
-  const user_id = await GetUserId();
+import { decodeJwt } from "jose";
+import { getDBIncome } from "@/lib/utils/helpers/DBTransactionsHelper";
 
-  const currency = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/User?user_id=${user_id}`,
-    {
-      method: "GET",
-      headers: {
-        Cookie: `${(await cookies()).toString()}`,
-      },
-    }
+import { fetchPlaidTransactions } from "@/lib/utils/helpers/plaid/PlaidHelpers";
+import combineTransactions from "../../dashboard/util/combineTransactions";
+import { Income } from "@/models";
+
+const IncomePage = async () => {
+  const AccessToken = (await cookies()).get("AccessToken")?.value;
+
+  const { currency }: { currency: string } = decodeJwt(AccessToken!)!;
+
+  const currencySymbol = currencies.find((c) => c.code === currency)?.symbol;
+
+  const { Incomearr, totalIncome, incomeThisMonth, incomeLastMonth } =
+    await getDBIncome(currency);
+  const plaidData = await fetchPlaidTransactions("income");
+  const {
+    allTransactions: plaidTransactions,
+   plaidTotalIncome,
+  plaidIncomeThisMonth,
+ plaidIncomeLastMonth,
+  } = plaidData;
+  const combinedtransactions: Array<Income> = combineTransactions<Income>(
+    Incomearr,
+    [],
+    plaidTransactions
   );
-  if (!currency.ok) {
-    console.error("Failed to fetch user currency:", await currency.text());
 
-    notFound();
-  }
-  const currencyjson: User = await currency.json();
-
-  const currencySymbol = currencies.find(
-    (c) => c.code === currencyjson.currency
-  )?.symbol;
-
-  const incomearr = (await GetUserIncome(user_id)).map((income) => {
-    const amount = ConvertCurrency({
-      amount: income.amount,
-      toCurrency: currencyjson.currency,
-    });
-    return { ...income, amount };
-  });
-
-  // Calculate income for this month, last month, and overall
-  const now = new Date();
-  const thisMonth = now.getMonth();
-  const thisYear = now.getFullYear();
-
-  const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
-  const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
-
-  const incomeThisMonth = incomearr
-    .filter((income) => {
-      const date = new Date(income.date);
-      return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
-    })
-    .reduce((acc, income) => acc + income.amount, 0);
-
-  const incomeLastMonth = incomearr
-    .filter((income) => {
-      const date = new Date(income.date);
-      return (
-        date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear
-      );
-    })
-    .reduce((acc, income) => acc + income.amount, 0);
-
-  const incomeOverall = incomearr.reduce(
-    (acc, income) => acc + income.amount,
-    0
-  );
+  // Combine database and Plaid amounts
+  const combinedTotalIncome = totalIncome + plaidTotalIncome!;
+  const combinedIncomeThisMonth = incomeThisMonth + plaidIncomeThisMonth!;
+  const combinedIncomeLastMonth = incomeLastMonth + plaidIncomeLastMonth!;
 
   return (
     <>
@@ -78,17 +48,17 @@ const Income = async () => {
         <h2 className="font-bold text-2xl">Your Income</h2>
         <div className="flex   space-x-2  pb-2">
           <AmountCard
-            amount={incomeThisMonth}
+            amount={combinedIncomeThisMonth}
             label="This month"
             currencySymbol={currencySymbol}
           />
           <AmountCard
-            amount={incomeLastMonth}
+            amount={combinedIncomeLastMonth}
             label="Last month"
             currencySymbol={currencySymbol}
           />
           <AmountCard
-            amount={incomeOverall}
+            amount={combinedTotalIncome}
             label="Overall"
             currencySymbol={currencySymbol}
           />
@@ -96,8 +66,8 @@ const Income = async () => {
         <div className="flex justify-between gap-2 items-start flex-1">
           <div className="shadow-custom w-1/3 bg-foreground rounded-xl p-2 py-4 flex flex-col h-full">
             <h3 className="border-b py-1 border-border my-2">Latest</h3>
-            {incomearr.length > 0 ? (
-              incomearr
+            {combinedtransactions.length > 0 ? (
+              combinedtransactions
                 .slice(0, 3)
                 .map((income) => (
                   <TransactionCard
@@ -123,8 +93,8 @@ const Income = async () => {
             </div>
           </div>
           <div className="shadow-custom  h-full bg-foreground rounded-xl  w-2/3 flex justify-center items-center">
-            {incomearr.length > 0 ? (
-              <Chart data={incomearr} />
+            {combinedtransactions.length > 0 ? (
+              <Chart data={combinedtransactions} />
             ) : (
               <div className="text-muted text-3xl flex items-center justify-center flex-1">
                 <p>No income recorded for this month.</p>
@@ -137,4 +107,4 @@ const Income = async () => {
   );
 };
 
-export default Income;
+export default IncomePage;

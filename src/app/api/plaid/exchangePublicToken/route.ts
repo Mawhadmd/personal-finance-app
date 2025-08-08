@@ -1,9 +1,9 @@
 import pool from "@/db/postgres";
 import PlaidClient from "@/hooks/usePlaidAPI";
-import getUserId from "@/lib/helpers/getUserId";
+import getUserId from "@/lib/utils/getUserId";
 
-import { decodeJwt, EncryptJWT } from "jose";
-import { cookies } from "next/headers";
+import { EncryptJWT } from "jose";
+
 
 export async function POST(request: Request) {
   try {

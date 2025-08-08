@@ -1,7 +1,11 @@
+import { TransactionsGetResponse } from "plaid";
 import React from "react";
 
-export default function BankConnected({ data }: { data: any }) {
-  console.log(data.balances);
+export default function BankConnected({
+  data,
+}: {
+  data: TransactionsGetResponse;
+}) {
   return (
     <div className="p-6 ">
       <h2 className="text-2xl font-bold text-green-600 mb-6">
@@ -33,10 +37,12 @@ export default function BankConnected({ data }: { data: any }) {
             </tr>
           </thead>
           <tbody className="bg-foreground divide-y divide-border">
-            {data.accounts.map((account: any, index: number) => (
+            {data.accounts.map((account, index: number) => (
               <tr
                 key={account.account_id}
-                className={index % 2 === 0 ? "bg-foreground" : "bg-background/30"}
+                className={
+                  index % 2 === 0 ? "bg-foreground" : "bg-background/30"
+                }
               >
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-text">
                   {account.name}
@@ -56,9 +62,9 @@ export default function BankConnected({ data }: { data: any }) {
                   ${account.balances.current?.toLocaleString() || "N/A"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-muted">
-                  {account.balances.last_updated
+                  {account.balances.last_updated_datetime
                     ? new Date(
-                        account.balances.last_updated
+                        account.balances.last_updated_datetime
                       ).toLocaleDateString()
                     : "N/A"}
                 </td>

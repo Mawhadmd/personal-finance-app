@@ -1,14 +1,19 @@
+
 import pool from "@/db/postgres";
 import ConvertCurrency from "@/lib/utils/ConvertCurrency";
+import { AccessToken } from "@/models/tokens";
+import { decodeJwt } from 'jose';
+import { cookies } from 'next/headers';
 
 // GET - Fetch income records with optional filtering
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const user_id = searchParams.get("user_id");
+    const accessToken = (await cookies()).get('AccessToken')?.value;
+    const { user_id } = decodeJwt(accessToken!) as AccessToken;
     const category = searchParams.get("category");
-    // const startDate = searchParams.get("startDate");
-    // const endDate = searchParams.get("endDate");
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
 
     // Validate required user_id
     if (!user_id) {
@@ -27,17 +32,17 @@ export async function GET(request: Request) {
       paramIndex++;
     }
 
-    // if (startDate) {
-    //   query += ` AND date >= $${paramIndex}`;
-    //   params.push(startDate);
-    //   paramIndex++;
-    // }
+    if (startDate) {
+      query += ` AND date >= $${paramIndex}`;
+      params.push(startDate);
+      paramIndex++;
+    }
 
-    // if (endDate) {
-    //   query += ` AND date <= $${paramIndex}`;
-    //   params.push(endDate);
-    //   paramIndex++;
-    // }
+    if (endDate) {
+      query += ` AND date <= $${paramIndex}`;
+      params.push(endDate);
+      paramIndex++;
+    }
 
     query += " ORDER BY date DESC";
 

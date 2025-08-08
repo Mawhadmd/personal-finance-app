@@ -1,17 +1,14 @@
-import ConvertCurrency from "../utils/ConvertCurrency";
-import GetUserExpenses from "./getUserExpenses";
-import GetUserId from "./getUserId";
-import GetUserIncome from "./getUserIncome";
+import ConvertCurrency from "../ConvertCurrency";
+import GetUserExpenses from "./getUserExpensesList";
+import GetUserIncome from "./getUserIncomeList";
 const now = new Date();
 const thisMonth = now.getMonth();
 const thisYear = now.getFullYear();
 const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
 const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
 
-
-export async function getDBExpeneses({ currency }: { currency: string }) {
-  const user_id = await GetUserId();
-  const spendingsarr = (await GetUserExpenses(user_id)).map((expense) => {
+export async function getDBExpeneses(currency: string) {
+  const spendingsarr = (await GetUserExpenses()).map((expense) => {
     const amount = ConvertCurrency({
       amount: expense.amount,
       toCurrency: currency,
@@ -46,9 +43,8 @@ export async function getDBExpeneses({ currency }: { currency: string }) {
     spendingLastMonth,
   };
 }
-export async function getDBIncome({ currency }: { currency: string }) {
-  const user_id = await GetUserId();
-  const Incomearr = (await GetUserIncome(user_id)).map((income) => {
+export async function getDBIncome(currency: string) {
+  const Incomearr = (await GetUserIncome()).map((income) => {
     const amount = ConvertCurrency({
       amount: income.amount,
       toCurrency: currency,
@@ -75,10 +71,3 @@ export async function getDBIncome({ currency }: { currency: string }) {
     incomeLastMonth,
   };
 }
-export async function getDBTransactions({
-  type,
-  currency,
-}: {
-  type: "all" | "income" | "expense";
-  currency: string;
-}) {}

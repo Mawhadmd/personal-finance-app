@@ -1,11 +1,10 @@
 import { Expense } from "@/models";
 import { cookies } from "next/headers";
 
-export default async function GetUserExpenses(
-  user_id: number | null
+export default async function GetUserExpensesList(
 ): Promise<Array<Expense>> {
   const spendingrequest = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/expenses?user_id=${user_id}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/expenses`,
     {
       method: "GET",
       headers: {

@@ -3,6 +3,7 @@ export type AccessToken = {
   email: string;
   name: string;
   is_verified: boolean; 
+  currency: string;
   type: "access";
 }
 export type RefreshToken = {

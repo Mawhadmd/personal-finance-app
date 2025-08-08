@@ -1,18 +1,27 @@
 import pool from "@/db/postgres";
-import { decodeJwt, jwtDecrypt } from "jose";
-import { cookies } from "next/headers";
+import { jwtDecrypt } from "jose";
+
 import { NextResponse } from "next/server";
 import { TransactionsGetRequest } from "plaid";
 import PlaidClient from "@/hooks/usePlaidAPI";
-import getUserId from "@/lib/helpers/getUserId";
+import getUserId from "@/lib/utils/getUserId";
 
 function formatDate(date: Date): string {
-  return date.toISOString().split("T")[0]; // YYYY-MM-DD
+  return new Date(date).toISOString().split("T")[0]; // YYYY-MM-DD
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     // access token is assured by the middleware
+    let { startDate, endDate } = await request.json();
+    if (!startDate || !endDate) {
+      return NextResponse.json(
+        { error: "Start date and end date are required" },
+        { status: 400 }
+      );
+    }
+    startDate = formatDate(startDate);
+    endDate = formatDate(endDate);
     const user_id = await getUserId();
     if (!user_id) {
       return NextResponse.json({ error: "User ID not found" }, { status: 401 });
@@ -37,19 +46,16 @@ export async function POST() {
     );
     const plaid_access_token = (await plaid_access_token_decrypt.payload
       .accessToken) as string;
-    const stateDate = formatDate(
-      new Date(Date.now() - 1000 * 60 * 60 * 24 * 30)
-    );
-    const endDate = formatDate(new Date(Date.now()));
-    const request: TransactionsGetRequest = {
+
+    const requestTransactions: TransactionsGetRequest = {
       access_token: plaid_access_token,
       end_date: endDate,
-      start_date: stateDate,
+      start_date: startDate,
     };
 
     const client = await PlaidClient();
-    const transactions = await client.transactionsGet(request);
-    console.log(transactions.data);
+    const transactions = await client.transactionsGet(requestTransactions);
+
     return NextResponse.json(transactions.data, { status: 200 });
   } catch (err) {
     console.log("Something bad happened");

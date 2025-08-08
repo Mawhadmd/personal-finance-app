@@ -1,9 +1,9 @@
 // Income model based on seed.sql schema
 export type Income = {
-  income_id: number;
+  income_id: number | string; // Use string for Plaid transaction IDs
   user_id: number;
   amount: number;
-  date: string;
+  date: string ;
   category?: string;
   method?: string;
   description?: string;

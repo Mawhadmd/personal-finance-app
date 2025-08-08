@@ -24,6 +24,10 @@ export default function Chart({ data }: { data: Array<Expense | Income> }) {
       category: "category" in data ? data.category || "Other" : "Other",
     }))
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    let color = "#10B981";
+    if (typeof data[0] === "object" && "expense_id" in data[0]) {
+      color = "#EF4444"; // Red for expenses
+    }
 
   return (
     <div className="w-full h-80 mt-4">
@@ -41,17 +45,17 @@ export default function Chart({ data }: { data: Array<Expense | Income> }) {
               backgroundColor: "var(--color-background)",
               border: "var(--color-border)",
               borderRadius: "6px",
-              color: "#F9FAFB",
+              color: "var(--color-text)",
             }}
             formatter={(value: number) => [`${formatNumber(value)}`, "Amount"]}
           />
           <Line
             type="monotone"
             dataKey="amount"
-            stroke="#10B981"
+            stroke={color}
             strokeWidth={2}
-            dot={{ fill: "#10B981", strokeWidth: 2, r: 4 }}
-            activeDot={{ r: 6, stroke: "#10B981", strokeWidth: 2 }}
+            dot={{ fill: color, stroke: color, strokeWidth: 2, r: 4 }}
+            activeDot={{ r: 6, stroke: color, strokeWidth: 2 }}
           />
         </LineChart>
       </ResponsiveContainer>

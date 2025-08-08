@@ -7,6 +7,7 @@ import { createAccessToken } from "@/app/api/CreateAccessToken";
 import { createRefreshToken } from "@/app/api/CreateRefreshToken";
 import { hash } from "@/app/api/hash";
 import { cookies } from "next/headers";
+import { AccessToken } from "@/models/tokens";
 
 
 const validator = zod.object({
@@ -86,9 +87,10 @@ const register = async (
       user_id: user.user_id,
       email: user.email,
       is_verified: user.is_verified,
+      currency: Currency,
       name: user.name,
       type: "access",
-    });
+    } as AccessToken);
     
     const refreshToken = await createRefreshToken({
       user_id: user.user_id,

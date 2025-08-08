@@ -60,6 +60,8 @@ export async function POST(request: Request) {
       name: user.name,
       is_verified: user.is_verified,
       type: "access",
+      currency: user.currency,
+ 
     };
 
     const newAccessToken = await createAccessToken(accessTokenPayload);

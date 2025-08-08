@@ -8,6 +8,14 @@ export async function GET() {
     const accessToken = ( await cookies()).get("AccessToken")?.value;
 
     const { user_id } = decodeJwt(accessToken!);
+    if (!user_id) {
+      return NextResponse.json(
+        { linked: false },
+        {
+          status: 404,
+        }
+      );
+    }
     const dbQuery = await pool.query(
       "SELECT plaid_access_token FROM users WHERE user_id = $1",
       [user_id]

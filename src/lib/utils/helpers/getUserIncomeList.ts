@@ -1,11 +1,10 @@
 import { Income } from "@/models";
 import { cookies } from "next/headers";
 
-export default async function GetUserIncome(
-  user_id: number | null
+export default async function GetUserIncomeList(
 ): Promise<Array<Income>> {
   const incomerequest = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/income?user_id=${user_id}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/income`,
     {
       method: "GET",
       headers: {

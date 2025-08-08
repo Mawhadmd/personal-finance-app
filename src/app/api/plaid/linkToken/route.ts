@@ -1,8 +1,6 @@
-import { decodeJwt } from "jose";
-import { cookies } from "next/headers";
 import { Products, CountryCode } from "plaid";
 import PlaidClient from "@/hooks/usePlaidAPI";
-import getUserId from "@/lib/helpers/getUserId";
+import getUserId from "@/lib/utils/getUserId";
 export async function GET() {
   try {
     const user_id = await getUserId();
