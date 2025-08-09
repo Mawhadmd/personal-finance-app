@@ -53,14 +53,14 @@ const NavBar = () => {
 
   return (
     <div>
-      <nav className="flex h-screen  relative flex-col p-4 bg-foreground border-r border-foreground">
+      <nav className="w-50 flex h-screen  relative flex-col p-4 bg-foreground border-r border-foreground">
         {" "}
         <div className="text-text text-center font-extrabold border-b border-border  w-full text-2xl ">
           PFinance
         </div>
         <ul className="pt-4 w-full">
           {paths.map(([route, label, icon]) => (
-            <Link href={route} key={route} className="relative w-full">
+            <Link href={route} key={route} className="relative w-full cursor-pointer">
               <li
                 className={`${
                   route == path
