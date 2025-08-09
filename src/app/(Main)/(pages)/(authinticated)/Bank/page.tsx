@@ -1,10 +1,9 @@
 import React from "react";
 import ConnectBank from "./ConnectBank";
 import BankConnected from "./BankConnected";
-import {
-  checkPlaidToken,
-  fetchPlaidAccounts,
-} from "@/lib/utils/helpers/plaid/PlaidHelpers";
+import  checkPlaidToken from "@/lib/utils/helpers/plaid/checkPlaidToken";
+import fetchPlaidAccounts from "@/lib/utils/helpers/plaid/fetchPlaidAccounts";
+
 
 export default async function page() {
   const TokenExist = await checkPlaidToken();

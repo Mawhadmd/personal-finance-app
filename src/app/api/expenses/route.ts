@@ -11,10 +11,12 @@ export async function GET(request: Request) {
       const accessToken = (await cookies()).get('AccessToken')?.value;
         const { user_id } = decodeJwt(accessToken!) as AccessToken;
     const category = searchParams.get("category");
-    const startDate = searchParams.get("startDate");
-    const endDate = searchParams.get("endDate");
-
+    let startDate: number | string | null = searchParams.get("startDate"); //  As in yyyy/mm/dd
+    let endDate: number | string | null = searchParams.get("endDate");
+    // startDate = startDate && new Date(startDate).getTime();
+    // endDate = endDate && new Date(endDate).getTime();
     // Validate required user_id
+    
     if (!user_id) {
       return Response.json({ error: "user_id is required" }, { status: 400 });
     }
@@ -98,12 +100,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const { user_id, amount, date, category, description, method } = body;
-
+    const {  amount, date, category, description, method } = body;
+    const accesstoken = (await cookies()).get("AccessToken")?.value;
+    const { user_id } = decodeJwt(accesstoken!) as AccessToken;
     // Validate required fields
-    if (!user_id || !amount || !date) {
+    if ( !amount || !date) {
       return Response.json(
-        { error: "user_id, amount, and date are required" },
+        { error: "amount, and date are required" },
         { status: 400 }
       );
     }

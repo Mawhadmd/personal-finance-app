@@ -11,14 +11,13 @@ import GettingStarted from "./Components/GettingStarted";
 import { formatNumber } from "@/lib/utils/formatNumber";
 
 import Link from "next/link";
-import {
-  getDBExpeneses,
-  getDBIncome,
-} from "@/lib/utils/helpers/DBTransactionsHelper";
-import { fetchPlaidTransactions } from "@/lib/utils/helpers/plaid/PlaidHelpers";
+
 import { decodeJwt } from "jose";
 import Transactions from "./Components/Transactions";
 import combineTransactions from "./util/combineTransactions";
+import  getDBIncome  from "@/lib/utils/helpers/getDBIncome";
+import { fetchPlaidTransactions } from "@/lib/utils/helpers/plaid/fetchPlaidTransactions";
+import getDBExpenses from "@/lib/utils/helpers/getDBExpenses";
 
 export default async function Home() {
   const user_id = await GetUserId();
@@ -28,7 +27,7 @@ export default async function Home() {
     AccessToken!
   )!;
   console.log(currency, name);
-  const expRes = await getDBExpeneses(currency);
+  const expRes = await getDBExpenses(currency);
 
   const { spendingsarr } = expRes;
   let { totalSpending, spendingThisMonth, spendingLastMonth } = expRes;
@@ -96,7 +95,7 @@ export default async function Home() {
     plaidTransactions.filter((transaction: Expense) => transaction.expense_id)
   );
 
-  const currencySympol = currencies.find((c) => c.code === currency)?.symbol;
+  const currencySymbol = currencies.find((c) => c.code === currency)?.symbol;
 
   const COLORS = [
     ...Array(6)
@@ -127,14 +126,14 @@ export default async function Home() {
               <BalanceCard
                 balance={balance}
                 icon={<Wallet className="size-full" />}
-                currencySymbol={currencySympol ?? ""}
+                currencySymbol={currencySymbol ?? ""}
                 text="Current Balance"
               />
 
               <BalanceCard
                 balance={incomeThisMonth}
                 icon={<Download className="text-green-500 size-full" />}
-                currencySymbol={currencySympol ?? ""}
+                currencySymbol={currencySymbol ?? ""}
                 text="Income This Month"
                 changepercentage={percentageChangeIncome}
               />
@@ -142,7 +141,7 @@ export default async function Home() {
               <BalanceCard
                 balance={spendingThisMonth}
                 icon={<Upload className="text-red-500 size-full" />}
-                currencySymbol={currencySympol ?? ""}
+                currencySymbol={currencySymbol ?? ""}
                 text="Spending This Month"
                 changepercentage={percentageChangeSpending}
               />
@@ -193,14 +192,14 @@ export default async function Home() {
             <BalanceCard
               balance={balance}
               icon={<Wallet className="" />}
-              currencySymbol={currencySympol ?? ""}
+              currencySymbol={currencySymbol ?? ""}
               text="Current Balance"
             />
 
             <BalanceCard
               balance={incomeThisMonth}
               icon={<Download className="text-green-500" />}
-              currencySymbol={currencySympol ?? ""}
+              currencySymbol={currencySymbol ?? ""}
               text="Income This Month"
               changepercentage={percentageChangeIncome}
             />
@@ -208,19 +207,16 @@ export default async function Home() {
             <BalanceCard
               balance={spendingThisMonth}
               icon={<Upload className="text-red-500" />}
-              currencySymbol={currencySympol ?? ""}
+              currencySymbol={currencySymbol ?? ""}
               text="Spending This Month"
               changepercentage={percentageChangeSpending}
             />
           </div>
         </div>
         <Transactions
-          currencySympol={currencySympol}
-          initialData={{
-            combinedtransactions,
-            CombinedPlaidIncomearr,
-            CombinedPlaidspendingsarr,
-          }}
+          currencySymbol={currencySymbol ?? ""}
+       
+          currency={currency}
         />
       </div>
       <div className=" m-2 p-4 bg-foreground rounded w-1/3 space-y-2 flex flex-col border border-border  ">
@@ -229,8 +225,8 @@ export default async function Home() {
         </h3>
         <div className="flex flex-col h-4/7">
           <div className=" flex justify-center items-center  h-full">
-            {spendingsarr.length > 0 ? (
-              <PieChartComponent COLORS={COLORS} spendingsarr={spendingsarr} />
+            {CombinedPlaidspendingsarr.length > 0 ? (
+              <PieChartComponent COLORS={COLORS} spendingsarr={CombinedPlaidspendingsarr} />
             ) : (
               <div className="text-muted text-center">
                 <p>No expenses recorded yet.</p>
@@ -239,7 +235,7 @@ export default async function Home() {
             )}
           </div>
           <div className="flex flex-wrap justify-around items-center p-2">
-            {[...new Set(spendingsarr.map((e) => e.category))].map(
+            {[...new Set(CombinedPlaidspendingsarr.map((e) => e.category ?? "Uncategorized"))].map(
               (entry, index) => (
                 <div className="flex space-x-2 items-center" key={index}>
                   <div
@@ -251,15 +247,16 @@ export default async function Home() {
                   <span className="text-sm">{entry}</span>
                   <span className=" text-xs text-muted">
                     {(() => {
-                      const value = spendingsarr.reduce((acc, data) => {
-                        if (data.category === entry) {
+                      const value = CombinedPlaidspendingsarr.reduce((acc, data) => {
+                        if ((data.category ?? "Uncategorized") === entry) {
                           return acc + data.amount;
                         }
                         return acc;
                       }, 0);
                       return (
                         <span>
-                          {currencySympol}
+                          
+                          {currencySymbol}
                           {formatNumber(value)} (
                           {((value / totalSpending) * 100).toFixed(2)}
                           %)

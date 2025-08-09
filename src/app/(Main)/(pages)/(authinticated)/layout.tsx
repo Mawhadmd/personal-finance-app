@@ -1,5 +1,5 @@
 
-import NavBar from '@/components/NavBar';
+import NavBar from '@/app/(Main)/(pages)/(authinticated)/components/NavBar';
 import React from 'react';
 
 const Layout = ({children}: Readonly<{

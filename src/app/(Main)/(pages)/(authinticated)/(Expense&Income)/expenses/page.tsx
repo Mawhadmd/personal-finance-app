@@ -9,10 +9,11 @@ import { cookies } from "next/headers";
 import React from "react";
 import AmountCard from "@/app/(Main)/(pages)/(authinticated)/(Expense&Income)/components/AmountCard";
 import { decodeJwt } from "jose";
-import { getDBExpeneses } from "@/lib/utils/helpers/DBTransactionsHelper";
-import { fetchPlaidTransactions } from "@/lib/utils/helpers/plaid/PlaidHelpers";
+
 import { Expense } from "@/models";
 import combineTransactions from "../../dashboard/util/combineTransactions";
+import { fetchPlaidTransactions } from "@/lib/utils/helpers/plaid/fetchPlaidTransactions";
+import getDBExpenses from "@/lib/utils/helpers/getDBExpenses";
 
 const Expenses = async () => {
   const AccessToken = (await cookies()).get("AccessToken")?.value;
@@ -22,7 +23,7 @@ const Expenses = async () => {
   const currencySymbol = currencies.find((c) => c.code === currency)?.symbol;
 
   const { spendingsarr, totalSpending, spendingThisMonth, spendingLastMonth } =
-    await getDBExpeneses(currency);
+    await getDBExpenses(currency);
   // Calculate spending for this month, last month, and overall
   const {
     allTransactions: plaidTransactions,

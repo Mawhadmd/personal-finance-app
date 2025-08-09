@@ -9,11 +9,11 @@ import React from "react";
 import AmountCard from "../components/AmountCard";
 
 import { decodeJwt } from "jose";
-import { getDBIncome } from "@/lib/utils/helpers/DBTransactionsHelper";
 
-import { fetchPlaidTransactions } from "@/lib/utils/helpers/plaid/PlaidHelpers";
 import combineTransactions from "../../dashboard/util/combineTransactions";
 import { Income } from "@/models";
+import  getDBIncome from "@/lib/utils/helpers/getDBIncome";
+import { fetchPlaidTransactions } from "@/lib/utils/helpers/plaid/fetchPlaidTransactions";
 
 const IncomePage = async () => {
   const AccessToken = (await cookies()).get("AccessToken")?.value;

@@ -4,7 +4,7 @@ import React from "react";
 export default function BankConnected({
   data,
 }: {
-  data: TransactionsGetResponse;
+  data: TransactionsGetResponse['accounts'];
 }) {
   return (
     <div className="p-6 ">
@@ -37,7 +37,7 @@ export default function BankConnected({
             </tr>
           </thead>
           <tbody className="bg-foreground divide-y divide-border">
-            {data.accounts.map((account, index: number) => (
+            {data.map((account, index: number) => (
               <tr
                 key={account.account_id}
                 className={
@@ -74,7 +74,7 @@ export default function BankConnected({
         </table>
       </div>
 
-      {data.accounts.length === 0 && (
+      {data.length === 0 && (
         <div className="text-center py-8">
           <p className="text-muted">No accounts found.</p>
         </div>

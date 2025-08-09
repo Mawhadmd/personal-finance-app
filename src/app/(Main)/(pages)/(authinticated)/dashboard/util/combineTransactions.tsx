@@ -3,8 +3,8 @@ import { Income, Expense } from "@/models";
 type WithDate = { date: string | Date };
 
 export default function combineTransactions<T extends WithDate>(
-  Incomearr: Array<T> | undefined,
-  spendingsarr: Array<T>,
+  Incomearr: Array<T> | [],
+  spendingsarr: Array<T> | [],
   plaidTransactions: Array<T>
 ): Array<T> {
   let combinedtransactions: Array<T>;
