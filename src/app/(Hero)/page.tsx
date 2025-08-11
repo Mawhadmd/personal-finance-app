@@ -14,7 +14,7 @@ export default function HomePage() {
       <Hero />
       <CardsSection />
       <IpadSection />
-      <TestimonialSection />
+      {/* <TestimonialSection /> Doesn't look good */}
       <ContactUs />
       <Footer />
     </div>

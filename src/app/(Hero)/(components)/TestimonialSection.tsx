@@ -18,7 +18,7 @@ export default function TestimonialSection() {
   ];
   return (
     <section   className="h-80 relative text-text p-10 flex flex-wrap items-center justify-center bg-[url(/Testimonials.webp)] bg-center bg-cover bg-no-repeat">
-      <div className="bg-gradient-to-b from-background via-transparent to-background from-0% to-100% absolute inset-0"></div>
+      <div className="bg-gradient-to-b from-background via-transparent via-10% to-background from-0% to-100% absolute inset-0"></div>
       {testimonials.map((testimonial, index) => (
         <TestimonialCard
           key={index}

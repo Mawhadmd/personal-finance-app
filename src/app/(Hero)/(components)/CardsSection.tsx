@@ -29,7 +29,7 @@ export default function CardsSection() {
     }
   ];
   return (
-    <div className="flex items-center justify-center my-20 gap-10 z-10" id="features">
+    <div className="flex items-center justify-center py-20 gap-10 z-10" id="features">
         {cardData.map((card) => (
           <motion.div 
           id={`feature-${card.id}`} 

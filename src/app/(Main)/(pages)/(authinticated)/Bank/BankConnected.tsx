@@ -1,5 +1,6 @@
 import { TransactionsGetResponse } from "plaid";
 import React from "react";
+import ConnectBankButton from "./ConnectBankButton";
 
 export default function BankConnected({
   data,
@@ -79,6 +80,9 @@ export default function BankConnected({
           <p className="text-muted">No accounts found.</p>
         </div>
       )}
+         <div className="flex justify-center items-center flex-1 pt-10">
+              <ConnectBankButton />
+            </div>
     </div>
   );
 }

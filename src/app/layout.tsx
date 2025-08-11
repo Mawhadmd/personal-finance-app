@@ -9,7 +9,6 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-
 export const metadata: Metadata = {
   title: "PFinance",
   description: "Manage your personal finances with ease",
@@ -47,11 +46,8 @@ export default function RootLayout({
       <body
         className={`${inter.className} antialiased bg-background  text-text h-svh`}
       >
-
-        <PlaidProvider>
-          {children}
-        </PlaidProvider>
-        <ToastContainerComponent/>
+        <PlaidProvider>{children}</PlaidProvider>
+        <ToastContainerComponent />
       </body>
     </html>
   );

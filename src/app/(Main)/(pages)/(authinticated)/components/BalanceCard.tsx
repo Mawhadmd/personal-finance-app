@@ -22,7 +22,14 @@ export default function BalanceCard({
         <div className="flex gap-2 items-center">
           <div className="p-1  w-fit bg-muted/10 rounded-xl">{icon}</div>
           <p className={`text-center whitespace-nowrap text-sm`}>{text}</p>
-          {changepercentage != undefined && (
+        
+        </div>
+        <div className="flex flex-1 flex-col justify-center items-center">
+          <div className={`text-3xl font-bold`}>
+            {currencySymbol}
+            {formatNumber(balance)}
+          </div>
+            {changepercentage != undefined && (
             <div
               className={`relative text-sm rounded-lg p-1 text-muted text-center flex items-center gap-1 justify-center group cursor-help   ${
                 changepercentage === 0
@@ -38,9 +45,9 @@ export default function BalanceCard({
             >
               {changepercentage != 0 ? (
                 changepercentage > 0 ? (
-                  <ArrowUp className="size-4" />
+                  <ArrowUp className={`size-4 ${text == "Spending This Month" ? "text-red-600" : "text-green-600"}`} />
                 ) : (
-                  <ArrowDown className="size-4" />
+                  <ArrowDown className={`size-4 ${text == "Spending This Month" ? "text-green-600" : "text-red-600"}`} />
                 )
               ) : (
                 <Equal className="size-4" />
@@ -73,12 +80,6 @@ export default function BalanceCard({
               </span>
             </div>
           )}
-        </div>
-        <div className="flex flex-1 flex-col justify-center items-center">
-          <div className={`text-3xl font-bold`}>
-            {currencySymbol}
-            {formatNumber(balance)}
-          </div>
         </div>
       </div>
     </>
