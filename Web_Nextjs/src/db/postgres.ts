@@ -1,5 +1,5 @@
 // lib/db.js
-import pg from "pg";
+import pg from "../../node_modules/@types/pg";
 const { Pool } = pg;
 
 if (!process.env.DATABASE_URL) {
