@@ -81,7 +81,7 @@ export default function BankConnected({
         </div>
       )}
          <div className="flex justify-center items-center flex-1 pt-10">
-              <ConnectBankButton />
+              <ConnectBankButton update={true}/>
             </div>
     </div>
   );

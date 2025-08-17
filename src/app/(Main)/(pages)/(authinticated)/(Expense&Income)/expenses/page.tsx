@@ -32,7 +32,7 @@ const Expenses = async () => {
     plaidExpenseLastMonth: plaidSpendingLastMonth,
   } = await fetchPlaidTransactions("expense");
   const combinedtransactions: Array<Expense> = combineTransactions<Expense>(
-    undefined,
+    [],
     spendingsarr,
     plaidTransactions
   );
@@ -68,7 +68,7 @@ const Expenses = async () => {
             <h3 className="border-b py-1 border-border my-2">Latest</h3>
             {combinedtransactions.length > 0 ? (
               combinedtransactions
-                .slice(0, 3)
+           
                 .map((expense) => (
                   <TransactionCard
                     key={expense.expense_id}

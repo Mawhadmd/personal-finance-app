@@ -5,11 +5,11 @@ import { Expense, Income } from '@/models';
 
 const TransactionList = ({ transactions, currencySymbol, spendingarr, incomearr }: { transactions: (Income | Expense)[]; currencySymbol: string; spendingarr: Expense[]; incomearr: Income[]; }) => {
     return (
-        <div>
+        <>
              {transactions.length > 0 ? (
-        <div className="flex gap-2 box-border">
+        <div className="flex gap-2 box-border   flex-1 min-h-0">
           <div className="relative w-1/3 pb-3">
-            <div className="flex flex-col  overflow-y-scroll  h-100 ">
+            <div className="flex flex-col  overflow-y-auto h-100">
               {transactions.map((transaction, i) => (
                 <TransactionCard
                   transaction={transaction}
@@ -28,7 +28,7 @@ const TransactionList = ({ transactions, currencySymbol, spendingarr, incomearr 
               <div className="absolute inset-0 bg-gradient-to-b from-transparent pointer-events-none from-80% to-100% to-background"></div>
             </div>
           </div>
-          <div className=" w-2/3 flex justify-center items-center h-calc(100vh_-_5rem)">
+          <div className=" w-2/3 flex justify-center items-center">
             {spendingarr.length > 0 || incomearr.length > 0 ? (
               <TwoLinesChart Expenses={spendingarr} Income={incomearr} />
             ) : (
@@ -43,7 +43,7 @@ const TransactionList = ({ transactions, currencySymbol, spendingarr, incomearr 
           <p>No transactions found</p>
         </div>
       )}
-        </div>
+        </>
     );
 }
 

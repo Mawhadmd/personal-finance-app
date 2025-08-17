@@ -63,12 +63,13 @@ const IncomePage = async () => {
             currencySymbol={currencySymbol}
           />
         </div>
-        <div className="flex justify-between gap-2 items-start flex-1">
-          <div className="shadow-custom w-1/3 bg-foreground rounded-xl p-2 py-4 flex flex-col h-full">
+        <div className="flex justify-between gap-2 items-start flex-1 h-100">
+          <div className="shadow-custom w-1/3 bg-foreground rounded-xl p-2 py-4 flex flex-col h-full justify-between">
             <h3 className="border-b py-1 border-border my-2">Latest</h3>
-            {combinedtransactions.length > 0 ? (
+            <div className="flex-1 overflow-y-scroll">
+              {combinedtransactions.length > 0 ? (
               combinedtransactions
-                .slice(0, 3)
+   
                 .map((income) => (
                   <TransactionCard
                     key={income.income_id}
@@ -85,10 +86,8 @@ const IncomePage = async () => {
                 </h3>
               </div>
             )}
-            <div className="flex space-x-2">
-              <button className="p-2 rounded-lg w-fit bg-foreground text-accent border border-border hover:border-white cursor-pointer transition-colors text-start">
-                See All
-              </button>
+            </div>
+            <div className="flex space-x-2 mt-2 ">
               <AddtransactionModal type="income" />
             </div>
           </div>

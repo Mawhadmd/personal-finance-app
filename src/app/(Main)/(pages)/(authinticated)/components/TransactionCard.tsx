@@ -17,6 +17,7 @@ const TransactionCard = ({
   const expense = transaction as Expense;
   const income = transaction as Income;
 
+  console.log(expense, income)
   return (
     <div className="bg-foreground relative border-border dark:shadow-none dark:border shadow-custom p-2 rounded-lg my-1 w-full">
       {(typeof expense.expense_id === "string" || typeof income.income_id === "string") && (
@@ -28,7 +29,8 @@ const TransactionCard = ({
         className={`flex items-center font-bold text-2xl ${
           isExpense ? "text-red-500" : "text-green-500"
         }`}
-      >
+      >  
+       
         {currencySymbol}
         {formatNumber(transaction.amount)}
         {isExpense ? (
@@ -37,7 +39,12 @@ const TransactionCard = ({
           <Download size={18} className="inline ml-1" />
         )}
       </div>
-
+      {((isExpense && expense.meta_data?.merchant_name != null) || (!isExpense && income.meta_data?.merchant_name != null)) && (
+        <div className="flex items-center gap-2 text-sm text-muted mb-1">
+          <img src={isExpense ? expense.meta_data?.merchant_logo : income.meta_data?.merchant_logo} alt={`${isExpense ? expense.meta_data?.merchant_name : income.meta_data?.merchant_name}`} className="w-6 h-6 rounded-full" />
+          - {isExpense ? expense.meta_data?.merchant_name : income.meta_data?.merchant_name}
+        </div>
+      )}
       {transaction.description && <p>{transaction.description}</p>}
 
       <small className="text-muted">

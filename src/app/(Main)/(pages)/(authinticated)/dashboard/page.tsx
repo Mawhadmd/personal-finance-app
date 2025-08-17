@@ -171,8 +171,8 @@ export default async function Home() {
 
   return (
     <div className="h-full flex">
-      <div className="flex w-2/3 space-y-4 flex-col p-2">
-        <div className="">
+      <div className="flex w-2/3 space-y-4 flex-col p-2 h-full">
+        <div >
           <div>
             <h1>Welcome, {name}</h1>
             <div className="flex gap-2 mb-2 items-center">

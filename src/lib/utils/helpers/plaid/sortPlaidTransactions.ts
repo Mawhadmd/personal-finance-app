@@ -4,14 +4,20 @@ import { TransactionsGetResponse } from 'plaid';
 
 const SortPlaidTransactions = <T>(data: TransactionsGetResponse, type?: 'in' | 'out') => {
   const DT = data.transactions.map((transaction: TransactionsGetResponse["transactions"][number]) => {
+
     if (transaction.amount > 0) {
       return {
         income_id: transaction.transaction_id + "P",
         user_id: null,
         amount: transaction.amount,
         date: transaction.date,
-        category: transaction.category,
+        category: transaction.personal_finance_category?.primary,
         method: transaction.payment_channel,
+        meta_data: {
+          merchant_name: transaction.merchant_name,
+          merchant_logo: transaction.logo_url,
+           
+        },
         description: transaction.name,
       };
     } else {
@@ -20,7 +26,11 @@ const SortPlaidTransactions = <T>(data: TransactionsGetResponse, type?: 'in' | '
         user_id: null,
         amount: Math.abs(transaction.amount),
         date: transaction.date,
-        category: transaction.category,
+        category: transaction.personal_finance_category?.primary,
+        meta_data: {
+          merchant_name: transaction.merchant_name,
+          merchant_logo: transaction.logo_url,
+        },
         description: transaction.name,
         method: transaction.payment_channel,
       };

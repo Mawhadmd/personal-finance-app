@@ -24,7 +24,7 @@ export default function BalanceCard({
           <p className={`text-center whitespace-nowrap text-sm`}>{text}</p>
         
         </div>
-        <div className="flex flex-1 flex-col justify-center items-center">
+        <div className="flex flex-1 flex-col justify-start items-center m-2">
           <div className={`text-3xl font-bold`}>
             {currencySymbol}
             {formatNumber(balance)}

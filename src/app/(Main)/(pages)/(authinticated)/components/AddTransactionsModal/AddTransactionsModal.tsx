@@ -22,19 +22,6 @@ export default function AddtransactionModal({type}: {type?: "income" | "expense"
             layoutId="buttonIncome" className="p-2 rounded-lg w-fit bg-accent  text-white  border-border hover:border-white cursor-pointer transition-colors text-start">Add</motion.button></>
   }
 
-  // useEffect(() => {
-  //   const handleClickOutside = (event: MouseEvent) => {
-  //     setShowAdd(undefined);
-  //   };
-
-  //   if (showAdd) {
-  //     document.addEventListener("mousedown", handleClickOutside);
-  //   }
-
-  //   return () => {
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   };
-  // }, [showAdd]);
   return (
     <div className="flex-1 flex flex-col items-center justify-center">
       <div className="text-center space-y-4">

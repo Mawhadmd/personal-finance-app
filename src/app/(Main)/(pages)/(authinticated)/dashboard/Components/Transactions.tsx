@@ -101,8 +101,10 @@ export default function Transactions({
           filteredTransactions = incomearr;
         } else if (filter === "expense") {
           filteredTransactions = spendingarr;
+        } else if (filter === "all") {
+          filteredTransactions = [...incomearr, ...spendingarr];
         }
-  setTransactions(filteredTransactions);
+        setTransactions(filteredTransactions);
 
   }, [filter]);
   function handleDaysAgoChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -115,7 +117,7 @@ export default function Transactions({
   }
 
   return (
-    <div>
+    <div className="flex-1">
       <div className="flex items-center gap-2">
         <h2 className="border-b border-border">Transactions</h2>
         <select
@@ -141,7 +143,7 @@ export default function Transactions({
         </select>
       </div>
       {loading ? (
-        <div className="h-100 relative w-full">
+        <div className=" relative w-full">
           <LoaderCircleIcon className="animate-spin  size-20 absolute inset-[50%] translate-x-[-50%] translate-y-[-50%]" />
         </div>
       ) : (

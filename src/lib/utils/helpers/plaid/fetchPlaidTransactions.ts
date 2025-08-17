@@ -1,7 +1,6 @@
 import { Income, Expense } from "@/models";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { TransactionsGetResponse } from "plaid";
 import calculateExpenseAmounts from "./calculateExpenseAmounts";
 import calculateIncomeAmounts from "./calculateIncomesAmmounts";
 import sortPlaidTransactions from "./sortPlaidTransactions";
